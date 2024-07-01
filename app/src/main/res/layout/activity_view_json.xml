@@ -6,17 +6,20 @@
     android:padding="16dp"
     android:background="#121212">
 
-    <ScrollView
+    <TextView
+        android:id="@+id/jsonTextView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#121212"
+        android:textColor="#FFFFFF"
+        android:textIsSelectable="true" />
 
-        <TextView
-            android:id="@+id/jsonTextView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#FFFFFF"
-            android:padding="8dp"
-            android:background="#424242"
-            android:textIsSelectable="true" />
-    </ScrollView>
+    <Button
+        android:id="@+id/clearJsonButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Clear JSON"
+        android:background="#424242"
+        android:textColor="#FFFFFF" />
 </LinearLayout>

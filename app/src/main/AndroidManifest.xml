@@ -10,7 +10,7 @@
         android:theme="@style/Theme.Journal">
 
         <activity
-            android:name=".MainActivity"
+            android:name=".EntryEditorActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -18,7 +18,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".FileListActivity"></activity>
+        <activity android:name=".EntryListActivity"></activity>
         <activity android:name=".ViewJsonActivity"></activity>
 
         <provider

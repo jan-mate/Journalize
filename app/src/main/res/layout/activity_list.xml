@@ -18,7 +18,7 @@
         android:id="@+id/deleteButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete Selected Files"
+        android:text="Delete Selected Entries"
         android:enabled="false"
         android:background="#424242"
         android:textColor="#FFFFFF" />

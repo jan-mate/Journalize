@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#121212"
-    tools:context=".MainActivity">
+    tools:context=".EntryEditorActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,7 +14,7 @@
         android:gravity="center">
 
         <Button
-            android:id="@+id/newFileButton"
+            android:id="@+id/newEntryButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -23,7 +23,7 @@
             android:textColor="#FFFFFF" />
 
         <Button
-            android:id="@+id/lastFileButton"
+            android:id="@+id/lastEntryButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -42,7 +42,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/currentFileTextView"
+        android:id="@+id/currentEntryTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text=""
@@ -56,7 +56,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:gravity="top|start"
-        android:hint="Write something here"
+        android:hint=""
         android:inputType="textMultiLine"
         android:overScrollMode="always"
         android:scrollbars="vertical"
