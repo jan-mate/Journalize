@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#121212">
+
+    <ListView
+        android:id="@+id/fileListView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#121212"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/deleteButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete Selected Files"
+        android:enabled="false"
+        android:background="#424242"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/exportButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Export to JSON"
+        android:background="#424242"
+        android:textColor="#FFFFFF" />
+
+    <Button
+        android:id="@+id/viewJsonButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View JSON"
+        android:background="#424242"
+        android:textColor="#FFFFFF" />
+</LinearLayout>
