@@ -3,6 +3,8 @@ package com.example.journal
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -30,7 +32,10 @@ class EntryEditorActivity : AppCompatActivity() {
 
     companion object {
         var entries = mutableListOf<EntryData>()
+        const val PREFS_NAME = "JournalPrefs"
+        const val LAST_OPENED_TIME = "lastOpenedTime"
     }
+
 
     private var currentEntryId: String? = null
 
@@ -75,6 +80,43 @@ class EntryEditorActivity : AppCompatActivity() {
         handleIntent()
         showKeyboard(editText)
     }
+
+    override fun onPause() {
+        super.onPause()
+
+        // Store the current time as the last opened time
+        val currentTime = System.currentTimeMillis()
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putLong(LAST_OPENED_TIME, currentTime)
+        editor.apply()
+    }
+
+
+
+    override fun onResume() {
+        super.onResume()
+
+        // Get the current time
+        val currentTime = System.currentTimeMillis()
+
+        // Retrieve the last opened time from shared preferences
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
+
+        // Check if the difference is more than 60 seconds
+        if (currentTime - lastOpenedTime > 60000) {
+            createNewEntry()
+            editText.text.clear()  // Clear the text in the EditText
+        }
+
+        // Store the current time as the last opened time
+        val editor = sharedPreferences.edit()
+        editor.putLong(LAST_OPENED_TIME, currentTime)
+        editor.apply()
+    }
+
+
 
     private fun loadEntries() {
         val jsonFile = File(filesDir, "entries_log.json")
@@ -195,6 +237,7 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
     }
+
 
     data class EntryData(val created: String, var modified: String, var content: String)
 }
