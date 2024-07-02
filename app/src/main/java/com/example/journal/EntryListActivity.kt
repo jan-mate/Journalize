@@ -1,8 +1,7 @@
 package com.example.journal
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
@@ -33,6 +32,12 @@ class EntryListActivity : AppCompatActivity() {
     private var selectedEntries = mutableListOf<String>()
     private var entryListAdapter: EntryListAdapter? = null
 
+    companion object {
+        const val PREFS_NAME = "JournalPrefs"
+        const val LAST_OPENED_TIME = "lastOpenedTime"
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
@@ -42,6 +47,8 @@ class EntryListActivity : AppCompatActivity() {
         exportButton = findViewById(R.id.exportButton)
         viewJsonButton = findViewById(R.id.viewJsonButton)
         searchView = findViewById(R.id.searchView)
+
+
 
         loadEntries()
 
@@ -79,6 +86,42 @@ class EntryListActivity : AppCompatActivity() {
         searchView.requestFocus()
         showKeyboard(searchView)
     }
+
+    override fun onPause() {
+        super.onPause()
+
+        // Store the current time as the last opened time
+        val currentTime = System.currentTimeMillis()
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putLong(LAST_OPENED_TIME, currentTime)
+        editor.apply()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        // Get the current time
+        val currentTime = System.currentTimeMillis()
+
+        // Retrieve the last opened time from shared preferences
+        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
+
+        // Check if the difference is more than 3 seconds
+        if (currentTime - lastOpenedTime > 3000) {
+            val intent = Intent(this, EntryEditorActivity::class.java)
+            intent.putExtra("new_entry", true)
+            startActivity(intent)
+            finish()
+        }
+
+        // Store the current time as the last opened time
+        val editor = sharedPreferences.edit()
+        editor.putLong(LAST_OPENED_TIME, currentTime)
+        editor.apply()
+    }
+
 
     private fun showKeyboard(view: View) {
         view.requestFocus()
