@@ -18,7 +18,11 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".EntryListActivity"></activity>
+        <activity
+            android:name=".EntryListActivity"
+            android:windowSoftInputMode="adjustPan">
+        </activity>
+
         <activity android:name=".ViewJsonActivity"></activity>
 
         <provider

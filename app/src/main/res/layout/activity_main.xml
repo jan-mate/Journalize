@@ -7,40 +7,6 @@
     android:background="#121212"
     tools:context=".EntryEditorActivity">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/newEntryButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="New"
-            android:background="#424242"
-            android:textColor="#FFFFFF" />
-
-        <Button
-            android:id="@+id/lastEntryButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Last"
-            android:background="#424242"
-            android:textColor="#FFFFFF" />
-
-        <Button
-            android:id="@+id/viewFilesButton"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="Old"
-            android:background="#424242"
-            android:textColor="#FFFFFF" />
-    </LinearLayout>
-
     <TextView
         android:id="@+id/currentEntryTextView"
         android:layout_width="match_parent"
@@ -63,4 +29,39 @@
         android:padding="16dp"
         android:textColor="#FFFFFF"
         android:background="#121212" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_gravity="bottom">
+
+        <Button
+            android:id="@+id/newEntryButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="New"
+            android:background="#424242"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/lastEntryButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Last"
+            android:background="#424242"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/viewFilesButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Old"
+            android:background="#424242"
+            android:textColor="#FFFFFF" />
+    </LinearLayout>
 </LinearLayout>

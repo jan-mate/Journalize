@@ -27,7 +27,6 @@ class EntryEditorActivity : AppCompatActivity() {
     private lateinit var newEntryButton: Button
     private lateinit var lastEntryButton: Button
     private lateinit var currentEntryTextView: TextView
-    private lateinit var clearJsonButton: Button
 
     companion object {
         var entries = mutableListOf<EntryData>()
@@ -53,6 +52,7 @@ class EntryEditorActivity : AppCompatActivity() {
         newEntryButton.setOnClickListener {
             createNewEntry()
             editText.text.clear()
+            showKeyboard(editText)
         }
 
         lastEntryButton.setOnClickListener {
@@ -72,7 +72,7 @@ class EntryEditorActivity : AppCompatActivity() {
         })
 
         loadEntries()
-        createNewEntry()
+        handleIntent()
         showKeyboard(editText)
     }
 
@@ -94,6 +94,15 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun handleIntent() {
+        val entryId = intent.getStringExtra("entryId")
+        if (entryId != null) {
+            openEntry(entryId)
+        } else {
+            createNewEntry()
+            showKeyboard(editText)
+        }
+    }
 
     private fun createNewEntry() {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())

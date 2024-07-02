@@ -1,10 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     android:background="#121212">
+
+    <androidx.appcompat.widget.SearchView
+        android:id="@+id/searchView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:queryHint="Search content"
+        android:background="#121212"
+        app:iconifiedByDefault="false"
+        android:layout_margin="0dp"
+        android:minHeight="48dp"
+        android:maxHeight="48dp"
+        android:padding="0dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@android:color/darker_gray" />
 
     <ListView
         android:id="@+id/fileListView"
@@ -12,30 +29,50 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="#121212"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:divider="@android:color/darker_gray"
+        android:dividerHeight="1dp" />
 
-    <Button
-        android:id="@+id/deleteButton"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete Selected Entries"
-        android:enabled="false"
-        android:background="#424242"
-        android:textColor="#FFFFFF" />
+        android:layout_gravity="bottom"
+        android:background="#121212">
 
-    <Button
-        android:id="@+id/exportButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Export to JSON"
-        android:background="#424242"
-        android:textColor="#FFFFFF" />
+        <LinearLayout
+            android:id="@+id/buttonContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
 
-    <Button
-        android:id="@+id/viewJsonButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="View JSON"
-        android:background="#424242"
-        android:textColor="#FFFFFF" />
+            <Button
+                android:id="@+id/deleteButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Delete"
+                android:enabled="false"
+                android:background="#424242"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/exportButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Export"
+                android:background="#424242"
+                android:textColor="#FFFFFF" />
+
+            <Button
+                android:id="@+id/viewJsonButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="View JSON"
+                android:background="#424242"
+                android:textColor="#FFFFFF" />
+        </LinearLayout>
+    </FrameLayout>
 </LinearLayout>

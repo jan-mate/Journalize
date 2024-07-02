@@ -2,7 +2,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#424242">
+    android:background="#424242"
+    android:padding="8dp"
+    android:layout_margin="4dp">
 
     <CheckBox
         android:id="@+id/selectCheckBox"
@@ -13,24 +15,38 @@
         android:buttonTint="#E0E0E0" />
 
     <TextView
-        android:id="@+id/fileNameTextView"
-        android:layout_width="0dp"
+        android:id="@+id/entryModifiedDateTextView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Entry Name"
-        android:textSize="18sp"
-        android:textColor="#E0E0E0"
+        android:text="Modified X days ago"
+        android:textSize="12sp"
+        android:textColor="#B0B0B0"
         android:layout_alignParentStart="true"
         android:layout_marginEnd="16dp"
         android:layout_toStartOf="@id/selectCheckBox" />
 
     <TextView
-        android:id="@+id/filePreviewTextView"
+        android:id="@+id/entryCreatedDateTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Created on"
+        android:textSize="12sp"
+        android:textColor="#B0B0B0"
+        android:layout_toEndOf="@id/entryModifiedDateTextView"
+        android:layout_marginStart="128dp"
+    android:layout_alignBaseline="@id/entryModifiedDateTextView"
+    android:layout_alignParentStart="true"
+    android:layout_marginEnd="16dp"
+    android:layout_toStartOf="@id/selectCheckBox" />
+
+    <TextView
+        android:id="@+id/entryContentTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_below="@id/fileNameTextView"
-        android:text=""
-        android:textSize="14sp"
-        android:textColor="#B0B0B0"
+        android:text="Entry Content"
+        android:textSize="18sp"
+        android:textColor="#E0E0E0"
+        android:layout_below="@id/entryModifiedDateTextView"
         android:layout_alignParentStart="true"
         android:layout_marginEnd="16dp"
         android:layout_toStartOf="@id/selectCheckBox" />
