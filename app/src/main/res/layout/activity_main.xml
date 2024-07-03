@@ -16,19 +16,42 @@
         android:visibility="gone"
         android:textColor="#FFFFFF" />
 
-    <EditText
-        android:id="@+id/editText"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:gravity="top|start"
-        android:hint=""
-        android:inputType="textMultiLine"
-        android:overScrollMode="always"
-        android:scrollbars="vertical"
-        android:padding="16dp"
-        android:textColor="#FFFFFF"
-        android:background="#121212" />
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/renderedTextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="#FFFFFF"
+                android:visibility="gone"
+                android:scrollbars="vertical" />
+
+            <EditText
+                android:id="@+id/editText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="top|start"
+                android:hint=""
+                android:inputType="textMultiLine"
+                android:overScrollMode="always"
+                android:scrollbars="vertical"
+                android:padding="16dp"
+                android:textColor="#FFFFFF"
+                android:background="#121212"
+                android:minHeight="200dp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -52,6 +75,24 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Last"
+            android:background="#424242"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/mediaButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Media"
+            android:background="#424242"
+            android:textColor="#FFFFFF" />
+
+        <Button
+            android:id="@+id/renderButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Render"
             android:background="#424242"
             android:textColor="#FFFFFF" />
 
