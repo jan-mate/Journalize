@@ -21,6 +21,7 @@ import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
+import com.bumptech.glide.Glide
 
 class EntryListActivity : AppCompatActivity() {
 
@@ -208,6 +209,12 @@ class EntryListActivity : AppCompatActivity() {
             val entryCreatedDateTextView: TextView = view.findViewById(R.id.entryCreatedDateTextView)
             val entryContentTextView: TextView = view.findViewById(R.id.entryContentTextView)
             val selectCheckBox: CheckBox = view.findViewById(R.id.selectCheckBox)
+            val imageViews = listOf(
+                view.findViewById<ImageView>(R.id.entryImageView1),
+                view.findViewById<ImageView>(R.id.entryImageView2),
+                view.findViewById<ImageView>(R.id.entryImageView3),
+                view.findViewById<ImageView>(R.id.entryImageView4)
+            )
 
             val entryData = filteredEntries[position]
             val createdText = entryData.created ?: "Unknown"
@@ -216,6 +223,18 @@ class EntryListActivity : AppCompatActivity() {
             entryModifiedDateTextView.text = modifiedText
             entryCreatedDateTextView.text = formatDateWithoutSeconds(createdText)
             entryContentTextView.text = createPreviewText(entryData.content)
+
+            // Clear all ImageViews initially
+            imageViews.forEach { it.visibility = View.GONE }
+
+            // Extract and display up to 4 images
+            val imageUrls = extractImageUrls(entryData.content).take(4)
+            imageUrls.forEachIndexed { index, imageUrl ->
+                imageViews[index].visibility = View.VISIBLE
+                Glide.with(view.context)
+                    .load(Uri.parse(imageUrl))
+                    .into(imageViews[index])
+            }
 
             view.setOnClickListener {
                 val intent = Intent(this@EntryListActivity, EntryEditorActivity::class.java)
@@ -245,9 +264,15 @@ class EntryListActivity : AppCompatActivity() {
         }
 
         private fun createPreviewText(content: String): String {
-            val lines = content.split("\n").take(4)
+            val cleanedContent = removeImageMarkdown(content)
+            val lines = cleanedContent.split("\n").take(4)
             val preview = lines.joinToString("\n").take(120)
-            return if (content.length > 150 || lines.size > 3) "$preview…" else preview
+            return if (cleanedContent.length > 150 || lines.size > 3) "$preview…" else preview
+        }
+
+        private fun removeImageMarkdown(content: String): String {
+            val regex = Regex("!\\[.*?\\]\\((file://.*?)\\)")
+            return content.replace(regex, "").trim()
         }
 
         private fun formatTimeDifference(modifiedDate: String): String {
@@ -271,6 +296,11 @@ class EntryListActivity : AppCompatActivity() {
             val outputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             val date = inputFormat.parse(dateStr)
             return outputFormat.format(date)
+        }
+
+        private fun extractImageUrls(content: String): List<String> {
+            val regex = Regex("!\\[.*?\\]\\((file://.*?)\\)")
+            return regex.findAll(content).map { it.groups[1]?.value ?: "" }.filter { it.isNotEmpty() }.toList()
         }
 
         fun filter(query: String?) {
@@ -298,5 +328,6 @@ class EntryListActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
     }
+
 
 }

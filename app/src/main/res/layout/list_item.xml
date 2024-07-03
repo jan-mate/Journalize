@@ -34,20 +34,68 @@
         android:textColor="#B0B0B0"
         android:layout_toEndOf="@id/entryModifiedDateTextView"
         android:layout_marginStart="128dp"
-    android:layout_alignBaseline="@id/entryModifiedDateTextView"
-    android:layout_alignParentStart="true"
-    android:layout_marginEnd="16dp"
-    android:layout_toStartOf="@id/selectCheckBox" />
+        android:layout_alignBaseline="@id/entryModifiedDateTextView"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="16dp"
+        android:layout_toStartOf="@id/selectCheckBox" />
+
+    <LinearLayout
+        android:id="@+id/imagesContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/entryModifiedDateTextView"
+        android:orientation="horizontal"
+        android:layout_marginTop="8dp"
+        android:layout_alignParentStart="true"
+        android:layout_marginEnd="16dp"
+        android:layout_toStartOf="@id/selectCheckBox">
+
+        <ImageView
+            android:id="@+id/entryImageView1"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Entry Image 1"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/entryImageView2"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Entry Image 2"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/entryImageView3"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Entry Image 3"
+            android:layout_marginEnd="4dp"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/entryImageView4"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Entry Image 4"
+            android:visibility="gone" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/entryContentTextView"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Entry Content"
         android:textSize="18sp"
         android:textColor="#E0E0E0"
-        android:layout_below="@id/entryModifiedDateTextView"
+        android:layout_below="@id/imagesContainer"
         android:layout_alignParentStart="true"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:layout_toStartOf="@id/selectCheckBox" />
 </RelativeLayout>
