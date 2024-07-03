@@ -255,6 +255,11 @@ class EntryEditorActivity : AppCompatActivity() {
         imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
     }
 
+    private fun hideKeyboard(view: View) {
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
     private fun hasPermissions(): Boolean {
         val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             arrayOf(
@@ -297,10 +302,12 @@ class EntryEditorActivity : AppCompatActivity() {
             renderButton.text = "Edit"
             editText.visibility = View.GONE
             renderedTextView.visibility = View.VISIBLE
+            hideKeyboard(renderButton)
         } else {
             editText.visibility = View.VISIBLE
             renderedTextView.visibility = View.GONE
             renderButton.text = "Render"
+            showKeyboard(editText)
         }
         isEditMode = !isEditMode
     }
@@ -331,6 +338,7 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
     }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {

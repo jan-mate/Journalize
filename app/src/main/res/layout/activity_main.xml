@@ -46,8 +46,11 @@
                 android:inputType="textMultiLine"
                 android:overScrollMode="always"
                 android:scrollbars="vertical"
-                android:padding="16dp"
+                android:padding="0dp"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
                 android:textColor="#FFFFFF"
+                android:textSize="20sp"
                 android:background="#121212"
                 android:minHeight="200dp" />
         </LinearLayout>
@@ -67,7 +70,9 @@
             android:layout_weight="1"
             android:text="New"
             android:background="#424242"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:padding="4dp"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/lastEntryButton"
@@ -76,7 +81,9 @@
             android:layout_weight="1"
             android:text="Last"
             android:background="#424242"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:padding="4dp"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/mediaButton"
@@ -85,7 +92,9 @@
             android:layout_weight="1"
             android:text="Media"
             android:background="#424242"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:padding="4dp"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/renderButton"
@@ -94,7 +103,9 @@
             android:layout_weight="1"
             android:text="Render"
             android:background="#424242"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:padding="4dp"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/viewFilesButton"
@@ -103,6 +114,8 @@
             android:layout_weight="1"
             android:text="Old"
             android:background="#424242"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:padding="4dp"
+            android:textSize="14sp" />
     </LinearLayout>
 </LinearLayout>
