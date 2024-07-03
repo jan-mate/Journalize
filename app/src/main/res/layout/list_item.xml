@@ -83,7 +83,9 @@
             android:layout_height="64dp"
             android:scaleType="centerCrop"
             android:contentDescription="Entry Image 4"
+            android:layout_marginEnd="4dp"
             android:visibility="gone" />
+        
     </LinearLayout>
 
     <TextView

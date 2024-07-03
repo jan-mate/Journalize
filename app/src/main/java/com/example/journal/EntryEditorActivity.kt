@@ -5,12 +5,16 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
+import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -35,7 +39,9 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import androidx.exifinterface.media.ExifInterface
-
+import android.graphics.Color
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 
 class EntryEditorActivity : AppCompatActivity() {
 
@@ -47,6 +53,8 @@ class EntryEditorActivity : AppCompatActivity() {
     private lateinit var mediaButton: Button
     private lateinit var currentEntryTextView: TextView
     private lateinit var renderedTextView: TextView
+    private lateinit var locationManager: LocationManager
+    private var currentLocation: Location? = null
 
     companion object {
         var entries = mutableListOf<EntryData>()
@@ -71,6 +79,7 @@ class EntryEditorActivity : AppCompatActivity() {
         mediaButton = findViewById(R.id.mediaButton)
         currentEntryTextView = findViewById(R.id.currentEntryTextView)
         renderedTextView = findViewById(R.id.renderedTextView)
+        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
         viewFilesButton.setOnClickListener {
             val intent = Intent(this, EntryListActivity::class.java)
@@ -107,12 +116,14 @@ class EntryEditorActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 if (!s.isNullOrEmpty()) {
                     saveEntryContent(s.toString())
+                    updateTextStyles()
                 }
             }
         })
 
         loadEntries()
         handleIntent()
+        requestLocationPermissions()
         showKeyboard(editText)
     }
 
@@ -181,9 +192,16 @@ class EntryEditorActivity : AppCompatActivity() {
         currentEntryTextView.text = currentEntryId
         currentEntryTextView.visibility = TextView.VISIBLE
 
-        val newEntryData = EntryData(currentEntryId!!, currentDateTime, "")
+        val latitude = currentLocation?.latitude
+        val longitude = currentLocation?.longitude
+        val newEntryData = EntryData(currentEntryId!!, currentDateTime, "", latitude, longitude)
         entries.add(0, newEntryData)
         updateEntriesJson()
+
+        val coordinatesText = "Lat: $latitude, Lon: $longitude"
+        findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+        findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
+
         Log.d("EntryOperation", "Created new entry: $currentEntryId")
     }
 
@@ -199,7 +217,7 @@ class EntryEditorActivity : AppCompatActivity() {
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
                 dateFormat.timeZone = TimeZone.getTimeZone("UTC")
                 val currentDateTime = dateFormat.format(Date())
-                val newEntryData = EntryData(currentEntryId!!, currentDateTime, text)
+                val newEntryData = EntryData(currentEntryId!!, currentDateTime, text, currentLocation?.latitude, currentLocation?.longitude)
                 entries.add(newEntryData)
             }
             updateEntriesJson()
@@ -232,6 +250,11 @@ class EntryEditorActivity : AppCompatActivity() {
             editText.setSelection(editText.text.length)
             currentEntryTextView.text = id
             currentEntryTextView.visibility = TextView.VISIBLE
+
+            val coordinatesText = "Lat: ${entryData.latitude}, Lon: ${entryData.longitude}"
+            findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+            findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
+
             Log.d("EntryOperation", "Opened entry: $id")
         } else {
             Log.e("EntryOperation", "Entry data not found for id: $id")
@@ -295,7 +318,6 @@ class EntryEditorActivity : AppCompatActivity() {
         startActivityForResult(Intent.createChooser(intent, "Select Images"), PICK_IMAGE_REQUEST)
     }
 
-
     private fun toggleRenderMode() {
         if (isEditMode) {
             renderMarkdown()
@@ -324,18 +346,259 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+    private fun updateTextStyles() {
+        val spannable = editText.text as SpannableStringBuilder
+        val lines = spannable.split("\n")
+
+        // Clear previous styles
+        val sizeSpans = spannable.getSpans(0, spannable.length, android.text.style.RelativeSizeSpan::class.java)
+        for (span in sizeSpans) {
+            spannable.removeSpan(span)
+        }
+        val underlineSpans = spannable.getSpans(0, spannable.length, android.text.style.UnderlineSpan::class.java)
+        for (span in underlineSpans) {
+            spannable.removeSpan(span)
+        }
+        val styleSpans = spannable.getSpans(0, spannable.length, android.text.style.StyleSpan::class.java)
+        for (span in styleSpans) {
+            spannable.removeSpan(span)
+        }
+        val typefaceSpans = spannable.getSpans(0, spannable.length, android.text.style.TypefaceSpan::class.java)
+        for (span in typefaceSpans) {
+            spannable.removeSpan(span)
+        }
+        val strikethroughSpans = spannable.getSpans(0, spannable.length, android.text.style.StrikethroughSpan::class.java)
+        for (span in strikethroughSpans) {
+            spannable.removeSpan(span)
+        }
+        val bulletSpans = spannable.getSpans(0, spannable.length, android.text.style.BulletSpan::class.java)
+        for (span in bulletSpans) {
+            spannable.removeSpan(span)
+        }
+        val quoteSpans = spannable.getSpans(0, spannable.length, android.text.style.QuoteSpan::class.java)
+        for (span in quoteSpans) {
+            spannable.removeSpan(span)
+        }
+
+        var start = 0
+
+        for (line in lines) {
+            val end = start + line.length
+            when {
+                line.startsWith("# ") -> {
+                    spannable.setSpan(
+                        android.text.style.RelativeSizeSpan(2f),
+                        start,
+                        end,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    spannable.setSpan(
+                        android.text.style.UnderlineSpan(),
+                        start,
+                        end,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                line.startsWith("## ") -> {
+                    spannable.setSpan(
+                        android.text.style.RelativeSizeSpan(1.8f),
+                        start,
+                        end,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    spannable.setSpan(
+                        android.text.style.UnderlineSpan(),
+                        start,
+                        end,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+                line.startsWith("### ") -> spannable.setSpan(
+                    android.text.style.RelativeSizeSpan(1.6f),
+                    start,
+                    end,
+                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                line.startsWith("#### ") -> spannable.setSpan(
+                    android.text.style.RelativeSizeSpan(1.4f),
+                    start,
+                    end,
+                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                line.startsWith("##### ") -> spannable.setSpan(
+                    android.text.style.RelativeSizeSpan(1.2f),
+                    start,
+                    end,
+                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+                line.startsWith("###### ") -> spannable.setSpan(
+                    android.text.style.RelativeSizeSpan(1.1f),
+                    start,
+                    end,
+                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+
+                else -> spannable.setSpan(
+                    android.text.style.RelativeSizeSpan(1f),
+                    start,
+                    end,
+                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
+            }
+
+            // Handle bold-italic text within the line (***text***)
+            var boldItalicStart = line.indexOf("***", 0)
+            while (boldItalicStart != -1) {
+                val boldItalicEnd = line.indexOf("***", boldItalicStart + 3)
+                if (boldItalicEnd != -1) {
+                    spannable.setSpan(
+                        android.text.style.StyleSpan(android.graphics.Typeface.BOLD_ITALIC),
+                        start + boldItalicStart,
+                        start + boldItalicEnd + 3,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    boldItalicStart = line.indexOf("***", boldItalicEnd + 3)
+                } else {
+                    boldItalicStart = -1
+                }
+            }
+
+            // Handle bold text within the line (**text**)
+            var boldStart = line.indexOf("**", 0)
+            while (boldStart != -1) {
+                val boldEnd = line.indexOf("**", boldStart + 2)
+                if (boldEnd != -1 && (boldItalicStart == -1 || boldStart < boldItalicStart || boldStart > boldItalicStart + 2)) {
+                    spannable.setSpan(
+                        android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
+                        start + boldStart,
+                        start + boldEnd + 2,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    boldStart = line.indexOf("**", boldEnd + 2)
+                } else {
+                    boldStart = -1
+                }
+            }
+
+            // Handle italic text within the line (*text* and _text_)
+            var italicStart = line.indexOf("*", 0)
+            while (italicStart != -1) {
+                val italicEnd = line.indexOf("*", italicStart + 1)
+                if (italicEnd != -1 && (boldStart == -1 || italicStart < boldStart || italicStart > boldStart + 1)) {
+                    spannable.setSpan(
+                        android.text.style.StyleSpan(android.graphics.Typeface.ITALIC),
+                        start + italicStart,
+                        start + italicEnd + 1,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    italicStart = line.indexOf("*", italicEnd + 1)
+                } else {
+                    italicStart = -1
+                }
+            }
+
+            italicStart = line.indexOf("_", 0)
+            while (italicStart != -1) {
+                val italicEnd = line.indexOf("_", italicStart + 1)
+                if (italicEnd != -1 && (boldStart == -1 || italicStart < boldStart || italicStart > boldStart + 1)) {
+                    spannable.setSpan(
+                        android.text.style.StyleSpan(android.graphics.Typeface.ITALIC),
+                        start + italicStart,
+                        start + italicEnd + 1,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    italicStart = line.indexOf("_", italicEnd + 1)
+                } else {
+                    italicStart = -1
+                }
+            }
+
+            // Handle strikethrough text within the line (~~text~~)
+            var strikeStart = line.indexOf("~~", 0)
+            while (strikeStart != -1) {
+                val strikeEnd = line.indexOf("~~", strikeStart + 2)
+                if (strikeEnd != -1) {
+                    spannable.setSpan(
+                        android.text.style.StrikethroughSpan(),
+                        start + strikeStart,
+                        start + strikeEnd + 2,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    strikeStart = line.indexOf("~~", strikeEnd + 2)
+                } else {
+                    strikeStart = -1
+                }
+            }
+
+            // Handle custom styled text within the line (`text`)
+            var codeStart = line.indexOf("`", 0)
+            while (codeStart != -1) {
+                val codeEnd = line.indexOf("`", codeStart + 1)
+                if (codeEnd != -1) {
+                    spannable.setSpan(
+                        android.text.style.TypefaceSpan("monospace"),
+                        start + codeStart,
+                        start + codeEnd + 1,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    codeStart = line.indexOf("`", codeEnd + 1)
+                } else {
+                    codeStart = -1
+                }
+            }
+
+            // Handle file text within the line (![text](file://path))
+            var fileStart = line.indexOf("![", 0)
+            while (fileStart != -1) {
+                val fileEnd = line.indexOf(")", fileStart + 2)
+                if (fileEnd != -1) {
+                    spannable.setSpan(
+                        ForegroundColorSpan(Color.GRAY),
+                        start + fileStart,
+                        start + fileEnd + 1,
+                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                    fileStart = line.indexOf("![", fileEnd + 1)
+                } else {
+                    fileStart = -1
+                }
+            }
+
+            start = end + 1
+        }
+    }
+
+    private fun requestLocationPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_CODE_PERMISSIONS)
+        } else {
+            getCurrentLocation()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
-            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
-                selectImage()
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation()
             } else {
                 // Permission denied, show a message to the user
             }
+        }
+    }
+
+    private fun getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, object : LocationListener {
+                override fun onLocationChanged(location: Location) {
+                    currentLocation = location
+                    locationManager.removeUpdates(this)
+                }
+
+                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                override fun onProviderEnabled(provider: String) {}
+                override fun onProviderDisabled(provider: String) {}
+            })
         }
     }
 
@@ -429,5 +692,11 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-    data class EntryData(val created: String, var modified: String, var content: String)
+    data class EntryData(
+        val created: String,
+        var modified: String,
+        var content: String,
+        var latitude: Double?,
+        var longitude: Double?
+    )
 }
