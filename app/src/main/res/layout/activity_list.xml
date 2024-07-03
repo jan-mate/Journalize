@@ -56,14 +56,6 @@
                 android:background="#424242"
                 android:textColor="#FFFFFF" />
 
-            <Button
-                android:id="@+id/exportButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Export"
-                android:background="#424242"
-                android:textColor="#FFFFFF" />
 
             <Button
                 android:id="@+id/viewJsonButton"

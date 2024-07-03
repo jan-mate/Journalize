@@ -3,23 +3,92 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:background="#121212">
+    android:background="#121212"
+    android:padding="0dp">
 
-    <TextView
-        android:id="@+id/jsonTextView"
+    <EditText
+        android:id="@+id/jsonEditText"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="#121212"
         android:textColor="#FFFFFF"
-        android:textIsSelectable="true" />
+        android:inputType="textMultiLine"
+        android:gravity="top"
+        android:padding="8dp"
+        android:scrollbars="vertical"
+        android:overScrollMode="always"
+        android:hint="Edit JSON here"
+        android:textIsSelectable="true"
+        android:textSize="18sp" />
 
-    <Button
-        android:id="@+id/clearJsonButton"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Clear JSON"
-        android:background="#424242"
-        android:textColor="#FFFFFF" />
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_gravity="bottom"
+        android:padding="0dp"
+        android:layout_margin="0dp">
+
+        <Button
+            android:id="@+id/deleteJsonButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Delete"
+            android:background="#424242"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:layout_margin="0dp" />
+
+        <Button
+            android:id="@+id/importJsonButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Import"
+            android:background="#424242"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:layout_margin="0dp" />
+
+        <Button
+            android:id="@+id/shareJsonButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Share"
+            android:background="#424242"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:layout_margin="0dp" />
+
+        <Button
+            android:id="@+id/saveJsonButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Save"
+            android:background="#424242"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:layout_margin="0dp" />
+
+        <Button
+            android:id="@+id/applyJsonButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Apply"
+            android:background="#424242"
+            android:textColor="#FFFFFF"
+            android:padding="8dp"
+            android:textSize="14sp"
+            android:layout_margin="0dp" />
+    </LinearLayout>
 </LinearLayout>

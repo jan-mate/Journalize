@@ -45,7 +45,6 @@ class EntryListActivity : AppCompatActivity() {
 
         entryListView = findViewById(R.id.fileListView)
         deleteButton = findViewById(R.id.deleteButton)
-        exportButton = findViewById(R.id.exportButton)
         viewJsonButton = findViewById(R.id.viewJsonButton)
         searchView = findViewById(R.id.searchView)
 
@@ -55,10 +54,6 @@ class EntryListActivity : AppCompatActivity() {
 
         deleteButton.setOnClickListener {
             deleteSelectedEntries()
-        }
-
-        exportButton.setOnClickListener {
-            shareEntriesJson()
         }
 
         viewJsonButton.setOnClickListener {
