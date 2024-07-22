@@ -56,6 +56,7 @@ class EntryListActivity : AppCompatActivity() {
             deleteSelectedEntries()
         }
 
+
         viewJsonButton.setOnClickListener {
             val intent = Intent(this, ViewJsonActivity::class.java)
             startActivity(intent)
@@ -204,6 +205,7 @@ class EntryListActivity : AppCompatActivity() {
             val entryCreatedDateTextView: TextView = view.findViewById(R.id.entryCreatedDateTextView)
             val entryContentTextView: TextView = view.findViewById(R.id.entryContentTextView)
             val selectCheckBox: CheckBox = view.findViewById(R.id.selectCheckBox)
+
             val imageViews = listOf(
                 view.findViewById<ImageView>(R.id.entryImageView1),
                 view.findViewById<ImageView>(R.id.entryImageView2),
@@ -258,6 +260,8 @@ class EntryListActivity : AppCompatActivity() {
             return view
         }
 
+
+
         private fun createPreviewText(content: String): String {
             val cleanedContent = removeImageMarkdown(content)
             val lines = cleanedContent.split("\n").take(4)
@@ -272,7 +276,9 @@ class EntryListActivity : AppCompatActivity() {
 
         private fun formatTimeDifference(modifiedDate: String): String {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getTimeZone("UTC")
             val date = dateFormat.parse(modifiedDate)
+            val localDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             val diff = Date().time - date.time
 
             val days = TimeUnit.MILLISECONDS.toDays(diff)
@@ -288,8 +294,10 @@ class EntryListActivity : AppCompatActivity() {
 
         private fun formatDateWithoutSeconds(dateStr: String): String {
             val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
+            inputFormat.timeZone = TimeZone.getTimeZone("UTC")
             val outputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             val date = inputFormat.parse(dateStr)
+            outputFormat.timeZone = TimeZone.getDefault()
             return outputFormat.format(date)
         }
 
@@ -323,6 +331,5 @@ class EntryListActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
     }
-
 
 }

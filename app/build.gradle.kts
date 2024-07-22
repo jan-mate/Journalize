@@ -49,7 +49,7 @@ dependencies {
     implementation("androidx.exifinterface:exifinterface:1.3.3")
     implementation("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
-
+    implementation("androidx.constraintlayout:constraintlayout:2.0.4")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

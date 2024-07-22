@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -15,6 +14,14 @@
         android:padding="8dp"
         android:visibility="gone"
         android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/coordinatesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="8dp" />
+
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"

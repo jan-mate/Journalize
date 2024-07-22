@@ -55,6 +55,7 @@ class EntryEditorActivity : AppCompatActivity() {
     private lateinit var renderedTextView: TextView
     private lateinit var locationManager: LocationManager
     private var currentLocation: Location? = null
+    private var lastKnownLocation: Location? = null
 
     companion object {
         var entries = mutableListOf<EntryData>()
@@ -71,6 +72,7 @@ class EntryEditorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialize views
         editText = findViewById(R.id.editText)
         viewFilesButton = findViewById(R.id.viewFilesButton)
         newEntryButton = findViewById(R.id.newEntryButton)
@@ -81,6 +83,7 @@ class EntryEditorActivity : AppCompatActivity() {
         renderedTextView = findViewById(R.id.renderedTextView)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
 
+        // Set up button click listeners
         viewFilesButton.setOnClickListener {
             val intent = Intent(this, EntryListActivity::class.java)
             startActivityForResult(intent, 1)
@@ -108,11 +111,10 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
 
+        // Set up text watcher
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
-
             override fun afterTextChanged(s: Editable?) {
                 if (!s.isNullOrEmpty()) {
                     saveEntryContent(s.toString())
@@ -121,11 +123,18 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         })
 
+        // Load entries and handle intent
         loadEntries()
         handleIntent()
+
+        // Request location permissions and get the current location
         requestLocationPermissions()
+        getLastKnownLocation()  // Ensure we try to get the last known location on app startup
+
+        // Show keyboard initially
         showKeyboard(editText)
     }
+
 
     override fun onPause() {
         super.onPause()
@@ -192,17 +201,118 @@ class EntryEditorActivity : AppCompatActivity() {
         currentEntryTextView.text = currentEntryId
         currentEntryTextView.visibility = TextView.VISIBLE
 
-        val latitude = currentLocation?.latitude
-        val longitude = currentLocation?.longitude
-        val newEntryData = EntryData(currentEntryId!!, currentDateTime, "", latitude, longitude)
+        val latitude = lastKnownLocation?.latitude
+        val longitude = lastKnownLocation?.longitude
+
+        val newEntryData = EntryData(
+            currentEntryId!!,
+            currentDateTime,
+            "",
+            coords = null,
+            last_coords = if (latitude != null && longitude != null) String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude) else null
+        )
         entries.add(0, newEntryData)
         updateEntriesJson()
 
-        val coordinatesText = "Lat: $latitude, Lon: $longitude"
+        val coordinatesText = if (latitude != null && longitude != null) {
+            String.format(Locale.getDefault(), "%+.6f %+.6f", latitude, longitude)
+        } else {
+            "updating..."
+        }
         findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
         findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
 
         Log.d("EntryOperation", "Created new entry: $currentEntryId")
+
+        // Request the current location to update the entry
+        requestSingleLocationUpdate()
+    }
+
+    private fun getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+            // Use the most recent known location
+            if (gpsLocation != null && networkLocation != null) {
+                currentLocation = if (gpsLocation.time > networkLocation.time) gpsLocation else networkLocation
+            } else if (gpsLocation != null) {
+                currentLocation = gpsLocation
+            } else if (networkLocation != null) {
+                currentLocation = networkLocation
+            }
+
+            if (currentLocation != null) {
+                updateCurrentLocationUI(currentLocation!!)
+            }
+        } else {
+            Log.e("LocationUpdate", "Location permission not granted")
+        }
+    }
+
+    private fun getLastKnownLocation() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
+            val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+            // Use the most recent known location
+            if (gpsLocation != null && networkLocation != null) {
+                lastKnownLocation = if (gpsLocation.time > networkLocation.time) gpsLocation else networkLocation
+            } else if (gpsLocation != null) {
+                lastKnownLocation = gpsLocation
+            } else if (networkLocation != null) {
+                lastKnownLocation = networkLocation
+            }
+        } else {
+            Log.e("LocationUpdate", "Location permission not granted")
+        }
+    }
+
+    private fun requestSingleLocationUpdate() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null)
+            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null)
+        } else {
+            Log.e("LocationUpdate", "Location permission not granted")
+        }
+    }
+
+    private val locationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {
+            currentLocation = location
+            Log.d("LocationUpdate", "Location updated: $location")
+
+            // Update the latest entry with the current location only once
+            val latestEntry = entries.firstOrNull { it.created == currentEntryId }
+            if (latestEntry != null && latestEntry.coords == null) {
+                latestEntry.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
+                updateEntriesJson()
+
+                val coordinatesText = String.format(
+                    Locale.getDefault(),
+                    "%.6f %.6f",
+                    location.latitude,
+                    location.longitude
+                )
+                findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+                Log.d("EntryOperation", "Updated entry with location: $currentEntryId")
+            } else {
+                Log.e("EntryOperation", "No entry found with id: $currentEntryId or coordinates already set")
+            }
+
+            // Remove updates after setting the location
+            locationManager.removeUpdates(this)
+        }
+
+        override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
+    }
+
+
+    private fun updateCurrentLocationUI(location: Location) {
+        val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
+        findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
     }
 
     private fun saveEntryContent(text: String) {
@@ -217,7 +327,13 @@ class EntryEditorActivity : AppCompatActivity() {
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
                 dateFormat.timeZone = TimeZone.getTimeZone("UTC")
                 val currentDateTime = dateFormat.format(Date())
-                val newEntryData = EntryData(currentEntryId!!, currentDateTime, text, currentLocation?.latitude, currentLocation?.longitude)
+                val newEntryData = EntryData(
+                    currentEntryId!!,
+                    currentDateTime,
+                    text,
+                    coords = null,
+                    last_coords = if (lastKnownLocation != null) String.format("%+.6f %+.6f", lastKnownLocation!!.latitude, lastKnownLocation!!.longitude) else null
+                )
                 entries.add(newEntryData)
             }
             updateEntriesJson()
@@ -243,25 +359,32 @@ class EntryEditorActivity : AppCompatActivity() {
     }
 
     private fun openEntry(id: String) {
-        currentEntryId = id
-        val entryData = entries.find { it.created == id }
-        if (entryData != null) {
-            editText.setText(entryData.content)
-            editText.setSelection(editText.text.length)
-            currentEntryTextView.text = id
-            currentEntryTextView.visibility = TextView.VISIBLE
+            currentEntryId = id
+            val entryData = entries.find { it.created == id }
+            if (entryData != null) {
+                editText.setText(entryData.content)
+                editText.setSelection(editText.text.length)
+                currentEntryTextView.text = id
+                currentEntryTextView.visibility = TextView.VISIBLE
 
-            val coordinatesText = "Lat: ${entryData.latitude}, Lon: ${entryData.longitude}"
-            findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
-            findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
+                val coordinatesText = if (entryData.coords != null) {
+                    entryData.coords
+                } else if (entryData.last_coords != null) {
+                    "≈ ${entryData.last_coords}"
+                } else {
+                    "updating..."
+                }
+                findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+                findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
 
-            Log.d("EntryOperation", "Opened entry: $id")
-        } else {
-            Log.e("EntryOperation", "Entry data not found for id: $id")
+                Log.d("EntryOperation", "Opened entry: $id")
+            } else {
+                Log.e("EntryOperation", "Entry data not found for id: $id")
+            }
         }
-    }
 
-    private fun openPreviousEntry() {
+
+        private fun openPreviousEntry() {
         val sortedEntries = entries.sortedByDescending { it.modified }
         val lastEditedEntry = sortedEntries.find { it.created != currentEntryId }
 
@@ -582,23 +705,8 @@ class EntryEditorActivity : AppCompatActivity() {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 getCurrentLocation()
             } else {
-                // Permission denied, show a message to the user
+                // Permission denied, handle accordingly
             }
-        }
-    }
-
-    private fun getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, object : LocationListener {
-                override fun onLocationChanged(location: Location) {
-                    currentLocation = location
-                    locationManager.removeUpdates(this)
-                }
-
-                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                override fun onProviderEnabled(provider: String) {}
-                override fun onProviderDisabled(provider: String) {}
-            })
         }
     }
 
@@ -696,7 +804,7 @@ class EntryEditorActivity : AppCompatActivity() {
         val created: String,
         var modified: String,
         var content: String,
-        var latitude: Double?,
-        var longitude: Double?
+        var coords: String?,
+        var last_coords: String?
     )
 }
