@@ -1,32 +1,37 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="#121212"
     tools:context=".EntryEditorActivity">
 
     <TextView
         android:id="@+id/currentEntryTextView"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""
         android:padding="8dp"
         android:visibility="gone"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="6dp" />
 
     <TextView
         android:id="@+id/coordinatesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#FFFFFF"
-        android:layout_marginTop="8dp" />
-
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="6dp"
+        android:padding="8dp" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
+        android:layout_below="@id/currentEntryTextView"
         android:fillViewport="true">
 
         <LinearLayout
@@ -68,7 +73,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
-        android:layout_gravity="bottom">
+        android:layout_alignParentBottom="true">
 
         <Button
             android:id="@+id/newEntryButton"
@@ -125,4 +130,4 @@
             android:padding="4dp"
             android:textSize="14sp" />
     </LinearLayout>
-</LinearLayout>
+</RelativeLayout>

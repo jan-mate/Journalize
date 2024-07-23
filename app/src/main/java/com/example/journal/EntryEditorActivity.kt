@@ -5,6 +5,9 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -14,7 +17,6 @@ import android.os.Bundle
 import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
-import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
@@ -24,6 +26,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.exifinterface.media.ExifInterface
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import io.noties.markwon.Markwon
@@ -35,13 +38,6 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
-import androidx.exifinterface.media.ExifInterface
-import android.graphics.Color
-import android.text.SpannableStringBuilder
-import android.text.style.ForegroundColorSpan
 
 class EntryEditorActivity : AppCompatActivity() {
 
@@ -118,7 +114,7 @@ class EntryEditorActivity : AppCompatActivity() {
             override fun afterTextChanged(s: Editable?) {
                 if (!s.isNullOrEmpty()) {
                     saveEntryContent(s.toString())
-                    updateTextStyles()
+                    MarkdownUtils.updateTextStyles(editText)
                 }
             }
         })
@@ -128,13 +124,12 @@ class EntryEditorActivity : AppCompatActivity() {
         handleIntent()
 
         // Request location permissions and get the current location
-        requestLocationPermissions()
-        getLastKnownLocation()  // Ensure we try to get the last known location on app startup
+        LocationUtils.requestLocationPermissions(this, locationManager)
+        lastKnownLocation = LocationUtils.getLastKnownLocation(this, locationManager) // Ensure we try to get the last known location on app startup
 
         // Show keyboard initially
         showKeyboard(editText)
     }
-
 
     override fun onPause() {
         super.onPause()
@@ -215,7 +210,7 @@ class EntryEditorActivity : AppCompatActivity() {
         updateEntriesJson()
 
         val coordinatesText = if (latitude != null && longitude != null) {
-            String.format(Locale.getDefault(), "%+.6f %+.6f", latitude, longitude)
+            "≈ ${String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude)}"
         } else {
             "updating..."
         }
@@ -225,56 +220,7 @@ class EntryEditorActivity : AppCompatActivity() {
         Log.d("EntryOperation", "Created new entry: $currentEntryId")
 
         // Request the current location to update the entry
-        requestSingleLocationUpdate()
-    }
-
-    private fun getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-            // Use the most recent known location
-            if (gpsLocation != null && networkLocation != null) {
-                currentLocation = if (gpsLocation.time > networkLocation.time) gpsLocation else networkLocation
-            } else if (gpsLocation != null) {
-                currentLocation = gpsLocation
-            } else if (networkLocation != null) {
-                currentLocation = networkLocation
-            }
-
-            if (currentLocation != null) {
-                updateCurrentLocationUI(currentLocation!!)
-            }
-        } else {
-            Log.e("LocationUpdate", "Location permission not granted")
-        }
-    }
-
-    private fun getLastKnownLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-            val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-            // Use the most recent known location
-            if (gpsLocation != null && networkLocation != null) {
-                lastKnownLocation = if (gpsLocation.time > networkLocation.time) gpsLocation else networkLocation
-            } else if (gpsLocation != null) {
-                lastKnownLocation = gpsLocation
-            } else if (networkLocation != null) {
-                lastKnownLocation = networkLocation
-            }
-        } else {
-            Log.e("LocationUpdate", "Location permission not granted")
-        }
-    }
-
-    private fun requestSingleLocationUpdate() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null)
-            locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null)
-        } else {
-            Log.e("LocationUpdate", "Location permission not granted")
-        }
+        LocationUtils.requestSingleLocationUpdate(this, locationManager, locationListener)
     }
 
     private val locationListener = object : LocationListener {
@@ -309,12 +255,6 @@ class EntryEditorActivity : AppCompatActivity() {
         override fun onProviderDisabled(provider: String) {}
     }
 
-
-    private fun updateCurrentLocationUI(location: Location) {
-        val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-        findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
-    }
-
     private fun saveEntryContent(text: String) {
         if (text.isNotEmpty() && currentEntryId != null) {
             val entryData = entries.find { it.created == currentEntryId }
@@ -332,7 +272,7 @@ class EntryEditorActivity : AppCompatActivity() {
                     currentDateTime,
                     text,
                     coords = null,
-                    last_coords = if (lastKnownLocation != null) String.format("%+.6f %+.6f", lastKnownLocation!!.latitude, lastKnownLocation!!.longitude) else null
+                    last_coords = if (lastKnownLocation != null) String.format("%.6f %.6f", lastKnownLocation!!.latitude, lastKnownLocation!!.longitude) else null
                 )
                 entries.add(newEntryData)
             }
@@ -359,32 +299,31 @@ class EntryEditorActivity : AppCompatActivity() {
     }
 
     private fun openEntry(id: String) {
-            currentEntryId = id
-            val entryData = entries.find { it.created == id }
-            if (entryData != null) {
-                editText.setText(entryData.content)
-                editText.setSelection(editText.text.length)
-                currentEntryTextView.text = id
-                currentEntryTextView.visibility = TextView.VISIBLE
+        currentEntryId = id
+        val entryData = entries.find { it.created == id }
+        if (entryData != null) {
+            editText.setText(entryData.content)
+            editText.setSelection(editText.text.length)
+            currentEntryTextView.text = id
+            currentEntryTextView.visibility = TextView.VISIBLE
 
-                val coordinatesText = if (entryData.coords != null) {
-                    entryData.coords
-                } else if (entryData.last_coords != null) {
-                    "≈ ${entryData.last_coords}"
-                } else {
-                    "updating..."
-                }
-                findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
-                findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
-
-                Log.d("EntryOperation", "Opened entry: $id")
+            val coordinatesText = if (entryData.coords != null) {
+                entryData.coords
+            } else if (entryData.last_coords != null) {
+                "≈ ${entryData.last_coords}"
             } else {
-                Log.e("EntryOperation", "Entry data not found for id: $id")
+                "updating..."
             }
+            findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+            findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
+
+            Log.d("EntryOperation", "Opened entry: $id")
+        } else {
+            Log.e("EntryOperation", "Entry data not found for id: $id")
         }
+    }
 
-
-        private fun openPreviousEntry() {
+    private fun openPreviousEntry() {
         val sortedEntries = entries.sortedByDescending { it.modified }
         val lastEditedEntry = sortedEntries.find { it.created != currentEntryId }
 
@@ -469,241 +408,18 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun updateTextStyles() {
-        val spannable = editText.text as SpannableStringBuilder
-        val lines = spannable.split("\n")
-
-        // Clear previous styles
-        val sizeSpans = spannable.getSpans(0, spannable.length, android.text.style.RelativeSizeSpan::class.java)
-        for (span in sizeSpans) {
-            spannable.removeSpan(span)
-        }
-        val underlineSpans = spannable.getSpans(0, spannable.length, android.text.style.UnderlineSpan::class.java)
-        for (span in underlineSpans) {
-            spannable.removeSpan(span)
-        }
-        val styleSpans = spannable.getSpans(0, spannable.length, android.text.style.StyleSpan::class.java)
-        for (span in styleSpans) {
-            spannable.removeSpan(span)
-        }
-        val typefaceSpans = spannable.getSpans(0, spannable.length, android.text.style.TypefaceSpan::class.java)
-        for (span in typefaceSpans) {
-            spannable.removeSpan(span)
-        }
-        val strikethroughSpans = spannable.getSpans(0, spannable.length, android.text.style.StrikethroughSpan::class.java)
-        for (span in strikethroughSpans) {
-            spannable.removeSpan(span)
-        }
-        val bulletSpans = spannable.getSpans(0, spannable.length, android.text.style.BulletSpan::class.java)
-        for (span in bulletSpans) {
-            spannable.removeSpan(span)
-        }
-        val quoteSpans = spannable.getSpans(0, spannable.length, android.text.style.QuoteSpan::class.java)
-        for (span in quoteSpans) {
-            spannable.removeSpan(span)
-        }
-
-        var start = 0
-
-        for (line in lines) {
-            val end = start + line.length
-            when {
-                line.startsWith("# ") -> {
-                    spannable.setSpan(
-                        android.text.style.RelativeSizeSpan(2f),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    spannable.setSpan(
-                        android.text.style.UnderlineSpan(),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
-                line.startsWith("## ") -> {
-                    spannable.setSpan(
-                        android.text.style.RelativeSizeSpan(1.8f),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    spannable.setSpan(
-                        android.text.style.UnderlineSpan(),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
-                line.startsWith("### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.6f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                line.startsWith("#### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.4f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                line.startsWith("##### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.2f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                line.startsWith("###### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.1f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-
-                else -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-            }
-
-            // Handle bold-italic text within the line (***text***)
-            var boldItalicStart = line.indexOf("***", 0)
-            while (boldItalicStart != -1) {
-                val boldItalicEnd = line.indexOf("***", boldItalicStart + 3)
-                if (boldItalicEnd != -1) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.BOLD_ITALIC),
-                        start + boldItalicStart,
-                        start + boldItalicEnd + 3,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    boldItalicStart = line.indexOf("***", boldItalicEnd + 3)
-                } else {
-                    boldItalicStart = -1
-                }
-            }
-
-            // Handle bold text within the line (**text**)
-            var boldStart = line.indexOf("**", 0)
-            while (boldStart != -1) {
-                val boldEnd = line.indexOf("**", boldStart + 2)
-                if (boldEnd != -1 && (boldItalicStart == -1 || boldStart < boldItalicStart || boldStart > boldItalicStart + 2)) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
-                        start + boldStart,
-                        start + boldEnd + 2,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    boldStart = line.indexOf("**", boldEnd + 2)
-                } else {
-                    boldStart = -1
-                }
-            }
-
-            // Handle italic text within the line (*text* and _text_)
-            var italicStart = line.indexOf("*", 0)
-            while (italicStart != -1) {
-                val italicEnd = line.indexOf("*", italicStart + 1)
-                if (italicEnd != -1 && (boldStart == -1 || italicStart < boldStart || italicStart > boldStart + 1)) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.ITALIC),
-                        start + italicStart,
-                        start + italicEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    italicStart = line.indexOf("*", italicEnd + 1)
-                } else {
-                    italicStart = -1
-                }
-            }
-
-            italicStart = line.indexOf("_", 0)
-            while (italicStart != -1) {
-                val italicEnd = line.indexOf("_", italicStart + 1)
-                if (italicEnd != -1 && (boldStart == -1 || italicStart < boldStart || italicStart > boldStart + 1)) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.ITALIC),
-                        start + italicStart,
-                        start + italicEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    italicStart = line.indexOf("_", italicEnd + 1)
-                } else {
-                    italicStart = -1
-                }
-            }
-
-            // Handle strikethrough text within the line (~~text~~)
-            var strikeStart = line.indexOf("~~", 0)
-            while (strikeStart != -1) {
-                val strikeEnd = line.indexOf("~~", strikeStart + 2)
-                if (strikeEnd != -1) {
-                    spannable.setSpan(
-                        android.text.style.StrikethroughSpan(),
-                        start + strikeStart,
-                        start + strikeEnd + 2,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    strikeStart = line.indexOf("~~", strikeEnd + 2)
-                } else {
-                    strikeStart = -1
-                }
-            }
-
-            // Handle custom styled text within the line (`text`)
-            var codeStart = line.indexOf("`", 0)
-            while (codeStart != -1) {
-                val codeEnd = line.indexOf("`", codeStart + 1)
-                if (codeEnd != -1) {
-                    spannable.setSpan(
-                        android.text.style.TypefaceSpan("monospace"),
-                        start + codeStart,
-                        start + codeEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    codeStart = line.indexOf("`", codeEnd + 1)
-                } else {
-                    codeStart = -1
-                }
-            }
-
-            // Handle file text within the line (![text](file://path))
-            var fileStart = line.indexOf("![", 0)
-            while (fileStart != -1) {
-                val fileEnd = line.indexOf(")", fileStart + 2)
-                if (fileEnd != -1) {
-                    spannable.setSpan(
-                        ForegroundColorSpan(Color.GRAY),
-                        start + fileStart,
-                        start + fileEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    fileStart = line.indexOf("![", fileEnd + 1)
-                } else {
-                    fileStart = -1
-                }
-            }
-
-            start = end + 1
-        }
-    }
-
-    private fun requestLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_CODE_PERMISSIONS)
-        } else {
-            getCurrentLocation()
-        }
+    fun updateCurrentLocationUI(location: Location) {
+        val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
+        findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCurrentLocation()
+                LocationUtils.getCurrentLocation(this, locationManager)?.let {
+                    updateCurrentLocationUI(it)
+                }
             } else {
                 // Permission denied, handle accordingly
             }
