@@ -201,13 +201,13 @@ class EntryEditorActivity : AppCompatActivity() {
 
         val newEntryData = EntryData(
             currentEntryId!!,
-            currentDateTime,
+            null,  // Set modified to null initially
             "",
             coords = null,
             last_coords = if (latitude != null && longitude != null) String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude) else null
         )
-        entries.add(0, newEntryData)
-        updateEntriesJson()
+        // Temporarily store the new entry in a variable instead of adding it to the list
+        currentNewEntryData = newEntryData
 
         val coordinatesText = if (latitude != null && longitude != null) {
             "≈ ${String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude)}"
@@ -228,32 +228,40 @@ class EntryEditorActivity : AppCompatActivity() {
             currentLocation = location
             Log.d("LocationUpdate", "Location updated: $location")
 
-            // Update the latest entry with the current location only once
-            val latestEntry = entries.firstOrNull { it.created == currentEntryId }
-            if (latestEntry != null && latestEntry.coords == null) {
-                latestEntry.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                updateEntriesJson()
-
-                val coordinatesText = String.format(
-                    Locale.getDefault(),
-                    "%.6f %.6f",
-                    location.latitude,
-                    location.longitude
-                )
+            // Check if there's a temporary new entry that hasn't been saved yet
+            if (currentNewEntryData != null) {
+                currentNewEntryData!!.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
+                // Update the coordinates text view
+                val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
                 findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
-                Log.d("EntryOperation", "Updated entry with location: $currentEntryId")
+                Log.d("EntryOperation", "Updated temporary entry with location: $currentEntryId")
             } else {
-                Log.e("EntryOperation", "No entry found with id: $currentEntryId or coordinates already set")
+                // Update the latest entry with the current location only once
+                val latestEntry = entries.firstOrNull { it.created == currentEntryId }
+                if (latestEntry != null && latestEntry.coords == null) {
+                    latestEntry.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
+                    updateEntriesJson()
+
+                    val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
+                    findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+                    Log.d("EntryOperation", "Updated entry with location: $currentEntryId")
+                } else {
+                    Log.e("EntryOperation", "No entry found with id: $currentEntryId or coordinates already set")
+                }
             }
 
             // Remove updates after setting the location
             locationManager.removeUpdates(this)
         }
 
+
+
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         override fun onProviderEnabled(provider: String) {}
         override fun onProviderDisabled(provider: String) {}
     }
+
+    private var currentNewEntryData: EntryData? = null
 
     private fun saveEntryContent(text: String) {
         if (text.isNotEmpty() && currentEntryId != null) {
@@ -263,18 +271,13 @@ class EntryEditorActivity : AppCompatActivity() {
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
                 dateFormat.timeZone = TimeZone.getTimeZone("UTC")
                 entryData.modified = dateFormat.format(Date())
-            } else {
+            } else if (currentNewEntryData != null) {
+                currentNewEntryData!!.content = text
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
                 dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-                val currentDateTime = dateFormat.format(Date())
-                val newEntryData = EntryData(
-                    currentEntryId!!,
-                    currentDateTime,
-                    text,
-                    coords = null,
-                    last_coords = if (lastKnownLocation != null) String.format("%.6f %.6f", lastKnownLocation!!.latitude, lastKnownLocation!!.longitude) else null
-                )
-                entries.add(newEntryData)
+                currentNewEntryData!!.modified = dateFormat.format(Date())
+                entries.add(currentNewEntryData!!)
+                currentNewEntryData = null  // Clear the temporary variable
             }
             updateEntriesJson()
 
@@ -325,14 +328,16 @@ class EntryEditorActivity : AppCompatActivity() {
 
     private fun openPreviousEntry() {
         val sortedEntries = entries.sortedByDescending { it.modified }
-        val lastEditedEntry = sortedEntries.find { it.created != currentEntryId }
+        val currentEntryIndex = sortedEntries.indexOfFirst { it.created == currentEntryId }
+        val nextEntryIndex = if (currentEntryIndex == -1) 0 else currentEntryIndex + 1
 
-        if (lastEditedEntry != null) {
-            openEntry(lastEditedEntry.created)
+        if (nextEntryIndex < sortedEntries.size) {
+            openEntry(sortedEntries[nextEntryIndex].created)
         } else {
             Log.d("EntryOperation", "No previous entry to open.")
         }
     }
+
 
     private fun showKeyboard(view: View) {
         view.requestFocus()
@@ -518,7 +523,7 @@ class EntryEditorActivity : AppCompatActivity() {
 
     data class EntryData(
         val created: String,
-        var modified: String,
+        var modified: String?,
         var content: String,
         var coords: String?,
         var last_coords: String?

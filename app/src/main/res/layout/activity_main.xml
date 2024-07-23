@@ -30,8 +30,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_below="@id/currentEntryTextView"
+        android:layout_above="@id/buttonLayout"
         android:fillViewport="true">
 
         <LinearLayout
@@ -69,6 +69,7 @@
     </androidx.core.widget.NestedScrollView>
 
     <LinearLayout
+        android:id="@+id/buttonLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
