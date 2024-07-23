@@ -31,7 +31,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_below="@id/currentEntryTextView"
-        android:layout_above="@id/buttonLayout"
+        android:layout_above="@id/tagLayout"
         android:fillViewport="true">
 
         <LinearLayout
@@ -67,6 +67,17 @@
                 android:minHeight="200dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
+    <LinearLayout
+        android:id="@+id/tagLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_above="@id/buttonLayout"
+        android:padding="0dp">
+        <!-- Tag buttons will be added dynamically here -->
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/buttonLayout"

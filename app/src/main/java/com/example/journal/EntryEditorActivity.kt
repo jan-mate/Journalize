@@ -22,6 +22,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -38,6 +39,7 @@ import java.io.FileReader
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
+import android.graphics.Color
 
 class EntryEditorActivity : AppCompatActivity() {
 
@@ -50,6 +52,7 @@ class EntryEditorActivity : AppCompatActivity() {
     private lateinit var currentEntryTextView: TextView
     private lateinit var renderedTextView: TextView
     private lateinit var locationManager: LocationManager
+    private lateinit var tagLayout: LinearLayout
     private var currentLocation: Location? = null
     private var lastKnownLocation: Location? = null
 
@@ -78,6 +81,7 @@ class EntryEditorActivity : AppCompatActivity() {
         currentEntryTextView = findViewById(R.id.currentEntryTextView)
         renderedTextView = findViewById(R.id.renderedTextView)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        tagLayout = findViewById(R.id.tagLayout)
 
         // Set up button click listeners
         viewFilesButton.setOnClickListener {
@@ -129,6 +133,16 @@ class EntryEditorActivity : AppCompatActivity() {
 
         // Show keyboard initially
         showKeyboard(editText)
+
+        // Initialize tag buttons (example tags list)
+        val tagsList = listOf("Tag1", "Tag2", "Tag3", "Tag4", "Tag5")
+        initializeTagButtons(tagsList)
+
+        // Update tag buttons if an entry is already opened
+        currentEntryId?.let {
+            val entryData = entries.find { entry -> entry.created == it }
+            entryData?.let { updateTagButtons(it.tags) }
+        }
     }
 
     override fun onPause() {
@@ -166,7 +180,17 @@ class EntryEditorActivity : AppCompatActivity() {
                 val json = FileReader(jsonFile).use { it.readText() }
                 val gson = GsonBuilder().create()
                 val listType = object : TypeToken<List<EntryData>>() {}.type
-                entries = gson.fromJson<List<EntryData>>(json, listType).toMutableList()
+                val loadedEntries: List<EntryData> = gson.fromJson(json, listType)
+
+                // Ensure tags field is initialized
+                entries = loadedEntries.map { entry ->
+                    entry.apply {
+                        if (tags == null) {
+                            tags = mutableListOf()
+                        }
+                    }
+                }.toMutableList()
+
                 Log.d("EntryOperation", "Loaded JSON: $entries")
             } catch (e: Exception) {
                 Log.e("EntryOperation", "Error reading JSON file", e)
@@ -176,6 +200,7 @@ class EntryEditorActivity : AppCompatActivity() {
             entries = mutableListOf()
         }
     }
+
 
     private fun handleIntent() {
         val entryId = intent.getStringExtra("entryId")
@@ -204,7 +229,8 @@ class EntryEditorActivity : AppCompatActivity() {
             null,  // Set modified to null initially
             "",
             coords = null,
-            last_coords = if (latitude != null && longitude != null) String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude) else null
+            last_coords = if (latitude != null && longitude != null) String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude) else null,
+            tags = mutableListOf()
         )
         // Temporarily store the new entry in a variable instead of adding it to the list
         currentNewEntryData = newEntryData
@@ -221,6 +247,10 @@ class EntryEditorActivity : AppCompatActivity() {
 
         // Request the current location to update the entry
         LocationUtils.requestSingleLocationUpdate(this, locationManager, locationListener)
+
+        // Add the new entry to the list and update tag buttons
+        entries.add(newEntryData)
+        updateTagButtons(newEntryData.tags)
     }
 
     private val locationListener = object : LocationListener {
@@ -253,8 +283,6 @@ class EntryEditorActivity : AppCompatActivity() {
             // Remove updates after setting the location
             locationManager.removeUpdates(this)
         }
-
-
 
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
         override fun onProviderEnabled(provider: String) {}
@@ -321,6 +349,9 @@ class EntryEditorActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
 
             Log.d("EntryOperation", "Opened entry: $id")
+
+            // Update tag buttons to reflect the current tags of the entry
+            updateTagButtons(entryData.tags)
         } else {
             Log.e("EntryOperation", "Entry data not found for id: $id")
         }
@@ -337,7 +368,6 @@ class EntryEditorActivity : AppCompatActivity() {
             Log.d("EntryOperation", "No previous entry to open.")
         }
     }
-
 
     private fun showKeyboard(view: View) {
         view.requestFocus()
@@ -521,11 +551,70 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun initializeTagButtons(tags: List<String>) {
+        tagLayout.removeAllViews()  // Clear any existing buttons
+
+        for (tag in tags) {
+            val tagButton = Button(this).apply {
+                text = tag
+                setBackgroundColor(Color.parseColor("#FFFFFF")) // Unselected state background color
+                setTextColor(Color.WHITE)
+                textSize = 14f
+                layoutParams = LinearLayout.LayoutParams(
+                    0, // Match the bottom buttons layout width
+                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    1f // Weight of 1 to distribute evenly
+                )
+                setPadding(0, 0, 0, 0) // Minimal padding
+                minHeight = 0 // Remove minimum height
+                height = LinearLayout.LayoutParams.WRAP_CONTENT // Ensure height wraps content
+                setOnClickListener { toggleTag(tag, this) }
+            }
+            tagLayout.addView(tagButton)
+        }
+    }
+
+
+
+
+
+
+    private fun toggleTag(tag: String, button: Button) {
+        val entryData = entries.find { it.created == currentEntryId }
+        entryData?.let {
+            if (it.tags.contains(tag)) {
+                it.tags.remove(tag)
+                button.setBackgroundColor(Color.parseColor("#AFAFAF")) // Unselected state
+            } else {
+                it.tags.add(tag)
+                button.setBackgroundColor(Color.parseColor("#999999" +
+                        "")) // Selected state
+            }
+            updateEntriesJson()
+        }
+    }
+
+    private fun updateTagButtons(tags: List<String>?) {
+        for (i in 0 until tagLayout.childCount) {
+            val tagButton = tagLayout.getChildAt(i) as Button
+            if (tags != null && tags.contains(tagButton.text.toString())) {
+                tagButton.setBackgroundColor(Color.parseColor("#999999")) // Selected state background color
+            } else {
+                tagButton.setBackgroundColor(Color.parseColor("#AFAFAF")) // Unselected state background color
+            }
+        }
+    }
+
+
+
+
     data class EntryData(
         val created: String,
         var modified: String?,
         var content: String,
         var coords: String?,
-        var last_coords: String?
+        var last_coords: String?,
+        var tags: MutableList<String> = mutableListOf() // Initialize with an empty list
     )
+
 }
