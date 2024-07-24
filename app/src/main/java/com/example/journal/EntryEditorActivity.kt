@@ -163,7 +163,7 @@ class EntryEditorActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
 
-        if (currentTime - lastOpenedTime > 60000) {
+        if (currentTime - lastOpenedTime > 60000*5) {
             createNewEntry()
             editText.text.clear()
         }
@@ -248,8 +248,7 @@ class EntryEditorActivity : AppCompatActivity() {
         // Request the current location to update the entry
         LocationUtils.requestSingleLocationUpdate(this, locationManager, locationListener)
 
-        // Add the new entry to the list and update tag buttons
-        entries.add(newEntryData)
+        // Update tag buttons with empty tags list
         updateTagButtons(newEntryData.tags)
     }
 
@@ -315,6 +314,7 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
+
     private fun updateEntriesJson() {
         val gson = GsonBuilder().setPrettyPrinting().create()
         val nonEmptyEntries = entries.filter { it.content.isNotEmpty() }
@@ -358,7 +358,13 @@ class EntryEditorActivity : AppCompatActivity() {
     }
 
     private fun openPreviousEntry() {
-        val sortedEntries = entries.sortedByDescending { it.modified }
+        val nonEmptyEntries = entries.filter { it.content.isNotEmpty() }
+        if (nonEmptyEntries.isEmpty()) {
+            Log.d("EntryOperation", "No non-empty entries to open.")
+            return
+        }
+
+        val sortedEntries = nonEmptyEntries.sortedByDescending { it.modified }
         val currentEntryIndex = sortedEntries.indexOfFirst { it.created == currentEntryId }
         val nextEntryIndex = if (currentEntryIndex == -1) 0 else currentEntryIndex + 1
 
@@ -368,6 +374,7 @@ class EntryEditorActivity : AppCompatActivity() {
             Log.d("EntryOperation", "No previous entry to open.")
         }
     }
+
 
     private fun showKeyboard(view: View) {
         view.requestFocus()
@@ -557,7 +564,7 @@ class EntryEditorActivity : AppCompatActivity() {
         for (tag in tags) {
             val tagButton = Button(this).apply {
                 text = tag
-                setBackgroundColor(Color.parseColor("#FFFFFF")) // Unselected state background color
+                setBackgroundColor(Color.parseColor("#AFAFAF")) // Unselected state background color
                 setTextColor(Color.WHITE)
                 textSize = 14f
                 layoutParams = LinearLayout.LayoutParams(
