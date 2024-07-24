@@ -97,6 +97,8 @@ class EntryListActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        // Re-load entries to ensure the latest changes are reflected
+        loadEntries()
 
         // Get the current time
         val currentTime = System.currentTimeMillis()
@@ -105,8 +107,8 @@ class EntryListActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
 
-        // Check if the difference is more than 3 seconds
-        if (currentTime - lastOpenedTime > 3000) {
+        // Check if the difference is more than 10 seconds
+        if (currentTime - lastOpenedTime > 10000) {
             val intent = Intent(this, EntryEditorActivity::class.java)
             intent.putExtra("new_entry", true)
             startActivity(intent)

@@ -11,7 +11,9 @@ import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
+import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileWriter
@@ -35,7 +37,8 @@ class ViewJsonActivity : AppCompatActivity() {
         val jsonFile = File(filesDir, "entries_log.json")
         if (jsonFile.exists()) {
             val jsonContent = jsonFile.readText()
-            jsonEditText.setText(jsonContent)
+            val sortedJsonContent = sortEntriesByModifiedDate(jsonContent)
+            jsonEditText.setText(sortedJsonContent)
         } else {
             jsonEditText.setText("JSON file not found.")
         }
@@ -59,6 +62,14 @@ class ViewJsonActivity : AppCompatActivity() {
         applyJsonButton.setOnClickListener {
             saveJsonContentIfValid()
         }
+    }
+
+    private fun sortEntriesByModifiedDate(jsonContent: String): String {
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        val listType = object : TypeToken<List<EntryEditorActivity.EntryData>>() {}.type
+        val entries = gson.fromJson<List<EntryEditorActivity.EntryData>>(jsonContent, listType).toMutableList()
+        entries.sortByDescending { it.modified }
+        return gson.toJson(entries)
     }
 
     private fun showDeleteConfirmationDialog() {
