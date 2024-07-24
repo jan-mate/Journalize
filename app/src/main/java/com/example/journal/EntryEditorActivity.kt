@@ -18,6 +18,7 @@ import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
+import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Button
@@ -123,6 +124,55 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         })
 
+        // Automatically make markdown list characters at newline
+        editText.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+                val cursorPosition = editText.selectionStart
+                val text = editText.text.toString()
+                val start = if (cursorPosition > 0) text.lastIndexOf('\n', cursorPosition - 1) else -1
+                val end = cursorPosition
+
+                // Check if we're at the start of the document or after a newline
+                val currentLine = if (start == -1) {
+                    text.substring(0, end)
+                } else {
+                    text.substring(start + 1, end)
+                }
+
+                val bulletOrNumberOnlyRegex = Regex("^(\\d+\\.|[\\*-])\\s*$")
+                val numberedListContentRegex = Regex("^(\\d+)\\.\\s+.+$")
+
+                // Clear the line and move to the next line if it only contains a number followed by a period, or - or * with spaces
+                if (bulletOrNumberOnlyRegex.matches(currentLine)) {
+                    if (start == -1) {
+                        editText.text.delete(0, end)
+                    } else {
+                        editText.text.delete(start + 1, end)
+                    }
+                    return@setOnKeyListener false
+                }
+
+                // Handle bullet points
+                if ((currentLine.startsWith("- ") || currentLine.startsWith("* ")) && !bulletOrNumberOnlyRegex.matches(currentLine)) {
+                    val bullet = if (currentLine.startsWith("- ")) "- " else "* "
+                    editText.text?.insert(cursorPosition, "\n$bullet")
+                    return@setOnKeyListener true
+                }
+
+                // Handle numbered lists
+                val matchResult = numberedListContentRegex.find(currentLine)
+                if (matchResult != null) {
+                    val number = matchResult.groupValues[1].toInt()
+                    val nextNumber = number + 1
+                    editText.text?.insert(cursorPosition, "\n$nextNumber. ")
+                    return@setOnKeyListener true
+                }
+            }
+            false
+        }
+
+
+
         // Load entries and handle intent
         loadEntries()
         handleIntent()
@@ -163,7 +213,7 @@ class EntryEditorActivity : AppCompatActivity() {
         val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
 
-        if (currentTime - lastOpenedTime > 60000*5) {
+        if (currentTime - lastOpenedTime > 60000 * 5) {
             createNewEntry()
             editText.text.clear()
         }
@@ -582,11 +632,6 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-
-
-
-
-
     private fun toggleTag(tag: String, button: Button) {
         val entryData = entries.find { it.created == currentEntryId }
         entryData?.let {
@@ -608,7 +653,6 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-
     private fun updateTagButtons(tags: List<String>?) {
         for (i in 0 until tagLayout.childCount) {
             val tagButton = tagLayout.getChildAt(i) as Button
@@ -619,9 +663,6 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
     }
-
-
-
 
     data class EntryData(
         val created: String,
