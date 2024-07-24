@@ -232,7 +232,8 @@ class EntryEditorActivity : AppCompatActivity() {
             last_coords = if (latitude != null && longitude != null) String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude) else null,
             tags = mutableListOf()
         )
-        // Temporarily store the new entry in a variable instead of adding it to the list
+        // Add the new entry to the list immediately
+        entries.add(newEntryData)
         currentNewEntryData = newEntryData
 
         val coordinatesText = if (latitude != null && longitude != null) {
@@ -594,12 +595,19 @@ class EntryEditorActivity : AppCompatActivity() {
                 button.setBackgroundColor(Color.parseColor("#AFAFAF")) // Unselected state
             } else {
                 it.tags.add(tag)
-                button.setBackgroundColor(Color.parseColor("#999999" +
-                        "")) // Selected state
+                button.setBackgroundColor(Color.parseColor("#999999")) // Selected state
+
+                // If the entry has no content and no modified date, set the modified date to now
+                if (it.content.isEmpty() && it.modified == null) {
+                    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
+                    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
+                    it.modified = dateFormat.format(Date())
+                }
             }
             updateEntriesJson()
         }
     }
+
 
     private fun updateTagButtons(tags: List<String>?) {
         for (i in 0 until tagLayout.childCount) {
