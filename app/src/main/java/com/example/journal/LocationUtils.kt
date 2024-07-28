@@ -46,7 +46,7 @@ object LocationUtils {
         } else {
             val location = getLastKnownLocation(activity, locationManager)
             if (location != null) {
-                (activity as EntryEditorActivity).updateCurrentLocationUI(location)
+                (activity as EntryEditorActivity).updateCoordinatesTextView(location.latitude, location.longitude, isApproximate = false)
             }
         }
     }

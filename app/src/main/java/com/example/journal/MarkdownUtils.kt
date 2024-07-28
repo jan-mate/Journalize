@@ -3,7 +3,15 @@ package com.example.journal
 import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.view.KeyEvent
+import android.content.Context
+import android.view.View
+import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
+import io.noties.markwon.Markwon
+import io.noties.markwon.image.ImagesPlugin
+import io.noties.markwon.image.file.FileSchemeHandler
 
 object MarkdownUtils {
 
@@ -12,34 +20,7 @@ object MarkdownUtils {
         val lines = spannable.split("\n")
 
         // Clear previous styles
-        val sizeSpans = spannable.getSpans(0, spannable.length, android.text.style.RelativeSizeSpan::class.java)
-        for (span in sizeSpans) {
-            spannable.removeSpan(span)
-        }
-        val underlineSpans = spannable.getSpans(0, spannable.length, android.text.style.UnderlineSpan::class.java)
-        for (span in underlineSpans) {
-            spannable.removeSpan(span)
-        }
-        val styleSpans = spannable.getSpans(0, spannable.length, android.text.style.StyleSpan::class.java)
-        for (span in styleSpans) {
-            spannable.removeSpan(span)
-        }
-        val typefaceSpans = spannable.getSpans(0, spannable.length, android.text.style.TypefaceSpan::class.java)
-        for (span in typefaceSpans) {
-            spannable.removeSpan(span)
-        }
-        val strikethroughSpans = spannable.getSpans(0, spannable.length, android.text.style.StrikethroughSpan::class.java)
-        for (span in strikethroughSpans) {
-            spannable.removeSpan(span)
-        }
-        val bulletSpans = spannable.getSpans(0, spannable.length, android.text.style.BulletSpan::class.java)
-        for (span in bulletSpans) {
-            spannable.removeSpan(span)
-        }
-        val quoteSpans = spannable.getSpans(0, spannable.length, android.text.style.QuoteSpan::class.java)
-        for (span in quoteSpans) {
-            spannable.removeSpan(span)
-        }
+        clearPreviousStyles(spannable)
 
         var start = 0
 
@@ -47,58 +28,23 @@ object MarkdownUtils {
             val end = start + line.length
             when {
                 line.startsWith("# ") -> {
-                    spannable.setSpan(
-                        android.text.style.RelativeSizeSpan(2f),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    spannable.setSpan(
-                        android.text.style.UnderlineSpan(),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                    applyHeaderStyles(spannable, start, end, 2f)
                 }
                 line.startsWith("## ") -> {
-                    spannable.setSpan(
-                        android.text.style.RelativeSizeSpan(1.8f),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    spannable.setSpan(
-                        android.text.style.UnderlineSpan(),
-                        start,
-                        end,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
+                    applyHeaderStyles(spannable, start, end, 1.8f)
                 }
-                line.startsWith("### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.6f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                line.startsWith("#### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.4f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                line.startsWith("##### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.2f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-                line.startsWith("###### ") -> spannable.setSpan(
-                    android.text.style.RelativeSizeSpan(1.1f),
-                    start,
-                    end,
-                    android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
-
+                line.startsWith("### ") -> {
+                    applyHeaderStyles(spannable, start, end, 1.6f)
+                }
+                line.startsWith("#### ") -> {
+                    applyHeaderStyles(spannable, start, end, 1.4f)
+                }
+                line.startsWith("##### ") -> {
+                    applyHeaderStyles(spannable, start, end, 1.2f)
+                }
+                line.startsWith("###### ") -> {
+                    applyHeaderStyles(spannable, start, end, 1.1f)
+                }
                 else -> spannable.setSpan(
                     android.text.style.RelativeSizeSpan(1f),
                     start,
@@ -107,125 +53,153 @@ object MarkdownUtils {
                 )
             }
 
-            // Handle bold-italic text within the line (***text***)
-            var boldItalicStart = line.indexOf("***", 0)
-            while (boldItalicStart != -1) {
-                val boldItalicEnd = line.indexOf("***", boldItalicStart + 3)
-                if (boldItalicEnd != -1) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.BOLD_ITALIC),
-                        start + boldItalicStart,
-                        start + boldItalicEnd + 3,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    boldItalicStart = line.indexOf("***", boldItalicEnd + 3)
-                } else {
-                    boldItalicStart = -1
-                }
-            }
-
-            // Handle bold text within the line (**text**)
-            var boldStart = line.indexOf("**", 0)
-            while (boldStart != -1) {
-                val boldEnd = line.indexOf("**", boldStart + 2)
-                if (boldEnd != -1 && (boldItalicStart == -1 || boldStart < boldItalicStart || boldStart > boldItalicStart + 2)) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.BOLD),
-                        start + boldStart,
-                        start + boldEnd + 2,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    boldStart = line.indexOf("**", boldEnd + 2)
-                } else {
-                    boldStart = -1
-                }
-            }
-
-            // Handle italic text within the line (*text* and _text_)
-            var italicStart = line.indexOf("*", 0)
-            while (italicStart != -1) {
-                val italicEnd = line.indexOf("*", italicStart + 1)
-                if (italicEnd != -1 && (boldStart == -1 || italicStart < boldStart || italicStart > boldStart + 1)) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.ITALIC),
-                        start + italicStart,
-                        start + italicEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    italicStart = line.indexOf("*", italicEnd + 1)
-                } else {
-                    italicStart = -1
-                }
-            }
-
-            italicStart = line.indexOf("_", 0)
-            while (italicStart != -1) {
-                val italicEnd = line.indexOf("_", italicStart + 1)
-                if (italicEnd != -1 && (boldStart == -1 || italicStart < boldStart || italicStart > boldStart + 1)) {
-                    spannable.setSpan(
-                        android.text.style.StyleSpan(android.graphics.Typeface.ITALIC),
-                        start + italicStart,
-                        start + italicEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    italicStart = line.indexOf("_", italicEnd + 1)
-                } else {
-                    italicStart = -1
-                }
-            }
-
-            // Handle strikethrough text within the line (~~text~~)
-            var strikeStart = line.indexOf("~~", 0)
-            while (strikeStart != -1) {
-                val strikeEnd = line.indexOf("~~", strikeStart + 2)
-                if (strikeEnd != -1) {
-                    spannable.setSpan(
-                        android.text.style.StrikethroughSpan(),
-                        start + strikeStart,
-                        start + strikeEnd + 2,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    strikeStart = line.indexOf("~~", strikeEnd + 2)
-                } else {
-                    strikeStart = -1
-                }
-            }
-
-            // Handle custom styled text within the line (`text`)
-            var codeStart = line.indexOf("`", 0)
-            while (codeStart != -1) {
-                val codeEnd = line.indexOf("`", codeStart + 1)
-                if (codeEnd != -1) {
-                    spannable.setSpan(
-                        android.text.style.TypefaceSpan("monospace"),
-                        start + codeStart,
-                        start + codeEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    codeStart = line.indexOf("`", codeEnd + 1)
-                } else {
-                    codeStart = -1
-                }
-            }
-
-            // Handle file text within the line (![text](file://path))
-            var fileStart = line.indexOf("![", 0)
-            while (fileStart != -1) {
-                val fileEnd = line.indexOf(")", fileStart + 2)
-                if (fileEnd != -1) {
-                    spannable.setSpan(
-                        ForegroundColorSpan(Color.GRAY),
-                        start + fileStart,
-                        start + fileEnd + 1,
-                        android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                    fileStart = line.indexOf("![", fileEnd + 1)
-                } else {
-                    fileStart = -1
-                }
-            }
+            applyInlineStyles(line, spannable, start)
 
             start = end + 1
+        }
+    }
+
+    private fun clearPreviousStyles(spannable: SpannableStringBuilder) {
+        val spans = listOf(
+            android.text.style.RelativeSizeSpan::class.java,
+            android.text.style.UnderlineSpan::class.java,
+            android.text.style.StyleSpan::class.java,
+            android.text.style.TypefaceSpan::class.java,
+            android.text.style.StrikethroughSpan::class.java,
+            android.text.style.BulletSpan::class.java,
+            android.text.style.QuoteSpan::class.java
+        )
+
+        for (spanClass in spans) {
+            val spanInstances = spannable.getSpans(0, spannable.length, spanClass)
+            for (span in spanInstances) {
+                spannable.removeSpan(span)
+            }
+        }
+    }
+
+    private fun applyHeaderStyles(spannable: SpannableStringBuilder, start: Int, end: Int, size: Float) {
+        spannable.setSpan(
+            android.text.style.RelativeSizeSpan(size),
+            start,
+            end,
+            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+        spannable.setSpan(
+            android.text.style.UnderlineSpan(),
+            start,
+            end,
+            android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        )
+    }
+
+    private fun applyInlineStyles(line: String, spannable: SpannableStringBuilder, start: Int) {
+        val boldItalicPattern = Regex("\\*\\*\\*([^*]+)\\*\\*\\*")
+        val boldPattern = Regex("\\*\\*([^*]+)\\*\\*")
+        val italicPattern = Regex("\\*([^*]+)\\*")
+        val strikethroughPattern = Regex("~~([^~]+)~~")
+        val codePattern = Regex("`([^`]+)`")
+        val filePattern = Regex("!\\[([^\\]]+)\\]\\((file://[^)]+)\\)")
+
+        applyPattern(spannable, line, boldItalicPattern, start, android.graphics.Typeface.BOLD_ITALIC)
+        applyPattern(spannable, line, boldPattern, start, android.graphics.Typeface.BOLD)
+        applyPattern(spannable, line, italicPattern, start, android.graphics.Typeface.ITALIC)
+        applyPattern(spannable, line, strikethroughPattern, start, android.text.style.StrikethroughSpan::class.java)
+        applyPattern(spannable, line, codePattern, start, android.text.style.TypefaceSpan("monospace"))
+        applyPattern(spannable, line, filePattern, start, ForegroundColorSpan(Color.GRAY))
+    }
+
+    private fun applyPattern(
+        spannable: SpannableStringBuilder,
+        line: String,
+        pattern: Regex,
+        start: Int,
+        spanClass: Any
+    ) {
+        var matchResult = pattern.find(line)
+        while (matchResult != null) {
+            val matchStart = start + matchResult.range.first
+            val matchEnd = start + matchResult.range.last + 1
+            spannable.setSpan(
+                when (spanClass) {
+                    is android.text.style.StyleSpan -> android.text.style.StyleSpan(spanClass.style)
+                    is android.text.style.TypefaceSpan -> android.text.style.TypefaceSpan(spanClass.family)
+                    is ForegroundColorSpan -> ForegroundColorSpan(spanClass.foregroundColor)
+                    else -> spanClass
+                },
+                matchStart,
+                matchEnd,
+                android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+            )
+            matchResult = pattern.find(line, matchResult.range.last + 1)
+        }
+    }
+
+    fun handleAutomaticList(editText: EditText, keyCode: Int, event: KeyEvent): Boolean {
+        if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
+            val cursorPosition = editText.selectionStart
+            val text = editText.text.toString()
+            val start = if (cursorPosition > 0) text.lastIndexOf('\n', cursorPosition - 1) else -1
+            val end = cursorPosition
+
+            val currentLine = if (start == -1) {
+                text.substring(0, end)
+            } else {
+                text.substring(start + 1, end)
+            }
+
+            val bulletOrNumberOnlyRegex = Regex("^(\\d+\\.|[\\*-])\\s*$")
+            val numberedListContentRegex = Regex("^(\\d+)\\.\\s+.+$")
+
+            if (bulletOrNumberOnlyRegex.matches(currentLine)) {
+                if (start == -1) {
+                    editText.text.delete(0, end)
+                } else {
+                    editText.text.delete(start + 1, end)
+                }
+                return false
+            }
+
+            if ((currentLine.startsWith("- ") || currentLine.startsWith("* ")) && !bulletOrNumberOnlyRegex.matches(currentLine)) {
+                val bullet = if (currentLine.startsWith("- ")) "- " else "* "
+                editText.text?.insert(cursorPosition, "\n$bullet")
+                return true
+            }
+
+            val matchResult = numberedListContentRegex.find(currentLine)
+            if (matchResult != null) {
+                val number = matchResult.groupValues[1].toInt()
+                val nextNumber = number + 1
+                editText.text?.insert(cursorPosition, "\n$nextNumber. ")
+                return true
+            }
+        }
+        return false
+    }
+
+    fun renderMarkdown(context: Context, text: String, renderedTextView: TextView) {
+        val markwon = Markwon.builder(context)
+            .usePlugin(ImagesPlugin.create { plugin ->
+                plugin.addSchemeHandler(FileSchemeHandler.create())
+            })
+            .build()
+        markwon.setMarkdown(renderedTextView, text)
+    }
+
+    fun toggleRenderMode(context: Context, isEditMode: Boolean, editText: EditText, renderedTextView: TextView, renderButton: Button): Boolean {
+        return if (isEditMode) {
+            renderMarkdown(context, editText.text.toString(), renderedTextView)
+            renderButton.text = "Edit"
+            editText.visibility = View.GONE
+            renderedTextView.visibility = View.VISIBLE
+            KeyboardUtils.hideKeyboard(context, renderButton)
+            false
+        } else {
+            editText.visibility = View.VISIBLE
+            renderedTextView.visibility = View.GONE
+            renderButton.text = "Render"
+            KeyboardUtils.showKeyboard(context, editText)
+            true
         }
     }
 }

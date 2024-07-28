@@ -8,11 +8,11 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
-import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.FileProvider
+import com.bumptech.glide.Glide
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -21,23 +21,15 @@ import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
-import com.bumptech.glide.Glide
 
 class EntryListActivity : AppCompatActivity() {
 
     private lateinit var entryListView: ListView
     private lateinit var deleteButton: Button
-    private lateinit var exportButton: Button
     private lateinit var viewJsonButton: Button
     private lateinit var searchView: SearchView
     private var selectedEntries = mutableListOf<String>()
     private var entryListAdapter: EntryListAdapter? = null
-
-    companion object {
-        const val PREFS_NAME = "JournalPrefs"
-        const val LAST_OPENED_TIME = "lastOpenedTime"
-    }
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,14 +40,11 @@ class EntryListActivity : AppCompatActivity() {
         viewJsonButton = findViewById(R.id.viewJsonButton)
         searchView = findViewById(R.id.searchView)
 
-
-
         loadEntries()
 
         deleteButton.setOnClickListener {
             deleteSelectedEntries()
         }
-
 
         viewJsonButton.setOnClickListener {
             val intent = Intent(this, ViewJsonActivity::class.java)
@@ -76,56 +65,28 @@ class EntryListActivity : AppCompatActivity() {
 
         // Show keyboard by default when SearchView is focused
         searchView.setOnClickListener {
-            showKeyboard(searchView)
+            KeyboardUtils.showKeyboard(this, searchView)
         }
 
         // Request focus on SearchView and show keyboard by default
         searchView.requestFocus()
-        showKeyboard(searchView)
+        KeyboardUtils.showKeyboard(this, searchView)
     }
 
     override fun onPause() {
         super.onPause()
-
-        // Store the current time as the last opened time
-        val currentTime = System.currentTimeMillis()
-        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putLong(LAST_OPENED_TIME, currentTime)
-        editor.apply()
+        AppUsageUtils.onPause(this)
     }
 
     override fun onResume() {
         super.onResume()
-        // Re-load entries to ensure the latest changes are reflected
-        loadEntries()
-
-        // Get the current time
-        val currentTime = System.currentTimeMillis()
-
-        // Retrieve the last opened time from shared preferences
-        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
-
-        // Check if the difference is more than 10 seconds
-        if (currentTime - lastOpenedTime > 10000) {
+        AppUsageUtils.onResume(this) {
             val intent = Intent(this, EntryEditorActivity::class.java)
             intent.putExtra("new_entry", true)
             startActivity(intent)
             finish()
         }
-
-        // Store the current time as the last opened time
-        val editor = sharedPreferences.edit()
-        editor.putLong(LAST_OPENED_TIME, currentTime)
-        editor.apply()
-    }
-
-
-    private fun showKeyboard(view: View) {
-        view.requestFocus()
-        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        loadEntries()
     }
 
     private fun loadEntries() {
@@ -210,9 +171,9 @@ class EntryListActivity : AppCompatActivity() {
 
             val imageViews = listOf(
                 view.findViewById<ImageView>(R.id.entryImageView1),
-                view.findViewById<ImageView>(R.id.entryImageView2),
-                view.findViewById<ImageView>(R.id.entryImageView3),
-                view.findViewById<ImageView>(R.id.entryImageView4)
+                view.findViewById(R.id.entryImageView2),
+                view.findViewById(R.id.entryImageView3),
+                view.findViewById(R.id.entryImageView4)
             )
 
             val entryData = filteredEntries[position]
@@ -261,8 +222,6 @@ class EntryListActivity : AppCompatActivity() {
 
             return view
         }
-
-
 
         private fun createPreviewText(content: String): String {
             val cleanedContent = removeImageMarkdown(content)
@@ -333,5 +292,4 @@ class EntryListActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
     }
-
 }

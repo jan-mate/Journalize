@@ -1,26 +1,18 @@
 package com.example.journal
 
-import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
@@ -28,19 +20,13 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.exifinterface.media.ExifInterface
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
-import io.noties.markwon.Markwon
-import io.noties.markwon.image.ImagesPlugin
-import io.noties.markwon.image.file.FileSchemeHandler
 import java.io.File
-import java.io.FileOutputStream
 import java.io.FileReader
 import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.*
-import android.graphics.Color
 
 class EntryEditorActivity : AppCompatActivity() {
 
@@ -59,20 +45,46 @@ class EntryEditorActivity : AppCompatActivity() {
 
     companion object {
         var entries = mutableListOf<EntryData>()
-        const val PREFS_NAME = "JournalPrefs"
-        const val LAST_OPENED_TIME = "lastOpenedTime"
         const val REQUEST_CODE_PERMISSIONS = 10
     }
 
     private var currentEntryId: String? = null
     private var isEditMode = true
-    private val PICK_IMAGE_REQUEST = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Initialize views
+        initializeViews()
+        setupButtonListeners()
+        setupEditText()
+
+        // Load entries and handle intent
+        entries = EntryDataUtils.loadEntries(this)
+        handleIntent()
+
+        // Request location permissions and get the current location
+        LocationUtils.requestLocationPermissions(this, locationManager)
+        lastKnownLocation = LocationUtils.getLastKnownLocation(this, locationManager)
+
+        // Show keyboard initially
+        KeyboardUtils.showKeyboard(this, editText)
+
+        // Initialize tag buttons (example tags list)
+        val tagsList = listOf("Do", "φ", "“…“", "Book", "Grace")
+        TagUtils.initializeTagButtons(this, tagLayout, tagsList) { tag, button ->
+            TagUtils.toggleTag(entries, currentEntryId, tag, button) {
+                EntryDataUtils.updateEntriesJson(this, entries)
+            }
+        }
+
+        currentEntryId?.let {
+            val entryData = entries.find { entry -> entry.created == it }
+            entryData?.let { TagUtils.updateTagButtons(tagLayout, it.tags) }
+        }
+    }
+
+    private fun initializeViews() {
         editText = findViewById(R.id.editText)
         viewFilesButton = findViewById(R.id.viewFilesButton)
         newEntryButton = findViewById(R.id.newEntryButton)
@@ -83,8 +95,9 @@ class EntryEditorActivity : AppCompatActivity() {
         renderedTextView = findViewById(R.id.renderedTextView)
         locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
         tagLayout = findViewById(R.id.tagLayout)
+    }
 
-        // Set up button click listeners
+    private fun setupButtonListeners() {
         viewFilesButton.setOnClickListener {
             val intent = Intent(this, EntryListActivity::class.java)
             startActivityForResult(intent, 1)
@@ -93,7 +106,7 @@ class EntryEditorActivity : AppCompatActivity() {
         newEntryButton.setOnClickListener {
             createNewEntry()
             editText.text.clear()
-            showKeyboard(editText)
+            KeyboardUtils.showKeyboard(this, editText)
         }
 
         lastEntryButton.setOnClickListener {
@@ -101,18 +114,19 @@ class EntryEditorActivity : AppCompatActivity() {
         }
 
         renderButton.setOnClickListener {
-            toggleRenderMode()
+            isEditMode = MarkdownUtils.toggleRenderMode(this, isEditMode, editText, renderedTextView, renderButton)
         }
 
         mediaButton.setOnClickListener {
-            if (hasPermissions()) {
-                selectImage()
+            if (ImageUtils.hasImagePermissions(this)) {
+                ImageUtils.selectImage(this)
             } else {
-                requestPermissions()
+                ImageUtils.requestImagePermissions(this)
             }
         }
+    }
 
-        // Set up text watcher
+    private fun setupEditText() {
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -124,133 +138,23 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         })
 
-        // Automatically make markdown list characters at newline
         editText.setOnKeyListener { v, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
-                val cursorPosition = editText.selectionStart
-                val text = editText.text.toString()
-                val start = if (cursorPosition > 0) text.lastIndexOf('\n', cursorPosition - 1) else -1
-                val end = cursorPosition
-
-                // Check if we're at the start of the document or after a newline
-                val currentLine = if (start == -1) {
-                    text.substring(0, end)
-                } else {
-                    text.substring(start + 1, end)
-                }
-
-                val bulletOrNumberOnlyRegex = Regex("^(\\d+\\.|[\\*-])\\s*$")
-                val numberedListContentRegex = Regex("^(\\d+)\\.\\s+.+$")
-
-                // Clear the line and move to the next line if it only contains a number followed by a period, or - or * with spaces
-                if (bulletOrNumberOnlyRegex.matches(currentLine)) {
-                    if (start == -1) {
-                        editText.text.delete(0, end)
-                    } else {
-                        editText.text.delete(start + 1, end)
-                    }
-                    return@setOnKeyListener false
-                }
-
-                // Handle bullet points
-                if ((currentLine.startsWith("- ") || currentLine.startsWith("* ")) && !bulletOrNumberOnlyRegex.matches(currentLine)) {
-                    val bullet = if (currentLine.startsWith("- ")) "- " else "* "
-                    editText.text?.insert(cursorPosition, "\n$bullet")
-                    return@setOnKeyListener true
-                }
-
-                // Handle numbered lists
-                val matchResult = numberedListContentRegex.find(currentLine)
-                if (matchResult != null) {
-                    val number = matchResult.groupValues[1].toInt()
-                    val nextNumber = number + 1
-                    editText.text?.insert(cursorPosition, "\n$nextNumber. ")
-                    return@setOnKeyListener true
-                }
-            }
-            false
-        }
-
-
-
-        // Load entries and handle intent
-        loadEntries()
-        handleIntent()
-
-        // Request location permissions and get the current location
-        LocationUtils.requestLocationPermissions(this, locationManager)
-        lastKnownLocation = LocationUtils.getLastKnownLocation(this, locationManager) // Ensure we try to get the last known location on app startup
-
-        // Show keyboard initially
-        showKeyboard(editText)
-
-        // Initialize tag buttons (example tags list)
-        val tagsList = listOf("Tag1", "Tag2", "Tag3", "Tag4", "Tag5")
-        initializeTagButtons(tagsList)
-
-        // Update tag buttons if an entry is already opened
-        currentEntryId?.let {
-            val entryData = entries.find { entry -> entry.created == it }
-            entryData?.let { updateTagButtons(it.tags) }
+            MarkdownUtils.handleAutomaticList(editText, keyCode, event)
         }
     }
 
     override fun onPause() {
         super.onPause()
-
-        val currentTime = System.currentTimeMillis()
-        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putLong(LAST_OPENED_TIME, currentTime)
-        editor.apply()
+        AppUsageUtils.onPause(this)
     }
 
     override fun onResume() {
         super.onResume()
-
-        val currentTime = System.currentTimeMillis()
-
-        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
-
-        if (currentTime - lastOpenedTime > 60000 * 5) {
+        AppUsageUtils.onResume(this) {
             createNewEntry()
             editText.text.clear()
         }
-
-        val editor = sharedPreferences.edit()
-        editor.putLong(LAST_OPENED_TIME, currentTime)
-        editor.apply()
     }
-
-    private fun loadEntries() {
-        val jsonFile = File(filesDir, "entries_log.json")
-        if (jsonFile.exists()) {
-            try {
-                val json = FileReader(jsonFile).use { it.readText() }
-                val gson = GsonBuilder().create()
-                val listType = object : TypeToken<List<EntryData>>() {}.type
-                val loadedEntries: List<EntryData> = gson.fromJson(json, listType)
-
-                // Ensure tags field is initialized
-                entries = loadedEntries.map { entry ->
-                    entry.apply {
-                        if (tags == null) {
-                            tags = mutableListOf()
-                        }
-                    }
-                }.toMutableList()
-
-                Log.d("EntryOperation", "Loaded JSON: $entries")
-            } catch (e: Exception) {
-                Log.e("EntryOperation", "Error reading JSON file", e)
-                entries = mutableListOf()
-            }
-        } else {
-            entries = mutableListOf()
-        }
-    }
-
 
     private fun handleIntent() {
         val entryId = intent.getStringExtra("entryId")
@@ -258,16 +162,12 @@ class EntryEditorActivity : AppCompatActivity() {
             openEntry(entryId)
         } else {
             createNewEntry()
-            showKeyboard(editText)
+            KeyboardUtils.showKeyboard(this, editText)
         }
     }
 
     private fun createNewEntry() {
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-        val currentDateTime = dateFormat.format(Date())
-        currentEntryId = currentDateTime
-
+        currentEntryId = EntryDataUtils.getCurrentTimeString()
         currentEntryTextView.text = currentEntryId
         currentEntryTextView.visibility = TextView.VISIBLE
 
@@ -276,31 +176,35 @@ class EntryEditorActivity : AppCompatActivity() {
 
         val newEntryData = EntryData(
             currentEntryId!!,
-            null,  // Set modified to null initially
+            null,
             "",
             coords = null,
             last_coords = if (latitude != null && longitude != null) String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude) else null,
             tags = mutableListOf()
         )
-        // Add the new entry to the list immediately
         entries.add(newEntryData)
         currentNewEntryData = newEntryData
 
+        updateCoordinatesTextView(latitude, longitude, isApproximate = true)
+
+        Log.d("EntryOperation", "Created new entry: $currentEntryId")
+
+        LocationUtils.requestSingleLocationUpdate(this, locationManager, locationListener)
+        TagUtils.updateTagButtons(tagLayout, newEntryData.tags)
+    }
+
+    fun updateCoordinatesTextView(latitude: Double?, longitude: Double?, isApproximate: Boolean) {
         val coordinatesText = if (latitude != null && longitude != null) {
-            "≈ ${String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude)}"
+            if (isApproximate) {
+                "≈ ${String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude)}"
+            } else {
+                String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude)
+            }
         } else {
             "updating..."
         }
         findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
         findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
-
-        Log.d("EntryOperation", "Created new entry: $currentEntryId")
-
-        // Request the current location to update the entry
-        LocationUtils.requestSingleLocationUpdate(this, locationManager, locationListener)
-
-        // Update tag buttons with empty tags list
-        updateTagButtons(newEntryData.tags)
     }
 
     private val locationListener = object : LocationListener {
@@ -308,29 +212,22 @@ class EntryEditorActivity : AppCompatActivity() {
             currentLocation = location
             Log.d("LocationUpdate", "Location updated: $location")
 
-            // Check if there's a temporary new entry that hasn't been saved yet
             if (currentNewEntryData != null) {
                 currentNewEntryData!!.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                // Update the coordinates text view
-                val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+                updateCoordinatesTextView(location.latitude, location.longitude, isApproximate = false)
                 Log.d("EntryOperation", "Updated temporary entry with location: $currentEntryId")
             } else {
-                // Update the latest entry with the current location only once
                 val latestEntry = entries.firstOrNull { it.created == currentEntryId }
                 if (latestEntry != null && latestEntry.coords == null) {
                     latestEntry.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                    updateEntriesJson()
-
-                    val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                    findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
+                    EntryDataUtils.updateEntriesJson(this@EntryEditorActivity, entries)
+                    updateCoordinatesTextView(location.latitude, location.longitude, isApproximate = false)
                     Log.d("EntryOperation", "Updated entry with location: $currentEntryId")
                 } else {
                     Log.e("EntryOperation", "No entry found with id: $currentEntryId or coordinates already set")
                 }
             }
 
-            // Remove updates after setting the location
             locationManager.removeUpdates(this)
         }
 
@@ -346,37 +243,17 @@ class EntryEditorActivity : AppCompatActivity() {
             val entryData = entries.find { it.created == currentEntryId }
             if (entryData != null) {
                 entryData.content = text
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-                entryData.modified = dateFormat.format(Date())
+                EntryDataUtils.updateModifiedTime(entryData)
             } else if (currentNewEntryData != null) {
                 currentNewEntryData!!.content = text
-                val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-                currentNewEntryData!!.modified = dateFormat.format(Date())
+                EntryDataUtils.updateModifiedTime(currentNewEntryData!!)
                 entries.add(currentNewEntryData!!)
-                currentNewEntryData = null  // Clear the temporary variable
+                currentNewEntryData = null
             }
-            updateEntriesJson()
-
+            EntryDataUtils.updateEntriesJson(this, entries)
             currentEntryTextView.text = currentEntryId
             currentEntryTextView.visibility = TextView.VISIBLE
             Log.d("EntryOperation", "Saved entry: $currentEntryId")
-        }
-    }
-
-
-    private fun updateEntriesJson() {
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        val nonEmptyEntries = entries.filter { it.content.isNotEmpty() }
-        val json = gson.toJson(nonEmptyEntries)
-        val jsonFile = File(filesDir, "entries_log.json")
-        try {
-            FileWriter(jsonFile).use {
-                it.write(json)
-            }
-        } catch (e: Exception) {
-            Log.e("EntryOperation", "Error writing JSON file", e)
         }
     }
 
@@ -400,9 +277,7 @@ class EntryEditorActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
 
             Log.d("EntryOperation", "Opened entry: $id")
-
-            // Update tag buttons to reflect the current tags of the entry
-            updateTagButtons(entryData.tags)
+            TagUtils.updateTagButtons(tagLayout, entryData.tags)
         } else {
             Log.e("EntryOperation", "Entry data not found for id: $id")
         }
@@ -426,114 +301,34 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun showKeyboard(view: View) {
-        view.requestFocus()
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-    }
-
-    private fun hideKeyboard(view: View) {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.windowToken, 0)
-    }
-
-    private fun hasPermissions(): Boolean {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_MEDIA_AUDIO
-            )
-        } else {
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        return permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
-    }
-
-    private fun requestPermissions() {
-        val permissions = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            arrayOf(
-                Manifest.permission.READ_MEDIA_IMAGES,
-                Manifest.permission.READ_MEDIA_VIDEO,
-                Manifest.permission.READ_MEDIA_AUDIO
-            )
-        } else {
-            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        ActivityCompat.requestPermissions(this, permissions, REQUEST_CODE_PERMISSIONS)
-    }
-
-    private fun selectImage() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
-            type = "image/*"
-            putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true)
-            addCategory(Intent.CATEGORY_OPENABLE)
-        }
-        startActivityForResult(Intent.createChooser(intent, "Select Images"), PICK_IMAGE_REQUEST)
-    }
-
-    private fun toggleRenderMode() {
-        if (isEditMode) {
-            renderMarkdown()
-            renderButton.text = "Edit"
-            editText.visibility = View.GONE
-            renderedTextView.visibility = View.VISIBLE
-            hideKeyboard(renderButton)
-        } else {
-            editText.visibility = View.VISIBLE
-            renderedTextView.visibility = View.GONE
-            renderButton.text = "Render"
-            showKeyboard(editText)
-        }
-        isEditMode = !isEditMode
-    }
-
-    private fun renderMarkdown() {
-        val text = editText.text.toString()
-        if (text.isNotEmpty()) {
-            val markwon = Markwon.builder(this)
-                .usePlugin(ImagesPlugin.create { plugin ->
-                    plugin.addSchemeHandler(FileSchemeHandler.create())
-                })
-                .build()
-            markwon.setMarkdown(renderedTextView, text)
-        }
-    }
-
-    fun updateCurrentLocationUI(location: Location) {
-        val coordinatesText = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-        findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
-    }
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == REQUEST_CODE_PERMISSIONS) {
+        if (requestCode == ImageUtils.REQUEST_CODE_IMAGE_PERMISSIONS) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                ImageUtils.selectImage(this)
+            }
+        } else if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 LocationUtils.getCurrentLocation(this, locationManager)?.let {
-                    updateCurrentLocationUI(it)
+                    updateCoordinatesTextView(it.latitude, it.longitude, isApproximate = false)
                 }
-            } else {
-                // Permission denied, handle accordingly
             }
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
+        if (requestCode == ImageUtils.PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK) {
             data?.let { intentData ->
                 val clipData = intentData.clipData
                 if (clipData != null) {
-                    // Multiple images selected
                     for (i in 0 until clipData.itemCount) {
                         val uri = clipData.getItemAt(i).uri
-                        handleImageUri(uri)
+                        ImageUtils.handleImageUri(this, uri, editText, isEditMode, renderedTextView)
                     }
                 } else {
-                    // Single image selected
                     intentData.data?.let { uri ->
-                        handleImageUri(uri)
+                        ImageUtils.handleImageUri(this, uri, editText, isEditMode, renderedTextView)
                     }
                 }
             }
@@ -544,133 +339,12 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleImageUri(uri: Uri) {
-        val imagePath = getPathFromUri(uri)
-        if (imagePath != null) {
-            insertImagePathToMarkdown(imagePath)
-        }
-    }
-
-    private fun getPathFromUri(uri: Uri): String? {
-        var path: String? = null
-        contentResolver.query(uri, null, null, null, null)?.use { cursor ->
-            val nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            cursor.moveToFirst()
-            val name = cursor.getString(nameIndex)
-            val file = File(filesDir, "${System.currentTimeMillis()}_$name")
-            contentResolver.openInputStream(uri)?.use { inputStream ->
-                FileOutputStream(file).use { outputStream ->
-                    inputStream.copyTo(outputStream)
-                }
-            }
-            path = file.absolutePath
-        }
-
-        path?.let {
-            adjustImageOrientation(it)
-        }
-
-        return path
-    }
-
-    private fun adjustImageOrientation(imagePath: String) {
-        try {
-            val exif = ExifInterface(imagePath)
-            val orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-            val bitmap = BitmapFactory.decodeFile(imagePath)
-            val rotatedBitmap = when (orientation) {
-                ExifInterface.ORIENTATION_ROTATE_90 -> rotateBitmap(bitmap, 90f)
-                ExifInterface.ORIENTATION_ROTATE_180 -> rotateBitmap(bitmap, 180f)
-                ExifInterface.ORIENTATION_ROTATE_270 -> rotateBitmap(bitmap, 270f)
-                else -> bitmap
-            }
-
-            // Save the rotated bitmap back to the file
-            FileOutputStream(imagePath).use { out ->
-                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-            }
-
-        } catch (e: Exception) {
-            Log.e("EntryOperation", "Error adjusting image orientation", e)
-        }
-    }
-
-    private fun rotateBitmap(bitmap: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix().apply { postRotate(degrees) }
-        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
-    }
-
-    private fun insertImagePathToMarkdown(imagePath: String) {
-        val markdownImage = "![Image](file://$imagePath)"
-        val cursorPosition = editText.selectionStart
-        editText.text?.insert(cursorPosition, markdownImage)
-        if (!isEditMode) {
-            renderMarkdown()
-        }
-    }
-
-    private fun initializeTagButtons(tags: List<String>) {
-        tagLayout.removeAllViews()  // Clear any existing buttons
-
-        for (tag in tags) {
-            val tagButton = Button(this).apply {
-                text = tag
-                setBackgroundColor(Color.parseColor("#AFAFAF")) // Unselected state background color
-                setTextColor(Color.WHITE)
-                textSize = 14f
-                layoutParams = LinearLayout.LayoutParams(
-                    0, // Match the bottom buttons layout width
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    1f // Weight of 1 to distribute evenly
-                )
-                setPadding(0, 0, 0, 0) // Minimal padding
-                minHeight = 0 // Remove minimum height
-                height = LinearLayout.LayoutParams.WRAP_CONTENT // Ensure height wraps content
-                setOnClickListener { toggleTag(tag, this) }
-            }
-            tagLayout.addView(tagButton)
-        }
-    }
-
-    private fun toggleTag(tag: String, button: Button) {
-        val entryData = entries.find { it.created == currentEntryId }
-        entryData?.let {
-            if (it.tags.contains(tag)) {
-                it.tags.remove(tag)
-                button.setBackgroundColor(Color.parseColor("#AFAFAF")) // Unselected state
-            } else {
-                it.tags.add(tag)
-                button.setBackgroundColor(Color.parseColor("#999999")) // Selected state
-
-                // If the entry has no content and no modified date, set the modified date to now
-                if (it.content.isEmpty() && it.modified == null) {
-                    val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
-                    dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-                    it.modified = dateFormat.format(Date())
-                }
-            }
-            updateEntriesJson()
-        }
-    }
-
-    private fun updateTagButtons(tags: List<String>?) {
-        for (i in 0 until tagLayout.childCount) {
-            val tagButton = tagLayout.getChildAt(i) as Button
-            if (tags != null && tags.contains(tagButton.text.toString())) {
-                tagButton.setBackgroundColor(Color.parseColor("#999999")) // Selected state background color
-            } else {
-                tagButton.setBackgroundColor(Color.parseColor("#AFAFAF")) // Unselected state background color
-            }
-        }
-    }
-
     data class EntryData(
         val created: String,
         var modified: String?,
         var content: String,
         var coords: String?,
         var last_coords: String?,
-        var tags: MutableList<String> = mutableListOf() // Initialize with an empty list
+        var tags: MutableList<String> = mutableListOf()
     )
-
 }
