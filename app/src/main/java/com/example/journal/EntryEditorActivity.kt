@@ -141,9 +141,17 @@ class EntryEditorActivity : AppCompatActivity() {
     private fun setupEditText() {
         editText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
             override fun afterTextChanged(s: Editable?) {
-                if (!s.isNullOrEmpty()) {
+                if (s.isNullOrEmpty()) {
+                    // If text becomes empty, delete the current entry and create a new one
+                    deleteCurrentEntry()
+                    createNewEntry()
+                    editText.text.clear()
+                    KeyboardUtils.showKeyboard(this@EntryEditorActivity, editText)
+                } else {
                     saveEntryContent(s.toString())
                     MarkdownUtils.updateTextStyles(editText)
                 }
@@ -356,6 +364,16 @@ class EntryEditorActivity : AppCompatActivity() {
         val nightMode = preferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_NO)
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }
+
+
+    private fun deleteCurrentEntry() {
+        currentEntryId?.let { id ->
+            entries.removeAll { it.created == id }
+            EntryDataUtils.updateEntriesJson(this, entries)
+            Log.d("EntryOperation", "Deleted entry: $id")
+        }
+    }
+
 
 
     data class EntryData(

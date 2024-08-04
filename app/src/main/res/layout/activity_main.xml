@@ -65,7 +65,7 @@
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="20sp"
                 android:background="?attr/backgroundColor"
-                android:minHeight="200dp" />
+                android:minHeight="800dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
