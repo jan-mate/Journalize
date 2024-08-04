@@ -8,6 +8,7 @@ import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
@@ -18,6 +19,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.gson.GsonBuilder
@@ -52,12 +54,20 @@ class EntryEditorActivity : AppCompatActivity() {
     private var isEditMode = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // Apply the saved theme before calling super.onCreate
+        applyCurrentTheme()
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         initializeViews()
         setupButtonListeners()
         setupEditText()
+
+        // Change cursor color (if applicable)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            editText.textCursorDrawable = ContextCompat.getDrawable(this, R.drawable.cursor_drawable)
+        }
 
         // Load entries and handle intent
         entries = EntryDataUtils.loadEntries(this)
@@ -70,7 +80,7 @@ class EntryEditorActivity : AppCompatActivity() {
         // Show keyboard initially
         KeyboardUtils.showKeyboard(this, editText)
 
-
+        // Load and initialize tags
         val tagsList = TagUtils.loadTags(this)
         TagUtils.initializeTagButtons(this, tagLayout, tagsList) { tag, button ->
             TagUtils.toggleTag(entries, currentEntryId, tag, button) {
@@ -78,12 +88,13 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
 
-
+        // Update tag buttons based on the current entry
         currentEntryId?.let {
             val entryData = entries.find { entry -> entry.created == it }
             entryData?.let { TagUtils.updateTagButtons(tagLayout, it.tags) }
         }
     }
+
 
     private fun initializeViews() {
         editText = findViewById(R.id.editText)
@@ -339,6 +350,13 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
     }
+
+    private fun applyCurrentTheme() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val nightMode = preferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_NO)
+        AppCompatDelegate.setDefaultNightMode(nightMode)
+    }
+
 
     data class EntryData(
         val created: String,

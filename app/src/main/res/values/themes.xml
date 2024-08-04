@@ -11,6 +11,9 @@
         <item name="colorOnSecondary">@color/textColor</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <!-- Define the custom attribute for the background -->
+        <item name="backgroundColor">@color/backgroundColor</item>
+        <!-- Ensure window background uses the correct resource -->
         <item name="android:windowBackground">@color/backgroundColor</item>
         <item name="android:textColor">@color/textColor</item>
         <item name="android:buttonStyle">@style/CustomButton</item>
@@ -18,9 +21,23 @@
     </style>
 
     <style name="CustomButton" parent="Widget.AppCompat.Button">
-        <item name="android:background">@drawable/custom_button_background</item>
-        <item name="android:textColor">@color/textColor</item>
+        <item name="android:background">@color/buttonColor</item>
+        <item name="android:textColor">@color/buttonTextColor</item>
         <item name="android:padding">4dp</item>
         <item name="android:elevation">0dp</item>
+    </style>
+
+    <!-- Custom dialog theme -->
+    <style name="AlertDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:buttonBarButtonStyle">@style/AlertDialogButton</item>
+        <item name="android:textColorPrimary">@color/textColor</item>
+        <item name="android:textColorSecondary">@color/textColor</item>
+        <item name="android:background">@color/colorPrimary</item>
+    </style>
+
+    <!-- Custom dialog button style -->
+    <style name="AlertDialogButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/textColor</item>
+        <item name="android:backgroundTint">@color/buttonColor</item>
     </style>
 </resources>

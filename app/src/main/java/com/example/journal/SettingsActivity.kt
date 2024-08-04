@@ -5,8 +5,11 @@ import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
+import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import android.preference.PreferenceManager
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -14,15 +17,23 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var timerEditText: EditText
     private lateinit var tagsEditText: EditText
     private lateinit var viewJsonButton: Button
+    private lateinit var darkModeButton: Button
+    private lateinit var lightModeButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Apply the saved theme when the activity starts
+        applyCurrentTheme()
+
         setContentView(R.layout.activity_settings)
 
         timerTextView = findViewById(R.id.timerTextView)
         timerEditText = findViewById(R.id.timerEditText)
         tagsEditText = findViewById(R.id.tagsEditText)
         viewJsonButton = findViewById(R.id.viewJsonButton)
+        darkModeButton = findViewById(R.id.darkModeButton)
+        lightModeButton = findViewById(R.id.lightModeButton)
 
         // Load initial timer value
         val initialTimerValue = AppUsageUtils.getTimerDuration(this)
@@ -59,6 +70,30 @@ class SettingsActivity : AppCompatActivity() {
             val intent = Intent(this, ViewJsonActivity::class.java)
             startActivity(intent)
         }
+
+        // Set click listeners for theme buttons
+        darkModeButton.setOnClickListener {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+            saveThemePreference(AppCompatDelegate.MODE_NIGHT_YES)
+            recreate() // Recreate activity to apply theme change
+        }
+
+        lightModeButton.setOnClickListener {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+            saveThemePreference(AppCompatDelegate.MODE_NIGHT_NO)
+            recreate() // Recreate activity to apply theme change
+        }
+    }
+
+    private fun applyCurrentTheme() {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val nightMode = preferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_NO)
+        AppCompatDelegate.setDefaultNightMode(nightMode)
+    }
+
+    private fun saveThemePreference(nightMode: Int) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(this)
+        preferences.edit().putInt("theme_mode", nightMode).apply()
     }
 
     private fun saveTags() {

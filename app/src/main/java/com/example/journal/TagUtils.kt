@@ -1,9 +1,9 @@
 package com.example.journal
 
 import android.content.Context
-import android.graphics.Color
 import android.widget.Button
 import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -19,11 +19,16 @@ object TagUtils {
     ) {
         tagLayout.removeAllViews()
 
+        // Use the same button color and text color for tag buttons
+        val buttonColor = ContextCompat.getColor(context, R.color.buttonColor)
+        val buttonTextColor = ContextCompat.getColor(context, R.color.buttonTextColor)
+        val tagButtonSelectedColor = ContextCompat.getColor(context, R.color.colorAccent) // Use accent color for selection
+
         for (tag in tags) {
             val tagButton = Button(context).apply {
                 text = tag
-                setBackgroundColor(Color.parseColor("#AFAFAF"))
-                setTextColor(Color.WHITE)
+                setBackgroundColor(buttonColor) // Use the general button color
+                setTextColor(buttonTextColor) // Use the general button text color
                 textSize = 14f
                 layoutParams = LinearLayout.LayoutParams(
                     0,
@@ -33,6 +38,7 @@ object TagUtils {
                 setPadding(0, 0, 0, 0)
                 minHeight = 0
                 height = LinearLayout.LayoutParams.WRAP_CONTENT
+                alpha = 1.0f
                 setOnClickListener { onClick(tag, this) }
             }
             tagLayout.addView(tagButton)
@@ -40,13 +46,17 @@ object TagUtils {
     }
 
     fun updateTagButtons(tagLayout: LinearLayout, tags: List<String>?) {
+        val buttonColor = ContextCompat.getColor(tagLayout.context, R.color.buttonColor)
+        val tagButtonSelectedColor = ContextCompat.getColor(tagLayout.context, R.color.colorAccent)
+
         for (i in 0 until tagLayout.childCount) {
             val tagButton = tagLayout.getChildAt(i) as Button
             if (tags != null && tags.contains(tagButton.text.toString())) {
-                tagButton.setBackgroundColor(Color.parseColor("#999999"))
+                tagButton.setBackgroundColor(tagButtonSelectedColor)
             } else {
-                tagButton.setBackgroundColor(Color.parseColor("#AFAFAF"))
+                tagButton.setBackgroundColor(buttonColor)
             }
+            tagButton.alpha = 1.0f
         }
     }
 
@@ -57,19 +67,23 @@ object TagUtils {
         button: Button,
         updateEntriesJson: () -> Unit
     ) {
+        val buttonColor = ContextCompat.getColor(button.context, R.color.buttonColor)
+        val tagButtonSelectedColor = ContextCompat.getColor(button.context, R.color.colorAccent)
+
         val entryData = entries.find { it.created == currentEntryId }
         entryData?.let {
             if (it.tags.contains(tag)) {
                 it.tags.remove(tag)
-                button.setBackgroundColor(Color.parseColor("#AFAFAF"))
+                button.setBackgroundColor(buttonColor)
             } else {
                 it.tags.add(tag)
-                button.setBackgroundColor(Color.parseColor("#999999"))
+                button.setBackgroundColor(tagButtonSelectedColor)
 
                 if (it.content.isEmpty() && it.modified == null) {
                     EntryDataUtils.updateModifiedTime(it)
                 }
             }
+            button.alpha = 1.0f
             updateEntriesJson()
         }
     }
@@ -79,7 +93,7 @@ object TagUtils {
         val tagsJson = sharedPreferences.getString("tags", null)
 
         return if (tagsJson.isNullOrEmpty()) {
-            defaultTags // Load default tags if no tags are saved
+            defaultTags
         } else {
             val type = object : TypeToken<List<String>>() {}.type
             Gson().fromJson(tagsJson, type)

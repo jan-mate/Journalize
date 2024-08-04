@@ -4,16 +4,16 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
-    android:background="#121212">
+    android:background="?attr/backgroundColor">
 
     <!-- Timer Settings -->
     <TextView
         android:id="@+id/timerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="The inactivity duration (in seconds) after which a new entry will be created when the app is reopened:"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="16dp" />
+        android:text="Inactivity duration (in seconds):"
+        android:textColor="?attr/colorOnPrimary"
+        android:layout_marginBottom="8dp" />
 
     <EditText
         android:id="@+id/timerEditText"
@@ -21,10 +21,16 @@
         android:layout_height="wrap_content"
         android:inputType="number"
         android:hint="Enter seconds"
-        android:textColor="#FFFFFF"
-        android:background="#424242"
+        android:textColor="?attr/colorOnPrimary"
+        android:background="@color/buttonColor"
         android:padding="10dp"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="16dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOnPrimary"
+        android:layout_marginBottom="16dp" />
 
     <!-- Tag Editing Section -->
     <TextView
@@ -32,8 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Edit Tags (comma-separated):"
-        android:textColor="#FFFFFF"
-        android:layout_marginTop="16dp"
+        android:textColor="?attr/colorOnPrimary"
         android:layout_marginBottom="8dp" />
 
     <EditText
@@ -41,20 +46,71 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter tags"
-        android:textColor="#FFFFFF"
-        android:background="#424242"
+        android:textColor="?attr/colorOnPrimary"
+        android:background="@color/buttonColor"
         android:padding="10dp"
         android:inputType="text"
         android:imeOptions="actionDone"
-        android:layout_marginBottom="32dp" />
+        android:layout_marginBottom="16dp" />
 
-    <!-- Other Options -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOnPrimary"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Dark/Light Mode Selection -->
+    <TextView
+        android:id="@+id/themeSwitchLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Theme:"
+        android:textColor="?attr/colorOnPrimary"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/darkModeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Dark Mode"
+            android:background="@color/buttonColor"
+            android:textColor="@color/buttonTextColor"
+            android:padding="10dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/lightModeButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Light Mode"
+            android:background="@color/buttonColor"
+            android:textColor="@color/buttonTextColor"
+            android:padding="10dp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOnPrimary"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Button to view or manage entries -->
     <Button
         android:id="@+id/viewJsonButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="View, Delete, Import, Share, Save or Edit Entries"
-        android:background="#424242"
-        android:textColor="#FFFFFF" />
-
+        android:background="@color/buttonColor"
+        android:textColor="@color/buttonTextColor"
+        android:layout_marginBottom="16dp" />
 </LinearLayout>

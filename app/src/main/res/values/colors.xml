@@ -1,8 +1,16 @@
 <resources>
+    <!-- Light mode colors -->
     <color name="colorPrimary">#B0B0B0</color>
-    <color name="colorPrimaryDark">#909090</color>
-    <color name="colorAccent">#707070</color>
-    <color name="buttonColor">#424242</color>
-    <color name="textColor">#FFFFFF</color>
-    <color name="backgroundColor">#424242</color>
+    <color name="colorPrimaryDark">#FFFFFF</color>
+    <color name="colorAccent">#D3D3D3</color>
+    <color name="textColor">#000000</color>
+    <color name="backgroundColor">#FFFFFF</color>
+    <color name="dividerColor">#B0B0B0</color>
+    <color name="buttonColor">#FFFFFF</color> <!-- Light Gray for button background -->
+    <color name="buttonTextColor">#000000</color> <!-- Very Dark Gray for button text -->
+    <color name="entryBackgroundColor">#FFFFFF</color>
+    <color name="imageBorderColor">#909090</color>
+    <color name="buttonDisabledColor">#D3D3D3</color>
+    <color name="checkboxTintColor">#B0B0B0</color>
+    <color name="cursorColor">#101010</color>
 </resources>

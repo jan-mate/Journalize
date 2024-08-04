@@ -1,8 +1,9 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121212"
+    android:background="?attr/backgroundColor"
     tools:context=".EntryEditorActivity">
 
     <TextView
@@ -12,7 +13,7 @@
         android:text=""
         android:padding="8dp"
         android:visibility="gone"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnPrimary"
         android:layout_alignParentTop="true"
         android:layout_alignParentStart="true"
         android:layout_marginStart="6dp" />
@@ -21,7 +22,7 @@
         android:id="@+id/coordinatesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="#FFFFFF"
+        android:textColor="?attr/colorOnPrimary"
         android:layout_alignParentTop="true"
         android:layout_alignParentEnd="true"
         android:layout_marginEnd="6dp"
@@ -45,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="20sp"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnPrimary"
                 android:visibility="gone"
                 android:scrollbars="vertical" />
 
@@ -61,9 +62,9 @@
                 android:padding="0dp"
                 android:layout_marginStart="0dp"
                 android:layout_marginEnd="0dp"
-                android:textColor="#FFFFFF"
+                android:textColor="?attr/colorOnPrimary"
                 android:textSize="20sp"
-                android:background="#121212"
+                android:background="?attr/backgroundColor"
                 android:minHeight="200dp" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
@@ -76,7 +77,6 @@
         android:gravity="center"
         android:layout_above="@id/buttonLayout"
         android:padding="0dp">
-        <!-- Tag buttons will be added dynamically here -->
     </LinearLayout>
 
     <LinearLayout
@@ -93,10 +93,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="New"
-            android:background="#424242"
-            android:textColor="#FFFFFF"
+            android:background="@drawable/button_background"
+            android:textColor="@color/buttonTextColor"
             android:padding="4dp"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/lastEntryButton"
@@ -104,10 +105,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Last"
-            android:background="#424242"
-            android:textColor="#FFFFFF"
+            android:background="@drawable/button_background"
+            android:textColor="@color/buttonTextColor"
             android:padding="4dp"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/mediaButton"
@@ -115,10 +117,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Media"
-            android:background="#424242"
-            android:textColor="#FFFFFF"
+            android:background="@drawable/button_background"
+            android:textColor="@color/buttonTextColor"
             android:padding="4dp"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/renderButton"
@@ -126,10 +129,11 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Render"
-            android:background="#424242"
-            android:textColor="#FFFFFF"
+            android:background="@drawable/button_background"
+            android:textColor="@color/buttonTextColor"
             android:padding="4dp"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/viewFilesButton"
@@ -137,10 +141,10 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="Old"
-            android:background="#424242"
-            android:textColor="#FFFFFF"
+            android:background="@drawable/button_background"
+            android:textColor="@color/buttonTextColor"
             android:padding="4dp"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            app:backgroundTint="@null" />
     </LinearLayout>
 </RelativeLayout>
-

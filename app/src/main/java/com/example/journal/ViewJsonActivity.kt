@@ -73,7 +73,7 @@ class ViewJsonActivity : AppCompatActivity() {
     }
 
     private fun showDeleteConfirmationDialog() {
-        val builder = AlertDialog.Builder(this)
+        val builder = AlertDialog.Builder(this, R.style.AlertDialogTheme) // Correct style reference
         builder.setTitle("Confirm Delete")
         builder.setMessage("Are you sure you want to delete the JSON file?")
         builder.setPositiveButton("Yes") { dialog, which ->
@@ -85,6 +85,8 @@ class ViewJsonActivity : AppCompatActivity() {
         }
         builder.create().show()
     }
+
+
 
     private fun clearJsonFile() {
         val jsonFile = File(filesDir, "entries_log.json")

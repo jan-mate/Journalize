@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#424242"
+    android:background="@color/entryBackgroundColor"
     android:padding="8dp"
     android:layout_margin="4dp">
 
@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
-        android:buttonTint="#E0E0E0" />
+        android:buttonTint="@color/checkboxTintColor" />
 
     <TextView
         android:id="@+id/entryModifiedDateTextView"
@@ -20,7 +20,7 @@
         android:layout_height="wrap_content"
         android:text="Modified X days ago"
         android:textSize="12sp"
-        android:textColor="#B0B0B0"
+        android:textColor="@color/textColor"
         android:layout_alignParentStart="true"
         android:layout_marginEnd="16dp"
         android:layout_toStartOf="@id/selectCheckBox" />
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:text="Created on"
         android:textSize="12sp"
-        android:textColor="#B0B0B0"
+        android:textColor="@color/textColor"
         android:layout_toEndOf="@id/entryModifiedDateTextView"
         android:layout_marginStart="128dp"
         android:layout_alignBaseline="@id/entryModifiedDateTextView"
@@ -57,7 +57,8 @@
             android:scaleType="centerCrop"
             android:contentDescription="Entry Image 1"
             android:layout_marginEnd="4dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:background="@color/imageBorderColor" />
 
         <ImageView
             android:id="@+id/entryImageView2"
@@ -66,7 +67,8 @@
             android:scaleType="centerCrop"
             android:contentDescription="Entry Image 2"
             android:layout_marginEnd="4dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:background="@color/imageBorderColor" />
 
         <ImageView
             android:id="@+id/entryImageView3"
@@ -75,7 +77,8 @@
             android:scaleType="centerCrop"
             android:contentDescription="Entry Image 3"
             android:layout_marginEnd="4dp"
-            android:visibility="gone" />
+            android:visibility="gone"
+            android:background="@color/imageBorderColor" />
 
         <ImageView
             android:id="@+id/entryImageView4"
@@ -84,8 +87,9 @@
             android:scaleType="centerCrop"
             android:contentDescription="Entry Image 4"
             android:layout_marginEnd="4dp"
-            android:visibility="gone" />
-        
+            android:visibility="gone"
+            android:background="@color/imageBorderColor" />
+
     </LinearLayout>
 
     <TextView
@@ -94,7 +98,7 @@
         android:layout_height="wrap_content"
         android:text="Entry Content"
         android:textSize="18sp"
-        android:textColor="#E0E0E0"
+        android:textColor="@color/textColor"
         android:layout_below="@id/imagesContainer"
         android:layout_alignParentStart="true"
         android:layout_marginTop="8dp"
