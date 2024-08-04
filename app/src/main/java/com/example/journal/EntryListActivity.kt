@@ -5,12 +5,16 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SearchView
+import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
 import com.google.gson.GsonBuilder
@@ -25,10 +29,9 @@ import java.util.concurrent.TimeUnit
 class EntryListActivity : AppCompatActivity() {
 
     private lateinit var entryListView: ListView
-    private lateinit var deleteButton: Button
-    private lateinit var settingsButton: Button
-    private lateinit var searchView: SearchView
-    private var selectedEntries = mutableListOf<String>()
+    private lateinit var overflowMenu: ImageView
+    private lateinit var searchView: EditText
+    private var selectedEntries = mutableSetOf<String>()
     private var entryListAdapter: EntryListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -36,41 +39,92 @@ class EntryListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_list)
 
         entryListView = findViewById(R.id.fileListView)
-        deleteButton = findViewById(R.id.deleteButton)
-        settingsButton = findViewById(R.id.settingsButton)
+        overflowMenu = findViewById(R.id.overflowMenu)
         searchView = findViewById(R.id.searchView)
 
         loadEntries()
 
-        deleteButton.setOnClickListener {
-            deleteSelectedEntries()
+        // Set the custom cursor drawable for the search EditText
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            searchView.textCursorDrawable =
+                ContextCompat.getDrawable(this, R.drawable.cursor_drawable)
         }
 
-        settingsButton.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
-        }
+        overflowMenu.setOnClickListener { showPopupMenu(overflowMenu) }
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                entryListAdapter?.filter(query)
-                return false
-            }
+        // Add text change listener to searchView
+        searchView.addTextChangedListener(object : android.text.TextWatcher {
+            override fun afterTextChanged(s: android.text.Editable?) {}
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                entryListAdapter?.filter(newText)
-                return false
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                entryListAdapter?.filter(s.toString())
             }
         })
 
-        // Show keyboard by default when SearchView is focused
-        searchView.setOnClickListener {
-            KeyboardUtils.showKeyboard(this, searchView)
+        // Show keyboard when activity starts
+        searchView.requestFocus()
+        searchView.postDelayed({
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(searchView, InputMethodManager.SHOW_IMPLICIT)
+        }, 200)
+
+        // Optionally, handle focus change to show the keyboard again
+        searchView.setOnFocusChangeListener { _, hasFocus ->
+            if (hasFocus) {
+                showKeyboard(searchView)
+            }
+        }
+    }
+
+    private fun showPopupMenu(view: View) {
+        // Create a PopupMenu
+        val popupMenu = PopupMenu(this, view)
+        val inflater: MenuInflater = popupMenu.menuInflater
+        inflater.inflate(R.menu.popup_menu, popupMenu.menu)
+        popupMenu.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.select_all_shown -> {
+                    toggleSelectAllShownEntries()
+                    true
+                }
+                R.id.delete_selected -> {
+                    deleteSelectedEntries()
+                    true
+                }
+                R.id.settings -> {
+                    val intent = Intent(this, SettingsActivity::class.java)
+                    startActivity(intent)
+                    true
+                }
+                else -> false
+            }
+        }
+        popupMenu.show()
+    }
+
+    private fun toggleSelectAllShownEntries() {
+        // Get the list of currently visible entries
+        val visibleEntries = entryListAdapter?.getVisibleEntries() ?: emptyList()
+
+        // Check if all visible entries are selected
+        val allSelected = visibleEntries.all { selectedEntries.contains(it.created) }
+
+        if (allSelected) {
+            // If all are selected, unselect them
+            visibleEntries.forEach { entry ->
+                entry.created?.let { selectedEntries.remove(it) }
+            }
+        } else {
+            // If not all are selected, select them all
+            visibleEntries.forEach { entry ->
+                entry.created?.let { selectedEntries.add(it) }
+            }
         }
 
-        // Request focus on SearchView and show keyboard by default
-        searchView.requestFocus()
-        KeyboardUtils.showKeyboard(this, searchView)
+        // Notify the adapter to update the checkboxes
+        entryListAdapter?.notifyDataSetChanged()
     }
 
     override fun onPause() {
@@ -108,7 +162,6 @@ class EntryListActivity : AppCompatActivity() {
 
         entryListAdapter = EntryListAdapter(EntryEditorActivity.entries)
         entryListView.adapter = entryListAdapter
-        deleteButton.isEnabled = false
     }
 
     private fun deleteSelectedEntries() {
@@ -116,7 +169,6 @@ class EntryListActivity : AppCompatActivity() {
         updateEntriesJson()
         loadEntries()
         selectedEntries.clear()
-        deleteButton.isEnabled = false
     }
 
     private fun updateEntriesJson() {
@@ -146,7 +198,15 @@ class EntryListActivity : AppCompatActivity() {
         startActivity(Intent.createChooser(intent, "Share JSON file"))
     }
 
-    inner class EntryListAdapter(private var entries: List<EntryEditorActivity.EntryData>) : BaseAdapter() {
+    private fun showKeyboard(view: View) {
+        view.post {
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
+    }
+
+    inner class EntryListAdapter(private var entries: List<EntryEditorActivity.EntryData>) :
+        BaseAdapter() {
 
         private var filteredEntries: List<EntryEditorActivity.EntryData> = entries
 
@@ -163,9 +223,12 @@ class EntryListActivity : AppCompatActivity() {
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
-            val view: View = convertView ?: layoutInflater.inflate(R.layout.list_item, parent, false)
-            val entryModifiedDateTextView: TextView = view.findViewById(R.id.entryModifiedDateTextView)
-            val entryCreatedDateTextView: TextView = view.findViewById(R.id.entryCreatedDateTextView)
+            val view: View =
+                convertView ?: layoutInflater.inflate(R.layout.list_item, parent, false)
+            val entryModifiedDateTextView: TextView =
+                view.findViewById(R.id.entryModifiedDateTextView)
+            val entryCreatedDateTextView: TextView =
+                view.findViewById(R.id.entryCreatedDateTextView)
             val entryContentTextView: TextView = view.findViewById(R.id.entryContentTextView)
             val selectCheckBox: CheckBox = view.findViewById(R.id.selectCheckBox)
 
@@ -210,7 +273,6 @@ class EntryListActivity : AppCompatActivity() {
                 } else {
                     selectedEntries.remove(createdText)
                 }
-                deleteButton.isEnabled = selectedEntries.isNotEmpty()
             }
 
             selectCheckBox.setOnTouchListener { v, event ->
@@ -264,7 +326,8 @@ class EntryListActivity : AppCompatActivity() {
 
         private fun extractImageUrls(content: String): List<String> {
             val regex = Regex("!\\[.*?\\]\\((file://.*?)\\)")
-            return regex.findAll(content).map { it.groups[1]?.value ?: "" }.filter { it.isNotEmpty() }.toList()
+            return regex.findAll(content).map { it.groups[1]?.value ?: "" }
+                .filter { it.isNotEmpty() }.toList()
         }
 
         fun filter(query: String?) {
@@ -280,7 +343,8 @@ class EntryListActivity : AppCompatActivity() {
                             "AND", "∧", "\\LAND" -> useAnd = true
                             "OR", "∨", "\\LOR" -> useAnd = false
                             else -> {
-                                val contains = entry.content.contains(condition, ignoreCase = true)
+                                val contains =
+                                    entry.content.contains(condition, ignoreCase = true)
                                 match = if (useAnd) match && contains else match || contains
                             }
                         }
@@ -290,6 +354,10 @@ class EntryListActivity : AppCompatActivity() {
                 filteredEntries = filteredList
             }
             notifyDataSetChanged()
+        }
+
+        fun getVisibleEntries(): List<EntryEditorActivity.EntryData> {
+            return filteredEntries
         }
     }
 }
