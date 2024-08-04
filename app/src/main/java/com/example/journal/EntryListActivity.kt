@@ -85,10 +85,6 @@ class EntryListActivity : AppCompatActivity() {
         inflater.inflate(R.menu.popup_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.new_entry -> {
-                    createNewEntry()
-                    true
-                }
                 R.id.select_all_shown -> {
                     toggleSelectAllShownEntries()
                     true
@@ -106,12 +102,6 @@ class EntryListActivity : AppCompatActivity() {
             }
         }
         popupMenu.show()
-    }
-
-    private fun createNewEntry() {
-        val intent = Intent(this, EntryEditorActivity::class.java)
-        intent.putExtra("new_entry", true)
-        startActivity(intent)
     }
 
     private fun toggleSelectAllShownEntries() {
@@ -235,10 +225,9 @@ class EntryListActivity : AppCompatActivity() {
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val view: View =
                 convertView ?: layoutInflater.inflate(R.layout.list_item, parent, false)
-            val entryModifiedDateTextView: TextView =
-                view.findViewById(R.id.entryModifiedDateTextView)
-            val entryCreatedDateTextView: TextView =
-                view.findViewById(R.id.entryCreatedDateTextView)
+
+            val entryModifiedDateTextView: TextView = view.findViewById(R.id.entryModifiedDateTextView)
+            val entryTagsTextView: TextView = view.findViewById(R.id.entryTagsTextView)
             val entryContentTextView: TextView = view.findViewById(R.id.entryContentTextView)
             val selectCheckBox: CheckBox = view.findViewById(R.id.selectCheckBox)
 
@@ -253,8 +242,24 @@ class EntryListActivity : AppCompatActivity() {
             val createdText = entryData.created ?: "Unknown"
             val modifiedText = entryData.modified?.let { formatTimeDifference(it) } ?: "Unknown"
 
-            entryModifiedDateTextView.text = modifiedText
-            entryCreatedDateTextView.text = formatDateWithoutSeconds(createdText)
+            // Determine coordinates text
+            val coordsText = when {
+                !entryData.coords.isNullOrEmpty() -> entryData.coords
+                !entryData.last_coords.isNullOrEmpty() -> "≈ ${entryData.last_coords}"
+                else -> ""
+            }
+
+            // Set combined text for Modified Date, Created Date, and Coordinates
+            entryModifiedDateTextView.text = "$modifiedText | ${formatDateWithoutSeconds(createdText)} | $coordsText".trimEnd()
+
+            // Set tags as a comma-separated string if there are any
+            if (entryData.tags.isNotEmpty()) {
+                entryTagsTextView.text = entryData.tags.joinToString(", ")
+                entryTagsTextView.visibility = View.VISIBLE
+            } else {
+                entryTagsTextView.visibility = View.GONE
+            }
+
             entryContentTextView.text = createPreviewText(entryData.content)
 
             // Clear all ImageViews initially
