@@ -70,13 +70,14 @@ class EntryEditorActivity : AppCompatActivity() {
         // Show keyboard initially
         KeyboardUtils.showKeyboard(this, editText)
 
-        // Initialize tag buttons (example tags list)
-        val tagsList = listOf("Do", "φ", "“…“", "Book", "Grace")
+
+        val tagsList = TagUtils.loadTags(this)
         TagUtils.initializeTagButtons(this, tagLayout, tagsList) { tag, button ->
             TagUtils.toggleTag(entries, currentEntryId, tag, button) {
                 EntryDataUtils.updateEntriesJson(this, entries)
             }
         }
+
 
         currentEntryId?.let {
             val entryData = entries.find { entry -> entry.created == it }

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#121212">
+
+    <!-- Timer Settings -->
+    <TextView
+        android:id="@+id/timerTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="The inactivity duration (in seconds) after which a new entry will be created when the app is reopened:"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="16dp" />
+
+    <EditText
+        android:id="@+id/timerEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Enter seconds"
+        android:textColor="#FFFFFF"
+        android:background="#424242"
+        android:padding="10dp"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Tag Editing Section -->
+    <TextView
+        android:id="@+id/tagsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit Tags (comma-separated):"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp" />
+
+    <EditText
+        android:id="@+id/tagsEditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter tags"
+        android:textColor="#FFFFFF"
+        android:background="#424242"
+        android:padding="10dp"
+        android:inputType="text"
+        android:imeOptions="actionDone"
+        android:layout_marginBottom="32dp" />
+
+    <!-- Other Options -->
+    <Button
+        android:id="@+id/viewJsonButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="View, Delete, Import, Share, Save or Edit Entries"
+        android:background="#424242"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>

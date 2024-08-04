@@ -4,10 +4,19 @@ import android.content.Context
 import android.graphics.Color
 import android.widget.Button
 import android.widget.LinearLayout
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 object TagUtils {
 
-    fun initializeTagButtons(context: Context, tagLayout: LinearLayout, tags: List<String>, onClick: (String, Button) -> Unit) {
+    private val defaultTags = listOf("Do", "φ", "“…“", "Book", "Grace")
+
+    fun initializeTagButtons(
+        context: Context,
+        tagLayout: LinearLayout,
+        tags: List<String>,
+        onClick: (String, Button) -> Unit
+    ) {
         tagLayout.removeAllViews()
 
         for (tag in tags) {
@@ -41,7 +50,13 @@ object TagUtils {
         }
     }
 
-    fun toggleTag(entries: MutableList<EntryEditorActivity.EntryData>, currentEntryId: String?, tag: String, button: Button, updateEntriesJson: () -> Unit) {
+    fun toggleTag(
+        entries: MutableList<EntryEditorActivity.EntryData>,
+        currentEntryId: String?,
+        tag: String,
+        button: Button,
+        updateEntriesJson: () -> Unit
+    ) {
         val entryData = entries.find { it.created == currentEntryId }
         entryData?.let {
             if (it.tags.contains(tag)) {
@@ -57,5 +72,25 @@ object TagUtils {
             }
             updateEntriesJson()
         }
+    }
+
+    fun loadTags(context: Context): List<String> {
+        val sharedPreferences = context.getSharedPreferences("com.example.journal", Context.MODE_PRIVATE)
+        val tagsJson = sharedPreferences.getString("tags", null)
+
+        return if (tagsJson.isNullOrEmpty()) {
+            defaultTags // Load default tags if no tags are saved
+        } else {
+            val type = object : TypeToken<List<String>>() {}.type
+            Gson().fromJson(tagsJson, type)
+        }
+    }
+
+    fun saveTags(context: Context, tags: List<String>) {
+        val sharedPreferences = context.getSharedPreferences("com.example.journal", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        val tagsJson = Gson().toJson(tags)
+        editor.putString("tags", tagsJson)
+        editor.apply()
     }
 }

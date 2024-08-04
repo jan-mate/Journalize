@@ -30,7 +30,9 @@
             android:windowSoftInputMode="adjustPan">
         </activity>
 
-        <activity android:name=".ViewJsonActivity"></activity>
+        <activity android:name=".ViewJsonActivity" />
+
+        <activity android:name=".SettingsActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

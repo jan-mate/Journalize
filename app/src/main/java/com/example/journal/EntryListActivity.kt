@@ -26,7 +26,7 @@ class EntryListActivity : AppCompatActivity() {
 
     private lateinit var entryListView: ListView
     private lateinit var deleteButton: Button
-    private lateinit var viewJsonButton: Button
+    private lateinit var settingsButton: Button
     private lateinit var searchView: SearchView
     private var selectedEntries = mutableListOf<String>()
     private var entryListAdapter: EntryListAdapter? = null
@@ -37,7 +37,7 @@ class EntryListActivity : AppCompatActivity() {
 
         entryListView = findViewById(R.id.fileListView)
         deleteButton = findViewById(R.id.deleteButton)
-        viewJsonButton = findViewById(R.id.viewJsonButton)
+        settingsButton = findViewById(R.id.settingsButton)
         searchView = findViewById(R.id.searchView)
 
         loadEntries()
@@ -46,8 +46,8 @@ class EntryListActivity : AppCompatActivity() {
             deleteSelectedEntries()
         }
 
-        viewJsonButton.setOnClickListener {
-            val intent = Intent(this, ViewJsonActivity::class.java)
+        settingsButton.setOnClickListener {
+            val intent = Intent(this, SettingsActivity::class.java)
             startActivity(intent)
         }
 
@@ -171,9 +171,9 @@ class EntryListActivity : AppCompatActivity() {
 
             val imageViews = listOf(
                 view.findViewById<ImageView>(R.id.entryImageView1),
-                view.findViewById(R.id.entryImageView2),
-                view.findViewById(R.id.entryImageView3),
-                view.findViewById(R.id.entryImageView4)
+                view.findViewById<ImageView>(R.id.entryImageView2),
+                view.findViewById<ImageView>(R.id.entryImageView3),
+                view.findViewById<ImageView>(R.id.entryImageView4)
             )
 
             val entryData = filteredEntries[position]

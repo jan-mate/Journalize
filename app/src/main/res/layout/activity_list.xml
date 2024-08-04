@@ -59,11 +59,11 @@
                 android:textColor="#FFFFFF" />
 
             <Button
-                android:id="@+id/viewJsonButton"
+                android:id="@+id/settingsButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="View JSON"
+                android:text="Settings"
                 android:background="#424242"
                 android:textColor="#FFFFFF" />
         </LinearLayout>
