@@ -85,6 +85,10 @@ class EntryListActivity : AppCompatActivity() {
         inflater.inflate(R.menu.popup_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
+                R.id.new_entry -> { // Handle the new entry case
+                    createNewEntry()
+                    true
+                }
                 R.id.select_all_shown -> {
                     toggleSelectAllShownEntries()
                     true
@@ -103,6 +107,13 @@ class EntryListActivity : AppCompatActivity() {
         }
         popupMenu.show()
     }
+
+    private fun createNewEntry() {
+        val intent = Intent(this, EntryEditorActivity::class.java)
+        intent.putExtra("new_entry", true)
+        startActivity(intent)
+    }
+
 
     private fun toggleSelectAllShownEntries() {
         // Get the list of currently visible entries
@@ -375,4 +386,5 @@ class EntryListActivity : AppCompatActivity() {
             return filteredEntries
         }
     }
+
 }
