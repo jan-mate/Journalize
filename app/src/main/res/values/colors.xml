@@ -13,4 +13,5 @@
     <color name="buttonDisabledColor">#D3D3D3</color>
     <color name="checkboxTintColor">#B0B0B0</color>
     <color name="cursorColor">#101010</color>
+    <color name="highlightColor">#B0B0B0</color>
 </resources>

@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">journal</string>
     <string name="menu">Menu</string>
+    <string name="tag_toggle">Toggle Tags</string>
 </resources>

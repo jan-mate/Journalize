@@ -15,6 +15,7 @@
         android:orientation="horizontal"
         android:padding="0dp">
 
+        <!-- Add your Search EditText here -->
         <EditText
             android:id="@+id/searchView"
             android:layout_width="223dp"
@@ -30,12 +31,27 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:textColor="@color/textColor"
+            android:textColorHighlight="@color/highlightColor"
             android:textSize="20sp" />
 
+        <ImageButton
+            android:id="@+id/tagToggleButton"
+            android:layout_width="48dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="0dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tag_toggle"
+            android:padding="4dp"
+            android:src="@drawable/ic_tag" /> <!-- Ensure the drawable name matches the file name -->
+
+
+
+        <!-- Existing Overflow Menu ImageView -->
         <ImageView
             android:id="@+id/overflowMenu"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="center_vertical"
             android:layout_margin="0dp"
             android:layout_weight="1"
@@ -47,6 +63,17 @@
             android:paddingBottom="4dp"
             android:src="@drawable/ic_overflow_menu" />
     </LinearLayout>
+
+    <!-- New layout for tag buttons -->
+    <LinearLayout
+        android:id="@+id/tagLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:background="@color/backgroundColor"
+        android:padding="8dp"
+        android:visibility="gone" />
+
 
     <View
         android:layout_width="match_parent"

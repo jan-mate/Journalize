@@ -31,7 +31,10 @@ class EntryListActivity : AppCompatActivity() {
     private lateinit var entryListView: ListView
     private lateinit var overflowMenu: ImageView
     private lateinit var searchView: EditText
+    private lateinit var tagLayout: LinearLayout
+    private lateinit var tagToggleButton: ImageButton // Add a reference for the tag toggle button
     private var selectedEntries = mutableSetOf<String>()
+    private var selectedTags = mutableSetOf<String>()
     private var entryListAdapter: EntryListAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,8 +44,11 @@ class EntryListActivity : AppCompatActivity() {
         entryListView = findViewById(R.id.fileListView)
         overflowMenu = findViewById(R.id.overflowMenu)
         searchView = findViewById(R.id.searchView)
+        tagLayout = findViewById(R.id.tagLayout)
+        tagToggleButton = findViewById(R.id.tagToggleButton) // Initialize the tag toggle button
 
         loadEntries()
+        loadTags()  // Load and display tags
 
         // Set the custom cursor drawable for the search EditText
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
@@ -51,6 +57,15 @@ class EntryListActivity : AppCompatActivity() {
         }
 
         overflowMenu.setOnClickListener { showPopupMenu(overflowMenu) }
+
+        // Toggle the visibility of the tag layout when the "T" button is clicked
+        tagToggleButton.setOnClickListener {
+            if (tagLayout.visibility == View.VISIBLE) {
+                tagLayout.visibility = View.GONE
+            } else {
+                tagLayout.visibility = View.VISIBLE
+            }
+        }
 
         // Add text change listener to searchView
         searchView.addTextChangedListener(object : android.text.TextWatcher {
@@ -76,6 +91,51 @@ class EntryListActivity : AppCompatActivity() {
                 showKeyboard(searchView)
             }
         }
+    }
+
+    private fun loadTags() {
+        val tagsList = TagUtils.loadTags(this) // Assume you have this utility to load tags
+        if (tagsList.isNotEmpty()) {
+            tagLayout.visibility = View.GONE // Start with the tag layout hidden
+        }
+        populateTagButtons(tagsList)
+    }
+
+    private fun populateTagButtons(tagsList: List<String>) {
+        tagLayout.removeAllViews()  // Clear existing buttons
+        for (tag in tagsList) {
+            val tagButton = Button(this)
+            tagButton.text = tag
+
+            // Set the layout parameters to make the button fill the available space
+            val params = LinearLayout.LayoutParams(
+                0,  // Width set to 0dp
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            )
+            params.weight = 1.0f  // Equal weight to distribute space equally among buttons
+
+            tagButton.layoutParams = params
+
+            tagButton.setOnClickListener { onTagClicked(tagButton) }
+            tagLayout.addView(tagButton)
+        }
+    }
+
+
+    private fun onTagClicked(tagButton: Button) {
+        val tag = tagButton.text.toString()
+        if (selectedTags.contains(tag)) {
+            selectedTags.remove(tag)
+            tagButton.setBackgroundColor(ContextCompat.getColor(this, R.color.buttonColor))
+        } else {
+            selectedTags.add(tag)
+            tagButton.setBackgroundColor(ContextCompat.getColor(this, R.color.buttonDisabledColor))
+        }
+        filterEntriesByTags()
+    }
+
+    private fun filterEntriesByTags() {
+        entryListAdapter?.filterByTags(selectedTags)
     }
 
     private fun showPopupMenu(view: View) {
@@ -113,7 +173,6 @@ class EntryListActivity : AppCompatActivity() {
         intent.putExtra("new_entry", true)
         startActivity(intent)
     }
-
 
     private fun toggleSelectAllShownEntries() {
         // Get the list of currently visible entries
@@ -382,9 +441,19 @@ class EntryListActivity : AppCompatActivity() {
             notifyDataSetChanged()
         }
 
+        fun filterByTags(selectedTags: Set<String>) {
+            if (selectedTags.isEmpty()) {
+                filteredEntries = entries
+            } else {
+                filteredEntries = entries.filter { entry ->
+                    entry.tags.any { it in selectedTags }
+                }
+            }
+            notifyDataSetChanged()
+        }
+
         fun getVisibleEntries(): List<EntryEditorActivity.EntryData> {
             return filteredEntries
         }
     }
-
 }
