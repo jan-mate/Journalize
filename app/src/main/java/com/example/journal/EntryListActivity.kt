@@ -371,10 +371,19 @@ class EntryListActivity : AppCompatActivity() {
         }
 
         private fun createPreviewText(content: String): String {
-            val cleanedContent = removeImageMarkdown(content)
+            val cleanedContent = removeImageMarkdown(content).trimEnd()
             val lines = cleanedContent.split("\n").take(4)
-            val preview = lines.joinToString("\n").take(120)
-            return if (cleanedContent.length > 150 || lines.size > 3) "$preview…" else preview
+            var preview = lines.joinToString("\n").take(120)
+
+            preview = preview.trimEnd()
+
+            val originalLength = cleanedContent.length
+            val previewLength = preview.length
+            if (originalLength > previewLength) {
+                preview = preview.trimEnd().removeSuffix("\n") + "…"
+            }
+
+            return preview
         }
 
         private fun removeImageMarkdown(content: String): String {

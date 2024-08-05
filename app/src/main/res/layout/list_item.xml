@@ -23,7 +23,7 @@
         android:textSize="12sp"
         android:textColor="@color/textColor"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="4dp"
         android:layout_toStartOf="@id/selectCheckBox"
         android:layout_marginBottom="2dp" /> <!-- Added margin for space below -->
 
@@ -37,7 +37,7 @@
         android:textColor="@color/textColor"
         android:layout_below="@id/entryModifiedDateTextView"
         android:layout_alignParentStart="true"
-        android:layout_marginTop="2dp"
+        android:layout_marginTop="0dp"
         android:layout_marginEnd="16dp"
         android:layout_toStartOf="@id/selectCheckBox"
         android:visibility="gone" /> <!-- Default visibility to gone -->
@@ -48,9 +48,10 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/entryTagsTextView"
         android:orientation="horizontal"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="8dp"
         android:layout_alignParentStart="true"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="4dp"
         android:layout_toStartOf="@id/selectCheckBox">
 
         <ImageView
@@ -101,9 +102,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/imagesContainer"
         android:layout_alignParentStart="true"
-        android:layout_marginStart="4dp"
-        android:layout_marginTop="-8dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="-10dp"
+        android:layout_marginEnd="4dp"
         android:layout_toStartOf="@id/selectCheckBox"
         android:text="Entry Content"
         android:textColor="@color/textColor"
