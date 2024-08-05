@@ -419,24 +419,9 @@ class EntryListActivity : AppCompatActivity() {
             if (query.isNullOrEmpty()) {
                 filteredEntries = entries
             } else {
-                val conditions = query.split(" ")
-                val filteredList = entries.filter { entry ->
-                    var match = true
-                    var useAnd = true
-                    for (condition in conditions) {
-                        when (condition.uppercase()) {
-                            "AND", "∧", "\\LAND" -> useAnd = true
-                            "OR", "∨", "\\LOR" -> useAnd = false
-                            else -> {
-                                val contains =
-                                    entry.content.contains(condition, ignoreCase = true)
-                                match = if (useAnd) match && contains else match || contains
-                            }
-                        }
-                    }
-                    match
+                filteredEntries = entries.filter { entry ->
+                    entry.content.contains(query, ignoreCase = true)
                 }
-                filteredEntries = filteredList
             }
             notifyDataSetChanged()
         }
@@ -456,4 +441,5 @@ class EntryListActivity : AppCompatActivity() {
             return filteredEntries
         }
     }
+
 }
