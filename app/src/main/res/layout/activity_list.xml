@@ -15,7 +15,6 @@
         android:orientation="horizontal"
         android:padding="0dp">
 
-        <!-- Add your Search EditText here -->
         <EditText
             android:id="@+id/searchView"
             android:layout_width="223dp"
@@ -64,14 +63,13 @@
             android:src="@drawable/ic_overflow_menu" />
     </LinearLayout>
 
-    <!-- New layout for tag buttons -->
     <LinearLayout
         android:id="@+id/tagLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:orientation="horizontal"
         android:background="@color/backgroundColor"
-        android:padding="8dp"
+        android:padding="2dp"
         android:visibility="gone" />
 
 
