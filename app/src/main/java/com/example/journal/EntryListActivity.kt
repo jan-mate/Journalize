@@ -254,20 +254,6 @@ class EntryListActivity : AppCompatActivity() {
         }
     }
 
-    private fun shareEntriesJson() {
-        updateEntriesJson()
-        val jsonFile = File(filesDir, "entries_log.json")
-        val uri: Uri = FileProvider.getUriForFile(this, "com.example.journal.provider", jsonFile)
-
-        val intent = Intent(Intent.ACTION_SEND).apply {
-            type = "application/json"
-            putExtra(Intent.EXTRA_STREAM, uri)
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        startActivity(Intent.createChooser(intent, "Share JSON file"))
-    }
-
     private fun showKeyboard(view: View) {
         view.post {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -428,12 +414,34 @@ class EntryListActivity : AppCompatActivity() {
             if (query.isNullOrEmpty()) {
                 filteredEntries = entries
             } else {
+                // Normalize the query to use textual operators
+                val normalizedQuery = query
+                    .replace("∧", "AND")
+                    .replace("∨", "OR")
+                    .trim()
+
+                // Split the query by "OR" to handle OR logic, which has lower precedence
+                val orSegments = normalizedQuery.split("OR").map { it.trim() }
+
                 filteredEntries = entries.filter { entry ->
-                    entry.content.contains(query, ignoreCase = true)
+                    val content = entry.content.lowercase()
+
+                    // Check if any of the AND segments within each OR segment are satisfied
+                    orSegments.any { segment ->
+                        // For each OR segment, split by "AND" to handle AND logic
+                        val andTerms = segment.split("AND").map { it.trim() }
+
+                        // Ensure all terms in this AND segment are present
+                        andTerms.all { term ->
+                            content.contains(term.lowercase())
+                        }
+                    }
                 }
             }
             notifyDataSetChanged()
         }
+
+
 
         fun filterByTags(selectedTags: Set<String>) {
             if (selectedTags.isEmpty()) {

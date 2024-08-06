@@ -28,22 +28,22 @@ object MarkdownUtils {
             val end = start + line.length
             when {
                 line.startsWith("# ") -> {
-                    applyHeaderStyles(spannable, start, end, 2f)
+                    applyHeaderStyles(spannable, start, end, 1.5f)
                 }
                 line.startsWith("## ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.8f)
-                }
-                line.startsWith("### ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.6f)
-                }
-                line.startsWith("#### ") -> {
                     applyHeaderStyles(spannable, start, end, 1.4f)
                 }
-                line.startsWith("##### ") -> {
+                line.startsWith("### ") -> {
+                    applyHeaderStyles(spannable, start, end, 1.3f)
+                }
+                line.startsWith("#### ") -> {
                     applyHeaderStyles(spannable, start, end, 1.2f)
                 }
-                line.startsWith("###### ") -> {
+                line.startsWith("##### ") -> {
                     applyHeaderStyles(spannable, start, end, 1.1f)
+                }
+                line.startsWith("###### ") -> {
+                    applyHeaderStyles(spannable, start, end, 1.05f)
                 }
                 else -> spannable.setSpan(
                     android.text.style.RelativeSizeSpan(1f),
