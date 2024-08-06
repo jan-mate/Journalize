@@ -63,17 +63,18 @@
     <LinearLayout
         android:id="@+id/tagLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_above="@id/buttonLayout"
         android:padding="0dp">
     </LinearLayout>
 
+
     <LinearLayout
         android:id="@+id/buttonLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="32dp"
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_alignParentBottom="true">
@@ -81,61 +82,76 @@
         <Button
             android:id="@+id/newEntryButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="New"
-            android:background="@drawable/button_background"
+            android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
-            android:padding="4dp"
-            android:textSize="14sp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:minHeight="36dp"
             app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/lastEntryButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Last"
-            android:background="@drawable/button_background"
+            android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
-            android:padding="4dp"
-            android:textSize="14sp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:minHeight="36dp"
             app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/mediaButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Media"
-            android:background="@drawable/button_background"
+            android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
-            android:padding="4dp"
-            android:textSize="14sp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:minHeight="36dp"
             app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/renderButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Render"
-            android:background="@drawable/button_background"
+            android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
-            android:padding="4dp"
-            android:textSize="14sp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:minHeight="36dp"
             app:backgroundTint="@null" />
 
         <Button
             android:id="@+id/viewFilesButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="Menu"
-            android:background="@drawable/button_background"
+            android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
-            android:padding="4dp"
-            android:textSize="14sp"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:minHeight="36dp"
             app:backgroundTint="@null" />
     </LinearLayout>
 </RelativeLayout>

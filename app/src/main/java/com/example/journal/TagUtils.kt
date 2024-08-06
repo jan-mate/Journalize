@@ -19,26 +19,23 @@ object TagUtils {
     ) {
         tagLayout.removeAllViews()
 
-        // Use the same button color and text color for tag buttons
         val buttonColor = ContextCompat.getColor(context, R.color.buttonColor)
         val buttonTextColor = ContextCompat.getColor(context, R.color.buttonTextColor)
-        val tagButtonSelectedColor = ContextCompat.getColor(context, R.color.colorAccent) // Use accent color for selection
+        val tagButtonSelectedColor = ContextCompat.getColor(context, R.color.colorAccent)
 
         for (tag in tags) {
             val tagButton = Button(context).apply {
                 text = tag
-                setBackgroundColor(buttonColor) // Use the general button color
-                setTextColor(buttonTextColor) // Use the general button text color
+                setBackgroundColor(buttonColor)
+                setTextColor(buttonTextColor)
                 textSize = 14f
                 layoutParams = LinearLayout.LayoutParams(
                     0,
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.MATCH_PARENT,  // Ensures the button fills the available space evenly
                     1f
                 )
-                setPadding(0, 0, 0, 0)
-                minHeight = 0
-                height = LinearLayout.LayoutParams.WRAP_CONTENT
-                alpha = 1.0f
+                setPadding(8, 2, 8, 2)  // Match the padding with navigation buttons
+                minHeight = 36 // Match the minHeight with navigation buttons
                 setOnClickListener { onClick(tag, this) }
             }
             tagLayout.addView(tagButton)
