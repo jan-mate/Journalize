@@ -14,7 +14,11 @@ object LocationUtils {
 
     fun getLastKnownLocation(context: Context, locationManager: LocationManager): Location? {
         var lastKnownLocation: Location? = null
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
@@ -31,8 +35,16 @@ object LocationUtils {
         return lastKnownLocation
     }
 
-    fun requestSingleLocationUpdate(context: Context, locationManager: LocationManager, locationListener: LocationListener) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+    fun requestSingleLocationUpdate(
+        context: Context,
+        locationManager: LocationManager,
+        locationListener: LocationListener
+    ) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             locationManager.requestSingleUpdate(LocationManager.GPS_PROVIDER, locationListener, null)
             locationManager.requestSingleUpdate(LocationManager.NETWORK_PROVIDER, locationListener, null)
         } else {
@@ -41,19 +53,26 @@ object LocationUtils {
     }
 
     fun requestLocationPermissions(activity: Activity, locationManager: LocationManager) {
-        if (ActivityCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), EntryEditorActivity.REQUEST_CODE_PERMISSIONS)
-        } else {
-            val location = getLastKnownLocation(activity, locationManager)
-            if (location != null) {
-                (activity as EntryEditorActivity).updateCoordinatesTextView(location.latitude, location.longitude, isApproximate = false)
-            }
+        if (ActivityCompat.checkSelfPermission(
+                activity,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                activity,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                EntryEditorActivity.REQUEST_CODE_PERMISSIONS
+            )
         }
     }
 
     fun getCurrentLocation(context: Context, locationManager: LocationManager): Location? {
         var currentLocation: Location? = null
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
             val gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
             val networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 

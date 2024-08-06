@@ -205,26 +205,10 @@ class EntryEditorActivity : AppCompatActivity() {
         entries.add(newEntryData)
         currentNewEntryData = newEntryData
 
-        updateCoordinatesTextView(latitude, longitude, isApproximate = true)
-
         Log.d("EntryOperation", "Created new entry: $currentEntryId")
 
         LocationUtils.requestSingleLocationUpdate(this, locationManager, locationListener)
         TagUtils.updateTagButtons(tagLayout, newEntryData.tags)
-    }
-
-    fun updateCoordinatesTextView(latitude: Double?, longitude: Double?, isApproximate: Boolean) {
-        val coordinatesText = if (latitude != null && longitude != null) {
-            if (isApproximate) {
-                "≈ ${String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude)}"
-            } else {
-                String.format(Locale.getDefault(), "%.6f %.6f", latitude, longitude)
-            }
-        } else {
-            "updating..."
-        }
-        findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
-        findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
     }
 
     private val locationListener = object : LocationListener {
@@ -234,14 +218,12 @@ class EntryEditorActivity : AppCompatActivity() {
 
             if (currentNewEntryData != null) {
                 currentNewEntryData!!.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                updateCoordinatesTextView(location.latitude, location.longitude, isApproximate = false)
                 Log.d("EntryOperation", "Updated temporary entry with location: $currentEntryId")
             } else {
                 val latestEntry = entries.firstOrNull { it.created == currentEntryId }
                 if (latestEntry != null && latestEntry.coords == null) {
                     latestEntry.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
                     EntryDataUtils.updateEntriesJson(this@EntryEditorActivity, entries)
-                    updateCoordinatesTextView(location.latitude, location.longitude, isApproximate = false)
                     Log.d("EntryOperation", "Updated entry with location: $currentEntryId")
                 } else {
                     Log.e("EntryOperation", "No entry found with id: $currentEntryId or coordinates already set")
@@ -286,16 +268,6 @@ class EntryEditorActivity : AppCompatActivity() {
             currentEntryTextView.text = id
             currentEntryTextView.visibility = TextView.VISIBLE
 
-            val coordinatesText = if (entryData.coords != null) {
-                entryData.coords
-            } else if (entryData.last_coords != null) {
-                "≈ ${entryData.last_coords}"
-            } else {
-                "updating..."
-            }
-            findViewById<TextView>(R.id.coordinatesTextView).text = coordinatesText
-            findViewById<TextView>(R.id.coordinatesTextView).visibility = View.VISIBLE
-
             Log.d("EntryOperation", "Opened entry: $id")
             TagUtils.updateTagButtons(tagLayout, entryData.tags)
         } else {
@@ -330,7 +302,7 @@ class EntryEditorActivity : AppCompatActivity() {
         } else if (requestCode == REQUEST_CODE_PERMISSIONS) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 LocationUtils.getCurrentLocation(this, locationManager)?.let {
-                    updateCoordinatesTextView(it.latitude, it.longitude, isApproximate = false)
+                    Log.d("LocationPermission", "Location permission granted, current location is available.")
                 }
             }
         }
