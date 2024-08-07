@@ -44,6 +44,7 @@
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autofillHints=""
                 android:gravity="top|start"
                 android:hint=""
                 android:inputType="textMultiLine"
@@ -57,7 +58,8 @@
                 android:textColorHighlight="@color/highlightColor"
                 android:background="?attr/backgroundColor"
                 android:minHeight="800dp"
-                android:theme="@style/EditTextWithCustomHandles" />
+                android:theme="@style/EditTextWithCustomHandles"
+                tools:ignore="LabelFor,VisualLintTextFieldSize" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -74,6 +76,7 @@
 
     <LinearLayout
         android:id="@+id/buttonLayout"
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="32dp"
         android:orientation="horizontal"
@@ -82,10 +85,11 @@
 
         <Button
             android:id="@+id/newEntryButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="New"
+            android:text="@string/new_entry"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:paddingStart="8dp"
@@ -93,14 +97,16 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:minHeight="36dp"
-            app:backgroundTint="@null" />
+            app:backgroundTint="@null"
+            tools:ignore="VisualLintButtonSize" />
 
         <Button
             android:id="@+id/lastEntryButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Last"
+            android:text="@string/last"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:paddingStart="8dp"
@@ -108,14 +114,16 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:minHeight="36dp"
-            app:backgroundTint="@null" />
+            app:backgroundTint="@null"
+            tools:ignore="VisualLintButtonSize" />
 
         <Button
             android:id="@+id/mediaButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Media"
+            android:text="@string/media"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:paddingStart="8dp"
@@ -123,14 +131,16 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:minHeight="36dp"
-            app:backgroundTint="@null" />
+            app:backgroundTint="@null"
+            tools:ignore="VisualLintButtonSize" />
 
         <Button
             android:id="@+id/renderButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Render"
+            android:text="@string/render"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:paddingStart="8dp"
@@ -138,14 +148,16 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:minHeight="36dp"
-            app:backgroundTint="@null" />
+            app:backgroundTint="@null"
+            tools:ignore="VisualLintButtonSize" />
 
         <Button
             android:id="@+id/viewFilesButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Menu"
+            android:text="@string/menu_main"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:paddingStart="8dp"
@@ -153,6 +165,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:minHeight="36dp"
-            app:backgroundTint="@null" />
+            app:backgroundTint="@null"
+            tools:ignore="VisualLintButtonSize" />
     </LinearLayout>
 </RelativeLayout>

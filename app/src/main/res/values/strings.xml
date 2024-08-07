@@ -3,4 +3,9 @@
     <string name="menu">Menu</string>
     <string name="tag_toggle">Toggle Tags</string>
     <string name="search_content">Search content</string>
+    <string name="menu_main">Menu</string>
+    <string name="render">Render</string>
+    <string name="media">Media</string>
+    <string name="last">Last</string>
+    <string name="new_entry">New</string>
 </resources>
