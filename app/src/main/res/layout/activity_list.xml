@@ -31,7 +31,8 @@
             android:paddingBottom="2dp"
             android:textColor="@color/textColor"
             android:textColorHighlight="@color/highlightColor"
-            android:textSize="20sp" />
+            android:textSize="20sp"
+            android:theme="@style/EditTextWithCustomHandles" />
 
         <ImageButton
             android:id="@+id/tagToggleButton"

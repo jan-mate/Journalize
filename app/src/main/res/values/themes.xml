@@ -40,4 +40,9 @@
         <item name="android:textColor">@color/textColor</item>
         <item name="android:backgroundTint">@color/buttonColor</item>
     </style>
+
+    <style name="EditTextWithCustomHandles" parent="Widget.AppCompat.EditText">
+        <item name="colorControlActivated">@color/handleColor</item> <!-- Custom color for handles -->
+    </style>
+
 </resources>

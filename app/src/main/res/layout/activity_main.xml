@@ -56,7 +56,8 @@
                 android:textSize="20sp"
                 android:textColorHighlight="@color/highlightColor"
                 android:background="?attr/backgroundColor"
-                android:minHeight="800dp" />
+                android:minHeight="800dp"
+                android:theme="@style/EditTextWithCustomHandles" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 

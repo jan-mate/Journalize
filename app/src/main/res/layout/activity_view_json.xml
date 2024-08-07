@@ -30,7 +30,10 @@
             android:focusable="true"
             android:inputType="textMultiLine"
             android:textColorHighlight="@color/highlightColor"
-            android:singleLine="false" />
+            android:singleLine="false"
+            android:theme="@style/EditTextWithCustomHandles" /> <!-- Apply custom theme -->
+
+
     </androidx.core.widget.NestedScrollView>
 
     <LinearLayout

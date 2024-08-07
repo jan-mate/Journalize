@@ -14,4 +14,5 @@
     <color name="checkboxTintColor">#E0E0E0</color>
     <color name="cursorColor">#BBBBBB</color>
     <color name="highlightColor">#505050</color>
+    <color name="handleColor">#B0B0B0</color>
 </resources>
