@@ -104,12 +104,76 @@
         android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp" />
 
+    <!-- JSON Operations -->
+    <Button
+        android:id="@+id/deleteJsonButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete Entries"
+        android:background="@color/buttonColor"
+        android:textColor="@color/buttonTextColor"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/shareJsonButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Share Entries"
+        android:background="@color/buttonColor"
+        android:textColor="@color/buttonTextColor"
+        android:layout_marginBottom="8dp" />
+
+    <Button
+        android:id="@+id/importJsonButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Import Entries"
+        android:background="@color/buttonColor"
+        android:textColor="@color/buttonTextColor"
+        android:layout_marginBottom="8dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center">
+
+        <Button
+            android:id="@+id/chooseDirButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Choose Save Directory"
+            android:background="@color/buttonColor"
+            android:textColor="@color/buttonTextColor"
+            android:padding="2dp"
+            android:layout_marginEnd="8dp" />
+
+        <Button
+            android:id="@+id/exportJsonButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Export Entries"
+            android:background="@color/buttonColor"
+            android:textColor="@color/buttonTextColor"
+            android:padding="10dp"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOnPrimary"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="16dp" />
+
     <!-- Button to view or manage entries -->
     <Button
         android:id="@+id/viewJsonButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View, Delete, Import, Share, Save or Edit Entries"
+        android:text="View or Edit Entries JSON directly"
         android:background="@color/buttonColor"
         android:textColor="@color/buttonTextColor"
         android:layout_marginBottom="16dp" />

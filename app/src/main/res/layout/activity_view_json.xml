@@ -29,6 +29,7 @@
             android:focusableInTouchMode="true"
             android:focusable="true"
             android:inputType="textMultiLine"
+            android:textColorHighlight="@color/highlightColor"
             android:singleLine="false" />
     </androidx.core.widget.NestedScrollView>
 
@@ -42,58 +43,9 @@
         android:layout_margin="0dp">
 
         <Button
-            android:id="@+id/deleteJsonButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Delete"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
-            android:padding="8dp"
-            android:textSize="14sp"
-            android:layout_margin="0dp" />
-
-        <Button
-            android:id="@+id/importJsonButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Import"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
-            android:padding="8dp"
-            android:textSize="14sp"
-            android:layout_margin="0dp" />
-
-        <Button
-            android:id="@+id/shareJsonButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Share"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
-            android:padding="8dp"
-            android:textSize="14sp"
-            android:layout_margin="0dp" />
-
-        <Button
-            android:id="@+id/saveJsonButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Save"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
-            android:padding="8dp"
-            android:textSize="14sp"
-            android:layout_margin="0dp" />
-
-        <Button
             android:id="@+id/applyJsonButton"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Apply"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
