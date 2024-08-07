@@ -8,4 +8,26 @@
     <string name="media">Media</string>
     <string name="last">Last</string>
     <string name="new_entry">New</string>
+    <string name="choose_save_directory">Choose Save Directory</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="delete_entries">Delete Entries</string>
+    <string name="export_entries">Export Entries</string>
+    <string name="import_entries">Import Entries</string>
+    <string name="light_mode">Light Mode</string>
+    <string name="share_entries">Share Entries</string>
+    <string name="enter_tags">Enter tags</string>
+    <string name="edit_tags_comma_separated">Edit Tags (comma-separated):</string>
+    <string name="select_theme">Select Theme:</string>
+    <string name="enter_seconds">Enter seconds</string>
+    <string name="inactivity_duration_in_seconds">Inactivity duration (in seconds):</string>
+    <string name="view_or_edit_entries_json_directly">View or Edit Entries JSON directly</string>
+    <string name="apply">Apply</string>
+    <string name="edit_json_here">Edit JSON here</string>
+    <string name="entry_content">Entry Content</string>
+    <string name="entry_image_1">Entry Image 1</string>
+    <string name="entry_image_2">Entry Image 2</string>
+    <string name="entry_image_3">Entry Image 3</string>
+    <string name="entry_image_4">Entry Image 4</string>
+    <string name="modified_x_days_ago_created_on_coordinates">Modified X days ago | Created on | Coordinates</string>
+    <string name="tags">Tags</string>
 </resources>

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -10,20 +11,23 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:fillViewport="true">
+        android:autofillHints=""
+        android:fillViewport="true"
+        android:importantForAutofill="no">
 
         <EditText
             android:id="@+id/jsonEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/backgroundColor"
+            android:importantForAutofill="no"
             android:textColor="@color/textColor"
             android:textColorHint="@color/textColor"
             android:gravity="top"
             android:padding="8dp"
             android:scrollbars="vertical"
             android:overScrollMode="always"
-            android:hint="Edit JSON here"
+            android:hint="@string/edit_json_here"
             android:textIsSelectable="true"
             android:textSize="18sp"
             android:focusableInTouchMode="true"
@@ -31,7 +35,8 @@
             android:inputType="textMultiLine"
             android:textColorHighlight="@color/highlightColor"
             android:singleLine="false"
-            android:theme="@style/EditTextWithCustomHandles" /> <!-- Apply custom theme -->
+            android:theme="@style/EditTextWithCustomHandles"
+            tools:ignore="VisualLintTextFieldSize" /> <!-- Apply custom theme -->
 
 
     </androidx.core.widget.NestedScrollView>
@@ -49,11 +54,12 @@
             android:id="@+id/applyJsonButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Apply"
+            android:text="@string/apply"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:padding="8dp"
             android:textSize="14sp"
-            android:layout_margin="0dp" />
+            android:layout_margin="0dp"
+            tools:ignore="VisualLintButtonSize" />
     </LinearLayout>
 </LinearLayout>

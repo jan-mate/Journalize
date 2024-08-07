@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:importantForAutofill="no"
     android:orientation="vertical"
     android:padding="16dp"
     android:background="?attr/backgroundColor">
@@ -11,7 +13,7 @@
         android:id="@+id/timerTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Inactivity duration (in seconds):"
+        android:text="@string/inactivity_duration_in_seconds"
         android:textColor="?attr/colorOnPrimary"
         android:layout_marginBottom="8dp" />
 
@@ -19,13 +21,16 @@
         android:id="@+id/timerEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="Enter seconds"
-        android:textColor="?attr/colorOnPrimary"
-        android:background="@color/buttonColor"
-        android:padding="10dp"
         android:layout_marginBottom="16dp"
-        android:theme="@style/EditTextWithCustomHandles"/>
+        android:background="@color/buttonColor"
+        android:hint="@string/enter_seconds"
+        android:importantForAutofill="no"
+        android:inputType="number"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:textColor="?attr/colorOnPrimary"
+        android:theme="@style/EditTextWithCustomHandles"
+        tools:ignore="VisualLintTextFieldSize" />
 
     <View
         android:layout_width="match_parent"
@@ -38,7 +43,8 @@
         android:id="@+id/tagsTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Edit Tags (comma-separated):"
+        android:importantForAutofill="no"
+        android:text="@string/edit_tags_comma_separated"
         android:textColor="?attr/colorOnPrimary"
         android:layout_marginBottom="8dp" />
 
@@ -46,14 +52,17 @@
         android:id="@+id/tagsEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Enter tags"
-        android:textColor="?attr/colorOnPrimary"
-        android:background="@color/buttonColor"
-        android:padding="10dp"
-        android:inputType="text"
-        android:imeOptions="actionDone"
         android:layout_marginBottom="16dp"
-        android:theme="@style/EditTextWithCustomHandles"/>
+        android:background="@color/buttonColor"
+        android:hint="@string/enter_tags"
+        android:imeOptions="actionDone"
+        android:importantForAutofill="no"
+        android:inputType="text"
+        android:minHeight="48dp"
+        android:padding="10dp"
+        android:textColor="?attr/colorOnPrimary"
+        android:theme="@style/EditTextWithCustomHandles"
+        tools:ignore="VisualLintTextFieldSize" />
 
     <View
         android:layout_width="match_parent"
@@ -66,11 +75,12 @@
         android:id="@+id/themeSwitchLabel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select Theme:"
+        android:text="@string/select_theme"
         android:textColor="?attr/colorOnPrimary"
         android:layout_marginBottom="8dp" />
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -78,25 +88,29 @@
 
         <Button
             android:id="@+id/darkModeButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Dark Mode"
+            android:text="@string/dark_mode"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:padding="10dp"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            tools:ignore="VisualLintButtonSize" />
 
         <Button
             android:id="@+id/lightModeButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Light Mode"
+            android:text="@string/light_mode"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:padding="10dp"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            tools:ignore="VisualLintButtonSize" />
     </LinearLayout>
 
     <View
@@ -111,30 +125,34 @@
         android:id="@+id/deleteJsonButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Delete Entries"
+        android:text="@string/delete_entries"
         android:background="@color/buttonColor"
         android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        tools:ignore="VisualLintButtonSize" />
 
     <Button
         android:id="@+id/shareJsonButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Share Entries"
+        android:text="@string/share_entries"
         android:background="@color/buttonColor"
         android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        tools:ignore="VisualLintButtonSize" />
 
     <Button
         android:id="@+id/importJsonButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Import Entries"
+        android:text="@string/import_entries"
         android:background="@color/buttonColor"
         android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        tools:ignore="VisualLintButtonSize" />
 
     <LinearLayout
+        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -142,25 +160,29 @@
 
         <Button
             android:id="@+id/chooseDirButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Choose Save Directory"
+            android:text="@string/choose_save_directory"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:padding="2dp"
-            android:layout_marginEnd="8dp" />
+            android:layout_marginEnd="8dp"
+            tools:ignore="VisualLintButtonSize" />
 
         <Button
             android:id="@+id/exportJsonButton"
+            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Export Entries"
+            android:text="@string/export_entries"
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:padding="10dp"
-            android:layout_marginStart="8dp" />
+            android:layout_marginStart="8dp"
+            tools:ignore="VisualLintButtonSize" />
     </LinearLayout>
 
     <View
@@ -175,8 +197,9 @@
         android:id="@+id/viewJsonButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="View or Edit Entries JSON directly"
+        android:text="@string/view_or_edit_entries_json_directly"
         android:background="@color/buttonColor"
         android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        tools:ignore="VisualLintButtonSize" />
 </LinearLayout>

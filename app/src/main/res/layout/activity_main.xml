@@ -44,7 +44,7 @@
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:autofillHints=""
+                android:importantForAutofill="no"
                 android:gravity="top|start"
                 android:hint=""
                 android:inputType="textMultiLine"
