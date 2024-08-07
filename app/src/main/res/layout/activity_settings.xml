@@ -22,15 +22,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:background="@color/buttonColor"
+        android:background="@color/colorPrimary"
         android:hint="@string/enter_seconds"
         android:importantForAutofill="no"
         android:inputType="number"
         android:minHeight="48dp"
         android:padding="10dp"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/textColor"
         android:theme="@style/EditTextWithCustomHandles"
-        tools:ignore="VisualLintTextFieldSize" />
+        tools:ignore="VisualLintTextFieldSize,TextContrastCheck" />
 
     <View
         android:layout_width="match_parent"
@@ -44,8 +44,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:importantForAutofill="no"
+
         android:text="@string/edit_tags_comma_separated"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/textColor"
         android:layout_marginBottom="8dp" />
 
     <EditText
@@ -53,21 +54,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:background="@color/buttonColor"
+        android:background="@color/colorPrimary"
         android:hint="@string/enter_tags"
         android:imeOptions="actionDone"
         android:importantForAutofill="no"
         android:inputType="text"
         android:minHeight="48dp"
         android:padding="10dp"
-        android:textColor="?attr/colorOnPrimary"
+        android:textColor="@color/textColor"
         android:theme="@style/EditTextWithCustomHandles"
-        tools:ignore="VisualLintTextFieldSize" />
+        tools:ignore="VisualLintTextFieldSize,TextContrastCheck" />
 
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?attr/colorOnPrimary"
+        android:background="@color/buttonColor"
         android:layout_marginBottom="16dp" />
 
     <!-- Dark/Light Mode Selection -->
@@ -88,7 +89,6 @@
 
         <Button
             android:id="@+id/darkModeButton"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -97,11 +97,10 @@
             android:textColor="@color/buttonTextColor"
             android:padding="10dp"
             android:layout_marginEnd="8dp"
-            tools:ignore="VisualLintButtonSize" />
+            tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         <Button
             android:id="@+id/lightModeButton"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -110,7 +109,7 @@
             android:textColor="@color/buttonTextColor"
             android:padding="10dp"
             android:layout_marginStart="8dp"
-            tools:ignore="VisualLintButtonSize" />
+            tools:ignore="ButtonStyle,VisualLintButtonSize" />
     </LinearLayout>
 
     <View
@@ -126,7 +125,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/delete_entries"
-        android:background="@color/buttonColor"
+        android:background="#FF0000"
         android:textColor="@color/buttonTextColor"
         android:layout_marginBottom="8dp"
         tools:ignore="VisualLintButtonSize" />
@@ -152,7 +151,6 @@
         tools:ignore="VisualLintButtonSize" />
 
     <LinearLayout
-        style="?android:attr/buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -160,7 +158,6 @@
 
         <Button
             android:id="@+id/chooseDirButton"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -168,12 +165,11 @@
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:padding="2dp"
-            android:layout_marginEnd="8dp"
-            tools:ignore="VisualLintButtonSize" />
+            android:layout_marginEnd="4dp"
+        tools:ignore="ButtonStyle,VisualLintButtonSize" />
 
         <Button
             android:id="@+id/exportJsonButton"
-            style="?android:attr/buttonBarButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -181,8 +177,8 @@
             android:background="@color/buttonColor"
             android:textColor="@color/buttonTextColor"
             android:padding="10dp"
-            android:layout_marginStart="8dp"
-            tools:ignore="VisualLintButtonSize" />
+            android:layout_marginStart="4dp"
+        tools:ignore="ButtonStyle,VisualLintButtonSize" />
     </LinearLayout>
 
     <View
