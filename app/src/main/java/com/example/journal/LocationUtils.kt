@@ -20,7 +20,7 @@ object LocationUtils {
     const val PREF_LAST_KNOWN_LAT = "last_known_lat"
     const val PREF_LAST_KNOWN_LON = "last_known_lon"
 
-    fun getLastKnownLocation(context: Context, locationManager: LocationManager): Location? {
+    private fun getLastKnownLocation(context: Context, locationManager: LocationManager): Location? {
         if (ActivityCompat.checkSelfPermission(
                 context,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -57,7 +57,7 @@ object LocationUtils {
     }
 
 
-    fun getSavedLocation(context: Context): Location? {
+    private fun getSavedLocation(context: Context): Location? {
         val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(context)
         val lat = prefs.getString(PREF_LAST_KNOWN_LAT, null)
         val lon = prefs.getString(PREF_LAST_KNOWN_LON, null)
@@ -72,7 +72,6 @@ object LocationUtils {
         }
     }
 
-    @Suppress("DEPRECATION")
     fun requestSingleLocationUpdate(
         context: Context,
         locationManager: LocationManager,

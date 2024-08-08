@@ -21,7 +21,6 @@ object TagUtils {
 
         val buttonColor = ContextCompat.getColor(context, R.color.buttonColor)
         val buttonTextColor = ContextCompat.getColor(context, R.color.buttonTextColor)
-        val tagButtonSelectedColor = ContextCompat.getColor(context, R.color.colorAccent)
 
         for (tag in tags) {
             val tagButton = Button(context).apply {

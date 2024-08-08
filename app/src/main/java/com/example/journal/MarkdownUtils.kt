@@ -99,7 +99,7 @@ object MarkdownUtils {
         val italicPattern = Regex("\\*([^*]+)\\*")
         val strikethroughPattern = Regex("~~([^~]+)~~")
         val codePattern = Regex("`([^`]+)`")
-        val filePattern = Regex("!\\[([^\\]]+)\\]\\((file://[^)]+)\\)")
+        val filePattern = Regex("!\\[([^]]+)]\\((file://[^)]+)\\)")
 
         applyPattern(spannable, line, boldItalicPattern, start, android.graphics.Typeface.BOLD_ITALIC)
         applyPattern(spannable, line, boldPattern, start, android.graphics.Typeface.BOLD)
@@ -140,22 +140,21 @@ object MarkdownUtils {
             val cursorPosition = editText.selectionStart
             val text = editText.text.toString()
             val start = if (cursorPosition > 0) text.lastIndexOf('\n', cursorPosition - 1) else -1
-            val end = cursorPosition
 
             val currentLine = if (start == -1) {
-                text.substring(0, end)
+                text.substring(0, cursorPosition)
             } else {
-                text.substring(start + 1, end)
+                text.substring(start + 1, cursorPosition)
             }
 
-            val bulletOrNumberOnlyRegex = Regex("^(\\d+\\.|[\\*-])\\s*$")
+            val bulletOrNumberOnlyRegex = Regex("^(\\d+\\.|[*-])\\s*$")
             val numberedListContentRegex = Regex("^(\\d+)\\.\\s+.+$")
 
             if (bulletOrNumberOnlyRegex.matches(currentLine)) {
                 if (start == -1) {
-                    editText.text.delete(0, end)
+                    editText.text.delete(0, cursorPosition)
                 } else {
-                    editText.text.delete(start + 1, end)
+                    editText.text.delete(start + 1, cursorPosition)
                 }
                 return false
             }
@@ -185,6 +184,7 @@ object MarkdownUtils {
             .build()
         markwon.setMarkdown(renderedTextView, text)
     }
+
 
     fun toggleRenderMode(context: Context, isEditMode: Boolean, editText: EditText, renderedTextView: TextView, renderButton: Button): Boolean {
         return if (isEditMode) {

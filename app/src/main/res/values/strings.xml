@@ -30,4 +30,5 @@
     <string name="entry_image_4">Entry Image 4</string>
     <string name="modified_x_days_ago_created_on_coordinates">Modified X days ago | Created on | Coordinates</string>
     <string name="tags">Tags</string>
+    <string name="edit">Edit</string>
 </resources>
