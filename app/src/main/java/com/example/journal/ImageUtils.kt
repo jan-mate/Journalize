@@ -119,7 +119,7 @@ object ImageUtils {
         return Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
     }
 
-    fun insertImagePathToMarkdown(editText: EditText, imagePath: String) {
+    private fun insertImagePathToMarkdown(editText: EditText, imagePath: String) {
         val markdownImage = "![Image](file://$imagePath)"
         val cursorPosition = editText.selectionStart
         editText.text?.insert(cursorPosition, markdownImage)

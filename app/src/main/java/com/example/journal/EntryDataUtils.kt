@@ -11,8 +11,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object EntryDataUtils {
-    private const val PREFS_NAME = "JournalPrefs"
-    private const val LAST_OPENED_TIME = "lastOpenedTime"
 
     fun loadEntries(context: Context): MutableList<EntryEditorActivity.EntryData> {
         val jsonFile = File(context.filesDir, "entries_log.json")
@@ -26,9 +24,6 @@ object EntryDataUtils {
                 // Ensure tags field is initialized
                 loadedEntries.map { entry ->
                     entry.apply {
-                        if (tags == null) {
-                            tags = mutableListOf()
-                        }
                     }
                 }.toMutableList()
             } catch (e: Exception) {
