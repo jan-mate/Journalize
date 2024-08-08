@@ -3,6 +3,7 @@ package com.example.journal
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
@@ -12,22 +13,13 @@ import android.preference.PreferenceManager
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.Log
-import android.view.KeyEvent
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
-import java.io.File
-import java.io.FileReader
-import java.io.FileWriter
-import java.text.SimpleDateFormat
 import java.util.*
 
 class EntryEditorActivity : AppCompatActivity() {
@@ -73,9 +65,18 @@ class EntryEditorActivity : AppCompatActivity() {
         entries = EntryDataUtils.loadEntries(this)
         handleIntent()
 
-        // Request location permissions and get the current location
-        LocationUtils.requestLocationPermissions(this, locationManager)
-        lastKnownLocation = LocationUtils.getLastKnownLocation(this, locationManager)
+
+// Request location permissions and get the current location
+        LocationUtils.requestLocationPermissions(this)
+        lastKnownLocation = LocationUtils.getCurrentLocation(this, locationManager)
+
+// Save last known location for future entries
+        lastKnownLocation?.let {
+            saveLocationToPreferences(it)
+        }
+
+
+
 
         // Show keyboard initially
         KeyboardUtils.showKeyboard(this, editText)
@@ -93,8 +94,8 @@ class EntryEditorActivity : AppCompatActivity() {
             val entryData = entries.find { entry -> entry.created == it }
             entryData?.let { TagUtils.updateTagButtons(tagLayout, it.tags) }
         }
-    }
 
+    }
 
     private fun initializeViews() {
         editText = findViewById(R.id.editText)
@@ -211,32 +212,45 @@ class EntryEditorActivity : AppCompatActivity() {
         TagUtils.updateTagButtons(tagLayout, newEntryData.tags)
     }
 
+
     private val locationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
             currentLocation = location
             Log.d("LocationUpdate", "Location updated: $location")
 
-            if (currentNewEntryData != null) {
-                currentNewEntryData!!.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                Log.d("EntryOperation", "Updated temporary entry with location: $currentEntryId")
-            } else {
-                val latestEntry = entries.firstOrNull { it.created == currentEntryId }
-                if (latestEntry != null && latestEntry.coords == null) {
-                    latestEntry.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
-                    EntryDataUtils.updateEntriesJson(this@EntryEditorActivity, entries)
-                    Log.d("EntryOperation", "Updated entry with location: $currentEntryId")
-                } else {
-                    Log.e("EntryOperation", "No entry found with id: $currentEntryId or coordinates already set")
-                }
+            // Update coordinates for all entries that do not have precise coords set
+            val entriesToUpdate = entries.filter { it.coords == null }
+            entriesToUpdate.forEach {
+                it.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
+                EntryDataUtils.updateEntriesJson(this@EntryEditorActivity, entries)
+                Log.d("EntryOperation", "Updated entry with location: ${it.created}")
             }
+
+            // Update last known location for future entries
+            saveLocationToPreferences(location)
 
             locationManager.removeUpdates(this)
         }
 
+        @Deprecated("This method is deprecated in API level 29")
         override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+
         override fun onProviderEnabled(provider: String) {}
         override fun onProviderDisabled(provider: String) {}
     }
+
+    private fun saveLocationToPreferences(location: Location) {
+        val prefs: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
+        val editor = prefs.edit()
+        editor.putString(LocationUtils.PREF_LAST_KNOWN_LAT, location.latitude.toString())
+        editor.putString(LocationUtils.PREF_LAST_KNOWN_LON, location.longitude.toString())
+        editor.apply()
+
+        // Update lastKnownLocation for immediate use
+        lastKnownLocation = location
+    }
+
+
 
     private var currentNewEntryData: EntryData? = null
 
@@ -248,6 +262,9 @@ class EntryEditorActivity : AppCompatActivity() {
                 EntryDataUtils.updateModifiedTime(entryData)
             } else if (currentNewEntryData != null) {
                 currentNewEntryData!!.content = text
+                if (currentNewEntryData!!.last_coords == null) {
+                    currentNewEntryData!!.last_coords = String.format(Locale.getDefault(), "%.6f %.6f", lastKnownLocation?.latitude, lastKnownLocation?.longitude)
+                }
                 EntryDataUtils.updateModifiedTime(currentNewEntryData!!)
                 entries.add(currentNewEntryData!!)
                 currentNewEntryData = null
@@ -337,7 +354,6 @@ class EntryEditorActivity : AppCompatActivity() {
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
-
     private fun deleteCurrentEntry() {
         currentEntryId?.let { id ->
             entries.removeAll { it.created == id }
@@ -345,8 +361,6 @@ class EntryEditorActivity : AppCompatActivity() {
             Log.d("EntryOperation", "Deleted entry: $id")
         }
     }
-
-
 
     data class EntryData(
         val created: String,
