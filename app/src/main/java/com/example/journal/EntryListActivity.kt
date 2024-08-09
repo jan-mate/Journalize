@@ -1,5 +1,6 @@
 package com.example.journal
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -11,11 +12,18 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.*
+import android.widget.BaseAdapter
+import android.widget.Button
+import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.ImageButton
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.ListView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
 import com.bumptech.glide.Glide
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -23,7 +31,9 @@ import java.io.File
 import java.io.FileReader
 import java.io.FileWriter
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.TimeUnit
 
 class EntryListActivity : AppCompatActivity() {
@@ -184,12 +194,12 @@ class EntryListActivity : AppCompatActivity() {
         if (allSelected) {
             // If all are selected, unselect them
             visibleEntries.forEach { entry ->
-                entry.created?.let { selectedEntries.remove(it) }
+                entry.created.let { selectedEntries.remove(it) }
             }
         } else {
             // If not all are selected, select them all
             visibleEntries.forEach { entry ->
-                entry.created?.let { selectedEntries.add(it) }
+                entry.created.let { selectedEntries.add(it) }
             }
         }
 
@@ -278,6 +288,7 @@ class EntryListActivity : AppCompatActivity() {
             return position.toLong()
         }
 
+        @SuppressLint("ClickableViewAccessibility")
         override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
             val view: View =
                 convertView ?: layoutInflater.inflate(R.layout.list_item, parent, false)
@@ -289,13 +300,13 @@ class EntryListActivity : AppCompatActivity() {
 
             val imageViews = listOf(
                 view.findViewById<ImageView>(R.id.entryImageView1),
-                view.findViewById<ImageView>(R.id.entryImageView2),
-                view.findViewById<ImageView>(R.id.entryImageView3),
-                view.findViewById<ImageView>(R.id.entryImageView4)
+                view.findViewById(R.id.entryImageView2),
+                view.findViewById(R.id.entryImageView3),
+                view.findViewById(R.id.entryImageView4)
             )
 
             val entryData = filteredEntries[position]
-            val createdText = entryData.created ?: "Unknown"
+            val createdText = entryData.created
             val modifiedText = entryData.modified?.let { formatTimeDifference(it) } ?: "Unknown"
 
             // Determine coordinates text
@@ -373,16 +384,17 @@ class EntryListActivity : AppCompatActivity() {
         }
 
         private fun removeImageMarkdown(content: String): String {
-            val regex = Regex("!\\[.*?\\]\\((file://.*?)\\)")
+            val regex = Regex("!\\[.*?]\\((file://.*?)\\)")
             return content.replace(regex, "").trim()
         }
 
+        @SuppressLint("DefaultLocale")
         private fun formatTimeDifference(modifiedDate: String): String {
             val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.getDefault())
             dateFormat.timeZone = TimeZone.getTimeZone("UTC")
             val date = dateFormat.parse(modifiedDate)
-            val localDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
-            val diff = Date().time - date.time
+            SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+            val diff = Date().time - date!!.time
 
             val days = TimeUnit.MILLISECONDS.toDays(diff)
             val hours = TimeUnit.MILLISECONDS.toHours(diff) % 24
@@ -401,11 +413,11 @@ class EntryListActivity : AppCompatActivity() {
             val outputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
             val date = inputFormat.parse(dateStr)
             outputFormat.timeZone = TimeZone.getDefault()
-            return outputFormat.format(date)
+            return outputFormat.format(date!!)
         }
 
         private fun extractImageUrls(content: String): List<String> {
-            val regex = Regex("!\\[.*?\\]\\((file://.*?)\\)")
+            val regex = Regex("!\\[.*?]\\((file://.*?)\\)")
             return regex.findAll(content).map { it.groups[1]?.value ?: "" }
                 .filter { it.isNotEmpty() }.toList()
         }
@@ -444,10 +456,10 @@ class EntryListActivity : AppCompatActivity() {
 
 
         fun filterByTags(selectedTags: Set<String>) {
-            if (selectedTags.isEmpty()) {
-                filteredEntries = entries
+            filteredEntries = if (selectedTags.isEmpty()) {
+                entries
             } else {
-                filteredEntries = entries.filter { entry ->
+                entries.filter { entry ->
                     entry.tags.any { it in selectedTags }
                 }
             }

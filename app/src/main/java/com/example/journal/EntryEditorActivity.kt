@@ -159,7 +159,7 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         })
 
-        editText.setOnKeyListener { v, keyCode, event ->
+        editText.setOnKeyListener { _, keyCode, event ->
             MarkdownUtils.handleAutomaticList(editText, keyCode, event)
         }
     }
