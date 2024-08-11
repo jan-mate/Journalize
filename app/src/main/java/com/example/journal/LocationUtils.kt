@@ -19,6 +19,8 @@ object LocationUtils {
 
     const val PREF_LAST_KNOWN_LAT = "last_known_lat"
     const val PREF_LAST_KNOWN_LON = "last_known_lon"
+    const val REQUEST_CODE_LOCATION_PERMISSIONS = 20
+
 
     private fun getLastKnownLocation(context: Context, locationManager: LocationManager): Location? {
         if (ActivityCompat.checkSelfPermission(
@@ -121,12 +123,21 @@ object LocationUtils {
             ActivityCompat.requestPermissions(
                 activity,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                EntryEditorActivity.REQUEST_CODE_PERMISSIONS
+                REQUEST_CODE_LOCATION_PERMISSIONS
             )
         }
     }
 
+
     fun getCurrentLocation(context: Context, locationManager: LocationManager): Location? {
         return getLastKnownLocation(context, locationManager) ?: getSavedLocation(context)
     }
+
+    fun hasLocationPermissions(context: Context): Boolean {
+        return ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
 }

@@ -13,7 +13,7 @@ import java.util.*
 object EntryDataUtils {
 
     fun loadEntries(context: Context): MutableList<EntryEditorActivity.EntryData> {
-        val jsonFile = File(context.filesDir, "entries_log.json")
+        val jsonFile = File(context.filesDir, "entries.json")
         return if (jsonFile.exists()) {
             try {
                 val json = FileReader(jsonFile).use { it.readText() }
@@ -39,7 +39,7 @@ object EntryDataUtils {
         val gson = GsonBuilder().setPrettyPrinting().create()
         val nonEmptyEntries = entries.filter { it.content.isNotEmpty() }
         val json = gson.toJson(nonEmptyEntries)
-        val jsonFile = File(context.filesDir, "entries_log.json")
+        val jsonFile = File(context.filesDir, "entries.json")
         try {
             FileWriter(jsonFile).use {
                 it.write(json)

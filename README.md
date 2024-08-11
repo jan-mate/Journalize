@@ -1,2 +1,2 @@
-#
-A journalling app
+# A journalling app
+

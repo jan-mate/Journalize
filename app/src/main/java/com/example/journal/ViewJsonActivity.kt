@@ -27,7 +27,7 @@ class ViewJsonActivity : AppCompatActivity() {
         }
 
         // Load the JSON content from the file, if it exists
-        val jsonFile = File(filesDir, "entries_log.json")
+        val jsonFile = File(filesDir, "entries.json")
         if (jsonFile.exists()) {
             val jsonContent = jsonFile.readText()
             val sortedJsonContent = sortEntriesByModifiedDate(jsonContent)
@@ -58,7 +58,7 @@ class ViewJsonActivity : AppCompatActivity() {
             // Validate JSON
             JsonParser.parseString(jsonContent)
             // Save to internal storage
-            val jsonFile = File(filesDir, "entries_log.json")
+            val jsonFile = File(filesDir, "entries.json")
             FileWriter(jsonFile).use {
                 it.write(jsonContent)
             }

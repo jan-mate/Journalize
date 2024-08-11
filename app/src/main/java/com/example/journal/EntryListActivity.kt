@@ -98,7 +98,7 @@ class EntryListActivity : AppCompatActivity() {
         // Optionally, handle focus change to show the keyboard again
         searchView.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
-                showKeyboard(searchView)
+                KeyboardUtils.showKeyboard(this, searchView)
             }
         }
     }
@@ -224,7 +224,7 @@ class EntryListActivity : AppCompatActivity() {
     }
 
     private fun loadEntries() {
-        val jsonFile = File(filesDir, "entries_log.json")
+        val jsonFile = File(filesDir, "entries.json")
         if (jsonFile.exists()) {
             try {
                 val json = FileReader(jsonFile).use { it.readText() }
@@ -254,20 +254,13 @@ class EntryListActivity : AppCompatActivity() {
     private fun updateEntriesJson() {
         val gson = GsonBuilder().setPrettyPrinting().create()
         val json = gson.toJson(EntryEditorActivity.entries)
-        val jsonFile = File(filesDir, "entries_log.json")
+        val jsonFile = File(filesDir, "entries.json")
         try {
             FileWriter(jsonFile).use {
                 it.write(json)
             }
         } catch (e: Exception) {
             Log.e("EntryOperation", "Error writing JSON file", e)
-        }
-    }
-
-    private fun showKeyboard(view: View) {
-        view.post {
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         }
     }
 

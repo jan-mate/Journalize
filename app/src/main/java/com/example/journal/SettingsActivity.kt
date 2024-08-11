@@ -153,7 +153,7 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun applyCurrentTheme() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val nightMode = preferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_NO)
+        val nightMode = preferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_YES)
         AppCompatDelegate.setDefaultNightMode(nightMode)
     }
 
@@ -182,7 +182,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun clearJsonFile() {
-        val jsonFile = File(filesDir, "entries_log.json")
+        val jsonFile = File(filesDir, "entries.json")
         try {
             FileWriter(jsonFile).use {
                 it.write("[]")  // Write an empty JSON array
@@ -206,7 +206,7 @@ class SettingsActivity : AppCompatActivity() {
         val fileName = generateFileName()
 
         // Original file location
-        val jsonFile = File(filesDir, "entries_log.json")
+        val jsonFile = File(filesDir, "entries.json")
         if (!jsonFile.exists()) {
             Toast.makeText(this, "No entries to share.", Toast.LENGTH_SHORT).show()
             return
@@ -247,7 +247,7 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun importJsonFile(uri: Uri) {
-        val jsonFile = File(filesDir, "entries_log.json")
+        val jsonFile = File(filesDir, "entries.json")
         contentResolver.openInputStream(uri)?.use { inputStream ->
             InputStreamReader(inputStream).use { reader ->
                 FileOutputStream(jsonFile).use { outputStream ->
@@ -277,7 +277,7 @@ class SettingsActivity : AppCompatActivity() {
         Log.d("SettingsActivity", "Exporting file with name: $fileName")
 
         try {
-            val jsonFile = File(filesDir, "entries_log.json")
+            val jsonFile = File(filesDir, "entries.json")
             val jsonContent = jsonFile.readText()
 
             // Retrieve the document ID of the selected directory
