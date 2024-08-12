@@ -21,7 +21,7 @@ object EntryDataUtils {
                 val listType = object : TypeToken<List<EntryEditorActivity.EntryData>>() {}.type
                 val loadedEntries: List<EntryEditorActivity.EntryData> = gson.fromJson(json, listType)
 
-                // Ensure tags field is initialized
+
                 loadedEntries.map { entry ->
                     entry.apply {
                     }

@@ -42,7 +42,6 @@ object LocationUtils {
             else -> null
         }
 
-        // Save the last known location to SharedPreferences
         lastKnownLocation?.let {
             saveLocationToPreferences(context, it)
         }
@@ -103,14 +102,13 @@ object LocationUtils {
             override fun onProviderDisabled(provider: String) {}
         }
 
-        // Request location updates from both providers
+
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0f, singleUpdateListener, Looper.getMainLooper())
         locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0f, singleUpdateListener, Looper.getMainLooper())
 
-        // Remove updates after a timeout to avoid waiting indefinitely
         handler.postDelayed({
             locationManager.removeUpdates(singleUpdateListener)
-        }, 10000) // Timeout after 10 seconds
+        }, 10000)
     }
 
 

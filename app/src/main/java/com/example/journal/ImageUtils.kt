@@ -104,7 +104,6 @@ object ImageUtils {
                 else -> bitmap
             }
 
-            // Save the rotated bitmap back to the file
             FileOutputStream(imagePath).use { out ->
                 rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
             }

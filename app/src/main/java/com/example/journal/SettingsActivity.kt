@@ -77,11 +77,9 @@ class SettingsActivity : AppCompatActivity() {
         exportJsonButton = findViewById(R.id.exportJsonButton)
         chooseDirButton = findViewById(R.id.chooseDirButton)
 
-        // Load initial timer value
         val initialTimerValue = AppUsageUtils.getTimerDuration(this)
         timerEditText.setText(initialTimerValue.toString())
 
-        // Save timer setting on "Done" key press
         timerEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val newTimerValue = timerEditText.text.toString().toIntOrNull()
@@ -98,11 +96,9 @@ class SettingsActivity : AppCompatActivity() {
         }
 
 
-        // Load and display current tags
         val tags = TagUtils.loadTags(this)
         tagsEditText.setText(tags.joinToString(", "))
 
-        // Save tags when the "Enter" or "Done" key is pressed
         tagsEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 saveTags()
@@ -117,20 +113,18 @@ class SettingsActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        // Set click listeners for theme buttons
         darkModeButton.setOnClickListener {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             saveThemePreference(AppCompatDelegate.MODE_NIGHT_YES)
-            recreate() // Recreate activity to apply theme change
+            recreate()
         }
 
         lightModeButton.setOnClickListener {
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             saveThemePreference(AppCompatDelegate.MODE_NIGHT_NO)
-            recreate() // Recreate activity to apply theme change
+            recreate()
         }
 
-        // Set click listeners for JSON operations
         deleteJsonButton.setOnClickListener {
             showDeleteConfirmationDialog()
         }
@@ -186,7 +180,7 @@ class SettingsActivity : AppCompatActivity() {
         val jsonFile = File(filesDir, "entries.json")
         try {
             FileWriter(jsonFile).use {
-                it.write("[]")  // Write an empty JSON array
+                it.write("[]")
             }
             EntryEditorActivity.entries.clear()
         } catch (e: Exception) {
@@ -195,7 +189,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun generateFileName(): String {
-        // Get the current date and time and format it as YYYY-MM-DD-HH-MM
         val currentDate = SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.getDefault()).format(Date())
         return "$currentDate-Journalize.json"
     }
@@ -203,21 +196,17 @@ class SettingsActivity : AppCompatActivity() {
 
 
     private fun shareEntriesJson() {
-        // Generate the file name using the current date and time
         val fileName = generateFileName()
 
-        // Original file location
         val jsonFile = File(filesDir, "entries.json")
         if (!jsonFile.exists()) {
             Toast.makeText(this, "No entries to share.", Toast.LENGTH_SHORT).show()
             return
         }
 
-        // Create a temporary file in the cache directory
         val cacheFile = File(cacheDir, fileName)
         jsonFile.copyTo(cacheFile, overwrite = true)
 
-        // Obtain the URI for the temporary cache file
         val uri: Uri = FileProvider.getUriForFile(this, "com.example.journal.provider", cacheFile)
 
         val intent = Intent(Intent.ACTION_SEND).apply {
@@ -226,14 +215,12 @@ class SettingsActivity : AppCompatActivity() {
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
-        // Grant URI permission to the target apps that can handle the share intent
         val resInfoList = packageManager.queryIntentActivities(intent, 0)
         for (resolveInfo in resInfoList) {
             val packageName = resolveInfo.activityInfo.packageName
             grantUriPermission(packageName, uri, Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
-        // Start the chooser activity for sharing
         startActivity(Intent.createChooser(intent, "Share JSON file"))
     }
 
@@ -252,10 +239,8 @@ class SettingsActivity : AppCompatActivity() {
     private fun importJsonFile(uri: Uri) {
         val jsonFile = File(filesDir, "entries.json")
 
-        // Clear existing entries
         FileWriter(jsonFile).use { it.write("[]") }
 
-        // Import new entries
         contentResolver.openInputStream(uri)?.use { inputStream ->
             InputStreamReader(inputStream).use { reader ->
                 FileOutputStream(jsonFile).use { outputStream ->
@@ -295,7 +280,6 @@ class SettingsActivity : AppCompatActivity() {
         val directoryUri = Uri.parse(directoryUriString)
         Log.d("SettingsActivity", "Using directory URI: $directoryUri")
 
-        // Generate the file name
         val fileName = generateFileName()
         Log.d("SettingsActivity", "Exporting file with name: $fileName")
 
@@ -303,14 +287,11 @@ class SettingsActivity : AppCompatActivity() {
             val jsonFile = File(filesDir, "entries.json")
             val jsonContent = jsonFile.readText()
 
-            // Retrieve the document ID of the selected directory
             val treeDocumentId = DocumentsContract.getTreeDocumentId(directoryUri)
             Log.d("SettingsActivity", "Tree document ID: $treeDocumentId")
 
-            // Build the URI for the directory's children
             val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(directoryUri, treeDocumentId)
 
-            // Create a new document in the selected directory
             val newFileUri = DocumentsContract.createDocument(
                 contentResolver,
                 childrenUri,

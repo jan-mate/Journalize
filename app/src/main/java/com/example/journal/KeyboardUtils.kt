@@ -1,4 +1,4 @@
-package com.example.journal
+package com.example.journal.com.example.journal
 
 import android.content.Context
 import android.view.View

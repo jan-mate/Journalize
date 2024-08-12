@@ -9,6 +9,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import com.example.journal.com.example.journal.KeyboardUtils
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonSpansFactory
@@ -21,7 +22,6 @@ object MarkdownUtils {
         val spannable = editText.text as SpannableStringBuilder
         val lines = spannable.split("\n")
 
-        // Clear previous styles
         clearPreviousStyles(spannable)
 
         var start = 0
@@ -30,22 +30,22 @@ object MarkdownUtils {
             val end = start + line.length
             when {
                 line.startsWith("# ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.5f)
+                    applyHeaderStyles(spannable, start, end, 1.6f)
                 }
                 line.startsWith("## ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.4f)
+                    applyHeaderStyles(spannable, start, end, 1.5f)
                 }
                 line.startsWith("### ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.3f)
+                    applyHeaderStyles(spannable, start, end, 1.4f)
                 }
                 line.startsWith("#### ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.2f)
+                    applyHeaderStyles(spannable, start, end, 1.3f)
                 }
                 line.startsWith("##### ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.1f)
+                    applyHeaderStyles(spannable, start, end, 1.2f)
                 }
                 line.startsWith("###### ") -> {
-                    applyHeaderStyles(spannable, start, end, 1.05f)
+                    applyHeaderStyles(spannable, start, end, 1.1f)
                 }
                 else -> spannable.setSpan(
                     android.text.style.RelativeSizeSpan(1f),
@@ -186,7 +186,6 @@ object MarkdownUtils {
             })
             .usePlugin(object : AbstractMarkwonPlugin() {
                 override fun configureSpansFactory(builder: MarkwonSpansFactory.Builder) {
-                    // Change the color of the link text to blue
                     builder.setFactory(org.commonmark.node.Link::class.java) { _, _ ->
                         arrayOf(ForegroundColorSpan(Color.GRAY))
                     }

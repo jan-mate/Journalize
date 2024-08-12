@@ -30,11 +30,11 @@ object TagUtils {
                 textSize = 14f
                 layoutParams = LinearLayout.LayoutParams(
                     0,
-                    LinearLayout.LayoutParams.MATCH_PARENT,  // Ensures the button fills the available space evenly
+                    LinearLayout.LayoutParams.MATCH_PARENT,
                     1f
                 )
-                setPadding(8, 2, 8, 2)  // Match the padding with navigation buttons
-                minHeight = 36 // Match the minHeight with navigation buttons
+                setPadding(8, 2, 8, 2)
+                minHeight = 36
                 setOnClickListener { onClick(tag, this) }
             }
             tagLayout.addView(tagButton)

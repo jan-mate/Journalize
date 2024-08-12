@@ -25,6 +25,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
+import com.example.journal.com.example.journal.KeyboardUtils
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import java.io.File
@@ -42,7 +43,7 @@ class EntryListActivity : AppCompatActivity() {
     private lateinit var overflowMenu: ImageView
     private lateinit var searchView: EditText
     private lateinit var tagLayout: LinearLayout
-    private lateinit var tagToggleButton: ImageButton // Add a reference for the tag toggle button
+    private lateinit var tagToggleButton: ImageButton
     private var selectedEntries = mutableSetOf<String>()
     private var selectedTags = mutableSetOf<String>()
     private var entryListAdapter: EntryListAdapter? = null
@@ -55,12 +56,11 @@ class EntryListActivity : AppCompatActivity() {
         overflowMenu = findViewById(R.id.overflowMenu)
         searchView = findViewById(R.id.searchView)
         tagLayout = findViewById(R.id.tagLayout)
-        tagToggleButton = findViewById(R.id.tagToggleButton) // Initialize the tag toggle button
+        tagToggleButton = findViewById(R.id.tagToggleButton)
 
         loadEntries()
-        loadTags()  // Load and display tags
+        loadTags()
 
-        // Set the custom cursor drawable for the search EditText
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
             searchView.textCursorDrawable =
                 ContextCompat.getDrawable(this, R.drawable.cursor_drawable)
@@ -68,7 +68,6 @@ class EntryListActivity : AppCompatActivity() {
 
         overflowMenu.setOnClickListener { showPopupMenu(overflowMenu) }
 
-        // Toggle the visibility of the tag layout when the "T" button is clicked
         tagToggleButton.setOnClickListener {
             if (tagLayout.visibility == View.VISIBLE) {
                 tagLayout.visibility = View.GONE
@@ -77,7 +76,6 @@ class EntryListActivity : AppCompatActivity() {
             }
         }
 
-        // Add text change listener to searchView
         searchView.addTextChangedListener(object : android.text.TextWatcher {
             override fun afterTextChanged(s: android.text.Editable?) {}
 
@@ -88,14 +86,12 @@ class EntryListActivity : AppCompatActivity() {
             }
         })
 
-        // Show keyboard when activity starts
         searchView.requestFocus()
         searchView.postDelayed({
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(searchView, InputMethodManager.SHOW_IMPLICIT)
         }, 200)
 
-        // Optionally, handle focus change to show the keyboard again
         searchView.setOnFocusChangeListener { _, hasFocus ->
             if (hasFocus) {
                 KeyboardUtils.showKeyboard(this, searchView)
@@ -104,25 +100,24 @@ class EntryListActivity : AppCompatActivity() {
     }
 
     private fun loadTags() {
-        val tagsList = TagUtils.loadTags(this) // Assume you have this utility to load tags
+        val tagsList = TagUtils.loadTags(this)
         if (tagsList.isNotEmpty()) {
-            tagLayout.visibility = View.GONE // Start with the tag layout hidden
+            tagLayout.visibility = View.GONE
         }
         populateTagButtons(tagsList)
     }
 
     private fun populateTagButtons(tagsList: List<String>) {
-        tagLayout.removeAllViews()  // Clear existing buttons
+        tagLayout.removeAllViews()
         for (tag in tagsList) {
             val tagButton = Button(this)
             tagButton.text = tag
 
-            // Set the layout parameters to make the button fill the available space
             val params = LinearLayout.LayoutParams(
-                0,  // Width set to 0dp
+                0,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
-            params.weight = 1.0f  // Equal weight to distribute space equally among buttons
+            params.weight = 1.0f
 
             tagButton.layoutParams = params
 
@@ -149,13 +144,13 @@ class EntryListActivity : AppCompatActivity() {
     }
 
     private fun showPopupMenu(view: View) {
-        // Create a PopupMenu
+
         val popupMenu = PopupMenu(this, view)
         val inflater: MenuInflater = popupMenu.menuInflater
         inflater.inflate(R.menu.popup_menu, popupMenu.menu)
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.new_entry -> { // Handle the new entry case
+                R.id.new_entry -> {
                     createNewEntry()
                     true
                 }
@@ -185,25 +180,20 @@ class EntryListActivity : AppCompatActivity() {
     }
 
     private fun toggleSelectAllShownEntries() {
-        // Get the list of currently visible entries
         val visibleEntries = entryListAdapter?.getVisibleEntries() ?: emptyList()
 
-        // Check if all visible entries are selected
         val allSelected = visibleEntries.all { selectedEntries.contains(it.created) }
 
         if (allSelected) {
-            // If all are selected, unselect them
             visibleEntries.forEach { entry ->
                 entry.created.let { selectedEntries.remove(it) }
             }
         } else {
-            // If not all are selected, select them all
             visibleEntries.forEach { entry ->
                 entry.created.let { selectedEntries.add(it) }
             }
         }
 
-        // Notify the adapter to update the checkboxes
         entryListAdapter?.notifyDataSetChanged()
     }
 
@@ -302,17 +292,15 @@ class EntryListActivity : AppCompatActivity() {
             val createdText = entryData.created
             val modifiedText = entryData.modified?.let { formatTimeDifference(it) } ?: "Unknown"
 
-            // Determine coordinates text
+
             val coordsText = when {
                 !entryData.coords.isNullOrEmpty() -> entryData.coords
                 !entryData.last_coords.isNullOrEmpty() -> "≈ ${entryData.last_coords}"
                 else -> ""
             }
 
-            // Set combined text for Modified Date, Created Date, and Coordinates
             entryModifiedDateTextView.text = "$modifiedText | ${formatDateWithoutSeconds(createdText)} | $coordsText".trimEnd()
 
-            // Set tags as a comma-separated string if there are any
             if (entryData.tags.isNotEmpty()) {
                 entryTagsTextView.text = entryData.tags.joinToString(", ")
                 entryTagsTextView.visibility = View.VISIBLE
@@ -322,10 +310,8 @@ class EntryListActivity : AppCompatActivity() {
 
             entryContentTextView.text = createPreviewText(entryData.content)
 
-            // Clear all ImageViews initially
             imageViews.forEach { it.visibility = View.GONE }
 
-            // Extract and display up to 4 images
             val imageUrls = extractImageUrls(entryData.content).take(4)
             imageUrls.forEachIndexed { index, imageUrl ->
                 imageViews[index].visibility = View.VISIBLE
@@ -419,24 +405,19 @@ class EntryListActivity : AppCompatActivity() {
             if (query.isNullOrEmpty()) {
                 filteredEntries = entries
             } else {
-                // Normalize the query to use textual operators
                 val normalizedQuery = query
                     .replace("∧", "AND")
                     .replace("∨", "OR")
                     .trim()
 
-                // Split the query by "OR" to handle OR logic, which has lower precedence
                 val orSegments = normalizedQuery.split("OR").map { it.trim() }
 
                 filteredEntries = entries.filter { entry ->
                     val content = entry.content.lowercase()
 
-                    // Check if any of the AND segments within each OR segment are satisfied
                     orSegments.any { segment ->
-                        // For each OR segment, split by "AND" to handle AND logic
                         val andTerms = segment.split("AND").map { it.trim() }
 
-                        // Ensure all terms in this AND segment are present
                         andTerms.all { term ->
                             content.contains(term.lowercase())
                         }

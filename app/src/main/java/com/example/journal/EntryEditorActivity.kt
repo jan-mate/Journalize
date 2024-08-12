@@ -20,8 +20,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.content.ContextCompat
-import com.google.gson.Gson
+import com.example.journal.com.example.journal.KeyboardUtils
 import java.util.*
 
 class EntryEditorActivity : AppCompatActivity() {
@@ -58,40 +57,40 @@ class EntryEditorActivity : AppCompatActivity() {
         applyCurrentTheme()
         super.onCreate(savedInstanceState)
 
-        // Set up the main content view and initialize views
+
         setContentView(R.layout.activity_main)
         initializeViews()
         setupButtonListeners()
         setupEditText()
 
-        // Load the entries
+
         entries = EntryDataUtils.loadEntries(this)
 
-        // Check if this is the first launch
+
         val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isFirstLaunch = sharedPreferences.getBoolean(FIRST_LAUNCH_KEY, true)
 
         if (isFirstLaunch) {
-            // Create and open the intro entry
+
             createAndOpenIntroEntry()
 
-            // Show location permission dialog
+
             showLocationPermissionDialog()
         } else {
-            // Handle the intent normally (opens the last opened entry or creates a new one)
+
             handleIntent()
         }
 
-        // Load the last known location if permissions are granted
+
         lastKnownLocation = LocationUtils.getCurrentLocation(this, locationManager)
         lastKnownLocation?.let {
             saveLocationToPreferences(it)
         }
 
-        // Show the keyboard after the entry is opened
+
         KeyboardUtils.showKeyboard(this, editText)
 
-        // Load and initialize tags
+
         val tagsList = TagUtils.loadTags(this)
         TagUtils.initializeTagButtons(this, tagLayout, tagsList) { tag, button ->
             TagUtils.toggleTag(entries, currentEntryId, tag, button) {
@@ -99,7 +98,7 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
 
-        // Update tag buttons based on the current entry
+
         currentEntryId?.let {
             val entryData = entries.find { entry -> entry.created == it }
             entryData?.let { TagUtils.updateTagButtons(tagLayout, it.tags) }
@@ -141,10 +140,10 @@ class EntryEditorActivity : AppCompatActivity() {
 
         mediaButton.setOnClickListener {
             if (ImageUtils.hasImagePermissions(this)) {
-                // If permissions are already granted, open the image picker
+
                 ImageUtils.selectImage(this)
             } else {
-                // Request image permissions
+
                 ImageUtils.requestImagePermissions(this)
             }
         }
@@ -158,7 +157,7 @@ class EntryEditorActivity : AppCompatActivity() {
 
             override fun afterTextChanged(s: Editable?) {
                 if (s.isNullOrEmpty()) {
-                    // If text becomes empty, delete the current entry and create a new one
+
                     deleteCurrentEntry()
                     createNewEntry()
                     editText.text.clear()
@@ -183,18 +182,18 @@ class EntryEditorActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-        // Load shared preferences
+
         val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isFirstLaunch = sharedPreferences.getBoolean(FIRST_LAUNCH_KEY, true)
 
         if (isFirstLaunch) {
-            // If it's the first launch, create and open the intro entry
+
             createAndOpenIntroEntry()
 
-            // Update the shared preference to indicate that the app has been launched
+
             sharedPreferences.edit().putBoolean(FIRST_LAUNCH_KEY, false).apply()
         } else {
-            // For subsequent launches, use AppUsageUtils.onResume
+
             AppUsageUtils.onResume(this) {
                 createNewEntry()
                 editText.text.clear()
@@ -244,7 +243,7 @@ class EntryEditorActivity : AppCompatActivity() {
             currentLocation = location
             Log.d("LocationUpdate", "Location updated: $location")
 
-            // Update coordinates for all entries that do not have precise coords set
+
             val entriesToUpdate = entries.filter { it.coords == null }
             entriesToUpdate.forEach {
                 it.coords = String.format(Locale.getDefault(), "%.6f %.6f", location.latitude, location.longitude)
@@ -252,7 +251,7 @@ class EntryEditorActivity : AppCompatActivity() {
                 Log.d("EntryOperation", "Updated entry with location: ${it.created}")
             }
 
-            // Update last known location for future entries
+
             saveLocationToPreferences(location)
 
             locationManager.removeUpdates(this)
@@ -272,7 +271,7 @@ class EntryEditorActivity : AppCompatActivity() {
         editor.putString(LocationUtils.PREF_LAST_KNOWN_LON, location.longitude.toString())
         editor.apply()
 
-        // Update lastKnownLocation for immediate use
+
         lastKnownLocation = location
     }
 
@@ -305,17 +304,23 @@ class EntryEditorActivity : AppCompatActivity() {
         val entryData = entries.find { it.created == id }
 
         if (entryData != null) {
-            // Update the content and selection in the EditText
             editText.setText(entryData.content)
-            editText.setSelection(editText.text.length)
 
-            // Update the current entry timestamp display
+
+            editText.setSelection(0)
+
+
+            editText.post {
+                editText.scrollTo(0, 0)
+            }
+
+
             currentEntryTextView.text = entryData.created
 
-            // Update tag buttons based on the entry's tags
+
             TagUtils.updateTagButtons(tagLayout, entryData.tags)
 
-            Log.d("EntryOperation", "Opened entry: $id")
+            Log.d("EntryOperation", "Opened entry: $id, cursor set to start, and scrolled to top.")
         } else {
             Log.e("EntryOperation", "Entry data not found for id: $id")
         }
@@ -365,7 +370,6 @@ class EntryEditorActivity : AppCompatActivity() {
         when (requestCode) {
             LocationUtils.REQUEST_CODE_LOCATION_PERMISSIONS -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Location permission granted
                     LocationUtils.getCurrentLocation(this, locationManager)?.let {
                         Log.d("LocationPermission", "Location permission granted, current location is available.")
                     }
@@ -375,7 +379,6 @@ class EntryEditorActivity : AppCompatActivity() {
             }
             ImageUtils.REQUEST_CODE_IMAGE_PERMISSIONS -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Image permission granted, open the image picker
                     ImageUtils.selectImage(this)
                 } else {
                     Log.d("ImagePermission", "Image permission denied.")
@@ -412,13 +415,11 @@ class EntryEditorActivity : AppCompatActivity() {
 
     private fun applyCurrentTheme() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val nightMode = preferences.getInt("theme_mode", -1) // Default to -1 (no preference set)
+        val nightMode = preferences.getInt("theme_mode", -1)
         if (nightMode == -1) {
-            // No theme has been set before, so default to dark mode
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             preferences.edit().putInt("theme_mode", AppCompatDelegate.MODE_NIGHT_YES).apply()
         } else {
-            // Apply the saved theme
             AppCompatDelegate.setDefaultNightMode(nightMode)
         }
     }
@@ -432,23 +433,19 @@ class EntryEditorActivity : AppCompatActivity() {
     }
 
     private fun showLocationPermissionDialog() {
-        // Use the custom AlertDialog style that you defined in your styles.xml
         val builder = AlertDialog.Builder(this, R.style.AlertDialogTheme)
 
         builder.setTitle("Location Permission Needed")
         builder.setMessage("This app uses your location to log where your journal entries are made. Do you want to enable location permissions?")
 
         builder.setPositiveButton("Allow") { _, _ ->
-            // Request location permissions after the user agrees
             LocationUtils.requestLocationPermissions(this)
         }
 
         builder.setNegativeButton("Deny") { dialog, _ ->
-            // Handle the case where the user denies the location permission
             dialog.dismiss()
         }
 
-        // Create and show the dialog
         val dialog = builder.create()
 
         dialog.show()
@@ -458,10 +455,9 @@ class EntryEditorActivity : AppCompatActivity() {
         val currentTime = EntryDataUtils.getCurrentTimeString()
         Log.d("EntryOperation", "createAndOpenIntroEntry: Creating intro entry at $currentTime")
 
-        // Load the introductory Markdown text from the res/raw folder
+
         val introText = loadTextFromRawFile(R.raw.intro_content)
 
-        // Create the intro entry data with the current timestamp and loaded text
         val introEntry = EntryData(
             created = currentTime,
             modified = currentTime,
@@ -471,14 +467,17 @@ class EntryEditorActivity : AppCompatActivity() {
             tags = mutableListOf()
         )
 
-        // Add the entry to the list and save it
         entries.add(introEntry)
         EntryDataUtils.updateEntriesJson(this, entries)
         Log.d("EntryOperation", "createAndOpenIntroEntry: Intro entry created and saved.")
 
-        // Open the intro entry
+
         openEntry(currentTime)
-        Log.d("EntryOperation", "createAndOpenIntroEntry: Intro entry opened.")
+
+        editText.post {
+            editText.scrollTo(0, 0)
+        }
+        Log.d("EntryOperation", "createAndOpenIntroEntry: Intro entry opened and scrolled to top.")
     }
 
     private fun loadTextFromRawFile(resourceId: Int): String {

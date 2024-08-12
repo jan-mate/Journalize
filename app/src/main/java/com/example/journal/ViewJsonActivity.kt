@@ -26,7 +26,6 @@ class ViewJsonActivity : AppCompatActivity() {
                 ContextCompat.getDrawable(this, R.drawable.cursor_drawable)
         }
 
-        // Load the JSON content from the file, if it exists
         val jsonFile = File(filesDir, "entries.json")
         if (jsonFile.exists()) {
             val jsonContent = jsonFile.readText()
@@ -36,14 +35,12 @@ class ViewJsonActivity : AppCompatActivity() {
             jsonEditText.setText("JSON file not found.")
         }
 
-        // Apply changes to the JSON file
         applyJsonButton.setOnClickListener {
             saveJsonContentIfValid(jsonEditText)
         }
     }
 
     private fun sortEntriesByModifiedDate(jsonContent: String): String {
-        // Sort entries by modified date and return as formatted JSON
         val gson = GsonBuilder().setPrettyPrinting().create()
         val listType = object : TypeToken<List<EntryEditorActivity.EntryData>>() {}.type
         val entries = gson.fromJson<List<EntryEditorActivity.EntryData>>(jsonContent, listType).toMutableList()
@@ -55,9 +52,7 @@ class ViewJsonActivity : AppCompatActivity() {
         val jsonContent = jsonEditText.text.toString()
 
         try {
-            // Validate JSON
             JsonParser.parseString(jsonContent)
-            // Save to internal storage
             val jsonFile = File(filesDir, "entries.json")
             FileWriter(jsonFile).use {
                 it.write(jsonContent)
@@ -68,7 +63,6 @@ class ViewJsonActivity : AppCompatActivity() {
                 .setPositiveButton("OK", null)
                 .show()
         } catch (e: Exception) {
-            // Show error message if JSON is invalid
             AlertDialog.Builder(this)
                 .setTitle("Invalid JSON")
                 .setMessage("The JSON content is not valid. Please fix it and try again.")

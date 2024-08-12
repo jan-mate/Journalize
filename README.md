@@ -17,4 +17,5 @@ A fast to use android journaling app.
 - Search entries based on content and tags
 - Quickly open previous entry
 - Automatically open new entry after reopening app after custom duration
+- Black/White mode. Both greyscale.
 - 
