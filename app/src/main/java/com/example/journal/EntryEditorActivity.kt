@@ -181,18 +181,13 @@ class EntryEditorActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
-
         val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         val isFirstLaunch = sharedPreferences.getBoolean(FIRST_LAUNCH_KEY, true)
 
         if (isFirstLaunch) {
-
             createAndOpenIntroEntry()
-
-
             sharedPreferences.edit().putBoolean(FIRST_LAUNCH_KEY, false).apply()
         } else {
-
             AppUsageUtils.onResume(this) {
                 createNewEntry()
                 editText.text.clear()
@@ -232,9 +227,21 @@ class EntryEditorActivity : AppCompatActivity() {
 
         Log.d("EntryOperation", "Created new entry: $currentEntryId")
 
+        // Force switch to edit mode if currently in render mode
+        if (!isEditMode) {
+            isEditMode = MarkdownUtils.toggleRenderMode(this, isEditMode, editText, renderedTextView, renderButton)
+        }
+
+        // Clear the EditText and bring the keyboard up
+        editText.text.clear()
+        KeyboardUtils.showKeyboard(this, editText)
+
         LocationUtils.requestSingleLocationUpdate(this, locationManager, locationListener)
         TagUtils.updateTagButtons(tagLayout, newEntryData.tags)
     }
+
+
+
 
 
     private val locationListener = object : LocationListener {
