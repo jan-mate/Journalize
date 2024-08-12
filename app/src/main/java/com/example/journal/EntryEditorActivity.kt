@@ -75,9 +75,6 @@ class EntryEditorActivity : AppCompatActivity() {
             // Create and open the intro entry
             createAndOpenIntroEntry()
 
-            // Mark the first launch as completed
-            sharedPreferences.edit().putBoolean(FIRST_LAUNCH_KEY, false).apply()
-
             // Show location permission dialog
             showLocationPermissionDialog()
         } else {
@@ -108,7 +105,6 @@ class EntryEditorActivity : AppCompatActivity() {
             entryData?.let { TagUtils.updateTagButtons(tagLayout, it.tags) }
         }
     }
-
 
     private fun initializeViews() {
         editText = findViewById(R.id.editText)
@@ -460,12 +456,16 @@ class EntryEditorActivity : AppCompatActivity() {
 
     private fun createAndOpenIntroEntry() {
         val currentTime = EntryDataUtils.getCurrentTimeString()
+        Log.d("EntryOperation", "createAndOpenIntroEntry: Creating intro entry at $currentTime")
 
-        // Create the intro entry data with the current timestamp
+        // Load the introductory Markdown text from the res/raw folder
+        val introText = loadTextFromRawFile(R.raw.intro_content)
+
+        // Create the intro entry data with the current timestamp and loaded text
         val introEntry = EntryData(
             created = currentTime,
             modified = currentTime,
-            content = "Welcome to your journal! This is your first entry. Feel free to edit or delete it.",
+            content = introText,
             coords = "69, 420",
             last_coords = "69420, 42069",
             tags = mutableListOf()
@@ -474,9 +474,16 @@ class EntryEditorActivity : AppCompatActivity() {
         // Add the entry to the list and save it
         entries.add(introEntry)
         EntryDataUtils.updateEntriesJson(this, entries)
+        Log.d("EntryOperation", "createAndOpenIntroEntry: Intro entry created and saved.")
 
         // Open the intro entry
         openEntry(currentTime)
+        Log.d("EntryOperation", "createAndOpenIntroEntry: Intro entry opened.")
+    }
+
+    private fun loadTextFromRawFile(resourceId: Int): String {
+        val inputStream = resources.openRawResource(resourceId)
+        return inputStream.bufferedReader().use { it.readText() }
     }
 
 
