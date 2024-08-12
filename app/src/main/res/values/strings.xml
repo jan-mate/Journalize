@@ -19,7 +19,7 @@
     <string name="edit_tags_comma_separated">Edit Tags (comma-separated):</string>
     <string name="select_theme">Select Theme:</string>
     <string name="enter_seconds">Enter seconds</string>
-    <string name="inactivity_duration_in_seconds">Inactivity duration (in seconds):</string>
+    <string name="inactivity_duration_in_seconds">Duration (in seconds) after which reopening app will automatically open a new entry</string>
     <string name="view_or_edit_entries_json_directly">View or Edit Entries JSON directly</string>
     <string name="apply">Apply</string>
     <string name="edit_json_here">Edit JSON here</string>

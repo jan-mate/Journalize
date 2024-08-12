@@ -41,16 +41,14 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var exportJsonButton: Button
     private lateinit var chooseDirButton: Button
 
-    // Activity result launchers
     private val pickJsonFileLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         uri?.let {
-            importJsonFile(it)
+            showImportConfirmationDialog(it)
         }
     }
 
     private val pickSaveDirectoryLauncher = registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { uri: Uri? ->
         uri?.let {
-            // Take persistable URI permission
             contentResolver.takePersistableUriPermission(
                 uri,
                 Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -63,7 +61,6 @@ class SettingsActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Apply the saved theme when the activity starts
         applyCurrentTheme()
 
         setContentView(R.layout.activity_settings)
@@ -88,14 +85,18 @@ class SettingsActivity : AppCompatActivity() {
         timerEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val newTimerValue = timerEditText.text.toString().toIntOrNull()
-                if (newTimerValue != null) {
+                if (newTimerValue != null && newTimerValue > 0) {
                     AppUsageUtils.saveTimerDuration(this, newTimerValue)
+                    Toast.makeText(this, "Inactivity time updated.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Please enter a valid time in seconds.", Toast.LENGTH_SHORT).show()
                 }
                 true
             } else {
                 false
             }
         }
+
 
         // Load and display current tags
         val tags = TagUtils.loadTags(this)
@@ -246,8 +247,15 @@ class SettingsActivity : AppCompatActivity() {
         pickSaveDirectoryLauncher.launch(null)
     }
 
+
+
     private fun importJsonFile(uri: Uri) {
         val jsonFile = File(filesDir, "entries.json")
+
+        // Clear existing entries
+        FileWriter(jsonFile).use { it.write("[]") }
+
+        // Import new entries
         contentResolver.openInputStream(uri)?.use { inputStream ->
             InputStreamReader(inputStream).use { reader ->
                 FileOutputStream(jsonFile).use { outputStream ->
@@ -257,8 +265,23 @@ class SettingsActivity : AppCompatActivity() {
                 }
             }
         }
-        Toast.makeText(this, "JSON file imported.", Toast.LENGTH_SHORT).show()
     }
+
+
+    private fun showImportConfirmationDialog(uri: Uri) {
+        val builder = AlertDialog.Builder(this, R.style.AlertDialogTheme)
+        builder.setTitle("Confirm Import")
+        builder.setMessage("Importing a new JSON file will delete the current entries. Do you want to proceed?")
+        builder.setPositiveButton("Yes") { _, _ ->
+            importJsonFile(uri)
+            Toast.makeText(this, "Entries imported.", Toast.LENGTH_SHORT).show()
+        }
+        builder.setNegativeButton("No") { dialog, _ ->
+            dialog.dismiss()
+        }
+        builder.create().show()
+    }
+
 
     private fun exportJsonContent() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)

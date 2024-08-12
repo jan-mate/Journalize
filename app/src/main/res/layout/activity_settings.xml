@@ -26,6 +26,7 @@
         android:hint="@string/enter_seconds"
         android:importantForAutofill="no"
         android:inputType="number"
+        android:imeOptions="actionDone"
         android:minHeight="48dp"
         android:padding="10dp"
         android:textColor="@color/textColor"
