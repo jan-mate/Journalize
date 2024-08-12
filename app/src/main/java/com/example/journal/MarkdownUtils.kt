@@ -9,7 +9,9 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.Markwon
+import io.noties.markwon.MarkwonSpansFactory
 import io.noties.markwon.image.ImagesPlugin
 import io.noties.markwon.image.file.FileSchemeHandler
 
@@ -93,20 +95,23 @@ object MarkdownUtils {
         )
     }
 
+
     private fun applyInlineStyles(line: String, spannable: SpannableStringBuilder, start: Int) {
         val boldItalicPattern = Regex("\\*\\*\\*([^*]+)\\*\\*\\*")
         val boldPattern = Regex("\\*\\*([^*]+)\\*\\*")
-        val italicPattern = Regex("\\*([^*]+)\\*")
+        val italicPattern = Regex("(?<!\\*)\\*([^*]+)\\*(?!\\*)")
         val strikethroughPattern = Regex("~~([^~]+)~~")
         val codePattern = Regex("`([^`]+)`")
+        val linkPattern = Regex("\\[([^]]+)]\\(([^)]+)\\)")
         val filePattern = Regex("!\\[([^]]+)]\\((file://[^)]+)\\)")
 
-        applyPattern(spannable, line, boldItalicPattern, start, android.graphics.Typeface.BOLD_ITALIC)
-        applyPattern(spannable, line, boldPattern, start, android.graphics.Typeface.BOLD)
-        applyPattern(spannable, line, italicPattern, start, android.graphics.Typeface.ITALIC)
-        applyPattern(spannable, line, strikethroughPattern, start, android.text.style.StrikethroughSpan::class.java)
-        applyPattern(spannable, line, codePattern, start, android.text.style.TypefaceSpan("monospace"))
-        applyPattern(spannable, line, filePattern, start, ForegroundColorSpan(Color.GRAY))
+        applyPattern(spannable, line, boldItalicPattern, start) { android.text.style.StyleSpan(android.graphics.Typeface.BOLD_ITALIC) }
+        applyPattern(spannable, line, boldPattern, start) { android.text.style.StyleSpan(android.graphics.Typeface.BOLD) }
+        applyPattern(spannable, line, italicPattern, start) { android.text.style.StyleSpan(android.graphics.Typeface.ITALIC) }
+        applyPattern(spannable, line, strikethroughPattern, start) { android.text.style.StrikethroughSpan() }
+        applyPattern(spannable, line, codePattern, start) { android.text.style.TypefaceSpan("monospace") }
+        applyPattern(spannable, line, linkPattern, start) { ForegroundColorSpan(Color.GRAY) }
+        applyPattern(spannable, line, filePattern, start) { ForegroundColorSpan(Color.GRAY) }
     }
 
     private fun applyPattern(
@@ -114,19 +119,14 @@ object MarkdownUtils {
         line: String,
         pattern: Regex,
         start: Int,
-        spanClass: Any
+        spanFactory: () -> Any
     ) {
         var matchResult = pattern.find(line)
         while (matchResult != null) {
             val matchStart = start + matchResult.range.first
             val matchEnd = start + matchResult.range.last + 1
             spannable.setSpan(
-                when (spanClass) {
-                    is android.text.style.StyleSpan -> android.text.style.StyleSpan(spanClass.style)
-                    is android.text.style.TypefaceSpan -> android.text.style.TypefaceSpan(spanClass.family)
-                    is ForegroundColorSpan -> ForegroundColorSpan(spanClass.foregroundColor)
-                    else -> spanClass
-                },
+                spanFactory(),
                 matchStart,
                 matchEnd,
                 android.text.Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -134,6 +134,9 @@ object MarkdownUtils {
             matchResult = pattern.find(line, matchResult.range.last + 1)
         }
     }
+
+
+
 
     fun handleAutomaticList(editText: EditText, keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
@@ -181,7 +184,16 @@ object MarkdownUtils {
             .usePlugin(ImagesPlugin.create { plugin ->
                 plugin.addSchemeHandler(FileSchemeHandler.create())
             })
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureSpansFactory(builder: MarkwonSpansFactory.Builder) {
+                    // Change the color of the link text to blue
+                    builder.setFactory(org.commonmark.node.Link::class.java) { _, _ ->
+                        arrayOf(ForegroundColorSpan(Color.GRAY))
+                    }
+                }
+            })
             .build()
+
         markwon.setMarkdown(renderedTextView, text)
     }
 
