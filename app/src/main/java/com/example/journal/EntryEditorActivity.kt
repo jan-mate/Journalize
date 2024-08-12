@@ -20,7 +20,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import com.example.journal.com.example.journal.KeyboardUtils
 import java.util.*
 
 class EntryEditorActivity : AppCompatActivity() {

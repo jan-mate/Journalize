@@ -25,7 +25,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.content.ContextCompat
 import com.bumptech.glide.Glide
-import com.example.journal.com.example.journal.KeyboardUtils
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import java.io.File
