@@ -319,11 +319,15 @@ class EntryListActivity : AppCompatActivity() {
                     .into(imageViews[index])
             }
 
+// Example of invoking openEntry from EntryListActivity
             view.setOnClickListener {
                 val intent = Intent(this@EntryListActivity, EntryEditorActivity::class.java)
                 intent.putExtra("entryId", createdText)
+                intent.putExtra("fromMenu", true)  // Adjust this according to context
                 startActivity(intent)
             }
+
+
 
             selectCheckBox.setOnCheckedChangeListener(null)
             selectCheckBox.isChecked = selectedEntries.contains(createdText)

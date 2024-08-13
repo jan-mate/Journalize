@@ -312,25 +312,26 @@ class EntryEditorActivity : AppCompatActivity() {
         if (entryData != null) {
             editText.setText(entryData.content)
 
+            editText.setSelection(editText.text.length)
 
-            editText.setSelection(0)
-
-
+            // Simulate typing a space and then a backspace, this is a stupid way to correctly adjust the height.
             editText.post {
-                editText.scrollTo(0, 0)
+                val originalText = editText.text.toString()
+                editText.append(" ")
+                editText.text.delete(editText.text.length - 1, editText.text.length)
             }
-
 
             currentEntryTextView.text = entryData.created
 
-
             TagUtils.updateTagButtons(tagLayout, entryData.tags)
 
-            Log.d("EntryOperation", "Opened entry: $id, cursor set to start, and scrolled to top.")
+            Log.d("EntryOperation", "Opened entry: $id, cursor set to end.")
         } else {
             Log.e("EntryOperation", "Entry data not found for id: $id")
         }
     }
+
+
 
 
     private fun openPreviousEntry() {
