@@ -101,7 +101,6 @@ object MarkdownUtils {
         val boldItalicPattern = Regex("\\*\\*\\*([^*]+)\\*\\*\\*|__\\*([^*]+)\\*__|___([^_]+)___")
         val boldPattern = Regex("\\*\\*([^*]+)\\*\\*|__([^_]+)__")
         val italicPattern = Regex("(?<!\\*)\\*([^*]+)\\*(?!\\*)|(?<!_)_([^_]+)_(?!_)")
-        val strikethroughPattern = Regex("~~([^~]+)~~")
         val codePattern = Regex("`([^`]+)`")
         val linkPattern = Regex("\\[([^]]+)]\\(([^)]+)\\)")
         val filePattern = Regex("!\\[([^]]+)]\\((file://[^)]+)\\)")
@@ -109,7 +108,6 @@ object MarkdownUtils {
         applyPattern(spannable, line, boldItalicPattern, start) { android.text.style.StyleSpan(android.graphics.Typeface.BOLD_ITALIC) }
         applyPattern(spannable, line, boldPattern, start) { android.text.style.StyleSpan(android.graphics.Typeface.BOLD) }
         applyPattern(spannable, line, italicPattern, start) { android.text.style.StyleSpan(android.graphics.Typeface.ITALIC) }
-        applyPattern(spannable, line, strikethroughPattern, start) { android.text.style.StrikethroughSpan() }
         applyPattern(spannable, line, codePattern, start) { android.text.style.TypefaceSpan("monospace") }
         applyPattern(spannable, line, linkPattern, start) { ForegroundColorSpan(Color.GRAY) }
         applyPattern(spannable, line, filePattern, start) { ForegroundColorSpan(Color.GRAY) }
