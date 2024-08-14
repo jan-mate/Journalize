@@ -66,26 +66,12 @@ class EntryEditorActivity : AppCompatActivity() {
         entries = EntryDataUtils.loadEntries(this)
 
 
-        val sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        val isFirstLaunch = sharedPreferences.getBoolean(FIRST_LAUNCH_KEY, true)
-
-        if (isFirstLaunch) {
-
-            createAndOpenIntroEntry()
-
-
-            showLocationPermissionDialog()
-        } else {
-
-            handleIntent()
-        }
-
-
         lastKnownLocation = LocationUtils.getCurrentLocation(this, locationManager)
         lastKnownLocation?.let {
             saveLocationToPreferences(it)
         }
 
+        handleIntent()
 
         KeyboardUtils.showKeyboard(this, editText)
 
@@ -187,14 +173,15 @@ class EntryEditorActivity : AppCompatActivity() {
         if (isFirstLaunch) {
             createAndOpenIntroEntry()
             sharedPreferences.edit().putBoolean(FIRST_LAUNCH_KEY, false).apply()
+            showLocationPermissionDialog()
         } else {
+            Log.d("NewEntryOnResume", "onResume: else clause activated. intro")
             AppUsageUtils.onResume(this) {
                 createNewEntry()
                 editText.text.clear()
             }
         }
     }
-
 
     private fun handleIntent() {
         val entryId = intent.getStringExtra("entryId")
@@ -352,24 +339,6 @@ class EntryEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun requestLocationPermissions() {
-        if (LocationUtils.hasLocationPermissions(this)) {
-            LocationUtils.getCurrentLocation(this, locationManager)?.let {
-                Log.d("LocationPermission", "Location permission already granted, current location is available.")
-            }
-        } else {
-            LocationUtils.requestLocationPermissions(this)
-        }
-    }
-
-    private fun requestImagePermissions() {
-        if (ImageUtils.hasImagePermissions(this)) {
-            ImageUtils.selectImage(this)
-        } else {
-            ImageUtils.requestImagePermissions(this)
-        }
-    }
-
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
@@ -393,8 +362,6 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
     }
-
-
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -482,8 +449,12 @@ class EntryEditorActivity : AppCompatActivity() {
         openEntry(currentTime)
 
         editText.post {
-            editText.scrollTo(0, 0)
+            editText.clearFocus() // Remove focus from EditText
+            editText.setSelection(0) // Set the cursor to the start
+            editText.isFocusableInTouchMode = true // Restore focus ability
+            editText.requestFocus() // Request focus back
         }
+
         Log.d("EntryOperation", "createAndOpenIntroEntry: Intro entry opened and scrolled to top.")
     }
 
@@ -491,8 +462,6 @@ class EntryEditorActivity : AppCompatActivity() {
         val inputStream = resources.openRawResource(resourceId)
         return inputStream.bufferedReader().use { it.readText() }
     }
-
-
 
     data class EntryData(
         val created: String,
