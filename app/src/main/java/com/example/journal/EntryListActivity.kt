@@ -257,6 +257,8 @@ class EntryListActivity : AppCompatActivity() {
         BaseAdapter() {
 
         private var filteredEntries: List<EntryEditorActivity.EntryData> = entries
+        private var currentQuery: String? = null
+        private var currentSelectedTags: Set<String> = emptySet()
 
         override fun getCount(): Int {
             return filteredEntries.size
@@ -291,7 +293,6 @@ class EntryListActivity : AppCompatActivity() {
             val createdText = entryData.created
             val modifiedText = entryData.modified?.let { formatTimeDifference(it) } ?: "Unknown"
 
-
             val coordsText = when {
                 !entryData.coords.isNullOrEmpty() -> entryData.coords
                 !entryData.last_coords.isNullOrEmpty() -> "≈ ${entryData.last_coords}"
@@ -319,15 +320,12 @@ class EntryListActivity : AppCompatActivity() {
                     .into(imageViews[index])
             }
 
-// Example of invoking openEntry from EntryListActivity
             view.setOnClickListener {
                 val intent = Intent(this@EntryListActivity, EntryEditorActivity::class.java)
                 intent.putExtra("entryId", createdText)
                 intent.putExtra("fromMenu", true)  // Adjust this according to context
                 startActivity(intent)
             }
-
-
 
             selectCheckBox.setOnCheckedChangeListener(null)
             selectCheckBox.isChecked = selectedEntries.contains(createdText)
@@ -405,18 +403,24 @@ class EntryListActivity : AppCompatActivity() {
         }
 
         fun filter(query: String?) {
-            if (query.isNullOrEmpty()) {
-                filteredEntries = entries
-            } else {
-                val normalizedQuery = query
-                    .replace("∧", "AND")
-                    .replace("∨", "OR")
-                    .trim()
+            currentQuery = query
+            applyFilters()
+        }
 
-                val orSegments = normalizedQuery.split("OR").map { it.trim() }
+        fun filterByTags(selectedTags: Set<String>) {
+            currentSelectedTags = selectedTags
+            applyFilters()
+        }
 
-                filteredEntries = entries.filter { entry ->
-                    val content = entry.content.lowercase()
+        private fun applyFilters() {
+            filteredEntries = entries.filter { entry ->
+                val matchesQuery = currentQuery.isNullOrEmpty() || entry.content.lowercase().let { content ->
+                    val normalizedQuery = currentQuery!!
+                        .replace("∧", "AND")
+                        .replace("∨", "OR")
+                        .trim()
+
+                    val orSegments = normalizedQuery.split("OR").map { it.trim() }
 
                     orSegments.any { segment ->
                         val andTerms = segment.split("AND").map { it.trim() }
@@ -426,19 +430,10 @@ class EntryListActivity : AppCompatActivity() {
                         }
                     }
                 }
-            }
-            notifyDataSetChanged()
-        }
 
+                val matchesTags = currentSelectedTags.isEmpty() || entry.tags.any { it in currentSelectedTags }
 
-
-        fun filterByTags(selectedTags: Set<String>) {
-            filteredEntries = if (selectedTags.isEmpty()) {
-                entries
-            } else {
-                entries.filter { entry ->
-                    entry.tags.any { it in selectedTags }
-                }
+                matchesQuery && matchesTags
             }
             notifyDataSetChanged()
         }
