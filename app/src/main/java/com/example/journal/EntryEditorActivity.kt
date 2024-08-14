@@ -22,6 +22,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import java.util.*
 
+
+
 class EntryEditorActivity : AppCompatActivity() {
 
     private lateinit var editText: EditText
@@ -36,15 +38,12 @@ class EntryEditorActivity : AppCompatActivity() {
     private lateinit var tagLayout: LinearLayout
     private var currentLocation: Location? = null
     private var lastKnownLocation: Location? = null
-    private var isIntroEntryCreated: Boolean = false
 
 
     companion object {
         var entries = mutableListOf<EntryData>()
-        const val REQUEST_CODE_PERMISSIONS = 10
         private const val PREFS_NAME = "MyPrefsFile"
         private const val FIRST_LAUNCH_KEY = "isFirstLaunch"
-        private const val INTRO_ID = "intro_json"
     }
 
     private var currentEntryId: String? = null

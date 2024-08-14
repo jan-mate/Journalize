@@ -11,6 +11,8 @@ import com.google.gson.JsonParser
 import com.google.gson.reflect.TypeToken
 import java.io.File
 import java.io.FileWriter
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class ViewJsonActivity : AppCompatActivity() {
 
@@ -48,15 +50,41 @@ class ViewJsonActivity : AppCompatActivity() {
         return gson.toJson(entries)
     }
 
+
     private fun saveJsonContentIfValid(jsonEditText: EditText) {
         val jsonContent = jsonEditText.text.toString()
+        val timestampPattern = "yyyy-MM-dd'T'HH:mm:ss.SSS"
+        val dateFormat = SimpleDateFormat(timestampPattern, Locale.getDefault())
+        dateFormat.isLenient = false
 
         try {
-            JsonParser.parseString(jsonContent)
+            // Parse the JSON content to check its validity
+            val gson = GsonBuilder().setPrettyPrinting().create()
+            val listType = object : TypeToken<List<EntryEditorActivity.EntryData>>() {}.type
+            val entries = gson.fromJson<List<EntryEditorActivity.EntryData>>(jsonContent, listType)
+
+            // Check for duplicate 'created' timestamps
+            val createdTimestamps = entries.mapNotNull { it.created }
+            if (createdTimestamps.size != createdTimestamps.toSet().size) {
+                throw IllegalArgumentException("Duplicate 'created' timestamps found.")
+            }
+
+            // Check the format of 'created' and 'modified' timestamps
+            for (entry in entries) {
+                if (!isValidTimestamp(entry.created, dateFormat)) {
+                    throw IllegalArgumentException("Invalid 'created' timestamp format found. Expected format: $timestampPattern")
+                }
+                if (!isValidTimestamp(entry.modified, dateFormat)) {
+                    throw IllegalArgumentException("Invalid 'modified' timestamp format found. Expected format: $timestampPattern")
+                }
+            }
+
+            // If no issues, save the JSON content
             val jsonFile = File(filesDir, "entries.json")
             FileWriter(jsonFile).use {
                 it.write(jsonContent)
             }
+
             AlertDialog.Builder(this)
                 .setTitle("Save Successful")
                 .setMessage("JSON content is valid and has been saved.")
@@ -65,9 +93,23 @@ class ViewJsonActivity : AppCompatActivity() {
         } catch (e: Exception) {
             AlertDialog.Builder(this)
                 .setTitle("Invalid JSON")
-                .setMessage("The JSON content is not valid. Please fix it and try again.")
+                .setMessage("The JSON content is not valid. ${e.message} Please fix it and try again.")
                 .setPositiveButton("OK", null)
                 .show()
         }
     }
+
+    private fun isValidTimestamp(timestamp: String?, dateFormat: SimpleDateFormat): Boolean {
+        return try {
+            timestamp?.let {
+                dateFormat.parse(it)
+                true
+            } ?: false
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+
+
 }
