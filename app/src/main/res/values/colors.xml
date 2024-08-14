@@ -2,7 +2,7 @@
     <!-- Light mode colors -->
     <color name="colorPrimary">#B0B0B0</color>
     <color name="colorPrimaryDark">#FFFFFF</color>
-    <color name="colorAccent">#D3D3D3</color>
+    <color name="colorAccent">#444444</color>
     <color name="textColor">#000000</color>
     <color name="backgroundColor">#FFFFFF</color>
     <color name="dividerColor">#B0B0B0</color>

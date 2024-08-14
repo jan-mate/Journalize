@@ -181,15 +181,7 @@ object MarkdownUtils {
             .usePlugin(ImagesPlugin.create { plugin ->
                 plugin.addSchemeHandler(FileSchemeHandler.create())
             })
-            .usePlugin(object : AbstractMarkwonPlugin() {
-                override fun configureSpansFactory(builder: MarkwonSpansFactory.Builder) {
-                    builder.setFactory(org.commonmark.node.Link::class.java) { _, _ ->
-                        arrayOf(ForegroundColorSpan(Color.GRAY))
-                    }
-                }
-            })
             .build()
-
         markwon.setMarkdown(renderedTextView, text)
     }
 

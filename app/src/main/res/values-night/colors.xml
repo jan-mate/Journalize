@@ -2,7 +2,7 @@
     <!-- Dark mode colors -->
     <color name="colorPrimary">#404040</color>
     <color name="colorPrimaryDark">#000000</color>
-    <color name="colorAccent">#171717</color>
+    <color name="colorAccent">#AAAAAA</color>
     <color name="textColor">#FFFFFF</color>
     <color name="backgroundColor">#000000</color>
     <color name="dividerColor">#3E3E3E</color>
