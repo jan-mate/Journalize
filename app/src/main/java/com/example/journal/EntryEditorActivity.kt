@@ -333,10 +333,16 @@ class EntryEditorActivity : AppCompatActivity() {
 
         if (nextEntryIndex < sortedEntries.size) {
             openEntry(sortedEntries[nextEntryIndex].created)
+
+            // Force switch to edit mode if currently in render mode
+            if (!isEditMode) {
+                isEditMode = MarkdownUtils.toggleRenderMode(this, isEditMode, editText, renderedTextView, renderButton)
+            }
         } else {
             Log.d("EntryOperation", "No previous entry to open.")
         }
     }
+
 
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
