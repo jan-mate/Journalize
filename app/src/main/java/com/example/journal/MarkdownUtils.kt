@@ -46,6 +46,9 @@ object MarkdownUtils {
                 line.startsWith("###### ") -> {
                     applyHeaderStyles(spannable, start, end, 1.1f)
                 }
+                line.startsWith("- ") || line.startsWith("* ") || line.startsWith("+ ") -> {
+                    // No special style application needed, handled like a regular line
+                }
                 else -> spannable.setSpan(
                     android.text.style.RelativeSizeSpan(1f),
                     start,
@@ -94,11 +97,10 @@ object MarkdownUtils {
         )
     }
 
-
     private fun applyInlineStyles(line: String, spannable: SpannableStringBuilder, start: Int) {
-        val boldItalicPattern = Regex("\\*\\*\\*([^*]+)\\*\\*\\*")
-        val boldPattern = Regex("\\*\\*([^*]+)\\*\\*")
-        val italicPattern = Regex("(?<!\\*)\\*([^*]+)\\*(?!\\*)")
+        val boldItalicPattern = Regex("\\*\\*\\*([^*]+)\\*\\*\\*|__\\*([^*]+)\\*__|___([^_]+)___")
+        val boldPattern = Regex("\\*\\*([^*]+)\\*\\*|__([^_]+)__")
+        val italicPattern = Regex("(?<!\\*)\\*([^*]+)\\*(?!\\*)|(?<!_)_([^_]+)_(?!_)")
         val strikethroughPattern = Regex("~~([^~]+)~~")
         val codePattern = Regex("`([^`]+)`")
         val linkPattern = Regex("\\[([^]]+)]\\(([^)]+)\\)")
@@ -112,6 +114,7 @@ object MarkdownUtils {
         applyPattern(spannable, line, linkPattern, start) { ForegroundColorSpan(Color.GRAY) }
         applyPattern(spannable, line, filePattern, start) { ForegroundColorSpan(Color.GRAY) }
     }
+
 
     private fun applyPattern(
         spannable: SpannableStringBuilder,
@@ -134,9 +137,6 @@ object MarkdownUtils {
         }
     }
 
-
-
-
     fun handleAutomaticList(editText: EditText, keyCode: Int, event: KeyEvent): Boolean {
         if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_DOWN) {
             val cursorPosition = editText.selectionStart
@@ -149,7 +149,7 @@ object MarkdownUtils {
                 text.substring(start + 1, cursorPosition)
             }
 
-            val bulletOrNumberOnlyRegex = Regex("^(\\d+\\.|[*-])\\s*$")
+            val bulletOrNumberOnlyRegex = Regex("^(\\d+\\.|[*+-])\\s*$")
             val numberedListContentRegex = Regex("^(\\d+)\\.\\s+.+$")
 
             if (bulletOrNumberOnlyRegex.matches(currentLine)) {
@@ -161,8 +161,8 @@ object MarkdownUtils {
                 return false
             }
 
-            if ((currentLine.startsWith("- ") || currentLine.startsWith("* ")) && !bulletOrNumberOnlyRegex.matches(currentLine)) {
-                val bullet = if (currentLine.startsWith("- ")) "- " else "* "
+            if ((currentLine.startsWith("- ") || currentLine.startsWith("* ") || currentLine.startsWith("+ ")) && !bulletOrNumberOnlyRegex.matches(currentLine)) {
+                val bullet = currentLine.substring(0, 2) // "- ", "* ", or "+ "
                 editText.text?.insert(cursorPosition, "\n$bullet")
                 return true
             }
@@ -195,7 +195,6 @@ object MarkdownUtils {
         markwon.setMarkdown(renderedTextView, text)
     }
 
-
     fun toggleRenderMode(context: Context, isEditMode: Boolean, editText: EditText, renderedTextView: TextView, renderButton: Button): Boolean {
         return if (isEditMode) {
             renderMarkdown(context, editText.text.toString(), renderedTextView)
@@ -213,4 +212,3 @@ object MarkdownUtils {
         }
     }
 }
-
