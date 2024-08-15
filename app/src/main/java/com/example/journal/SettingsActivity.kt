@@ -15,6 +15,10 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import android.preference.PreferenceManager
+import android.text.Html
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.style.UnderlineSpan
 import androidx.core.content.FileProvider
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
@@ -76,6 +80,19 @@ class SettingsActivity : AppCompatActivity() {
         importJsonButton = findViewById(R.id.importJsonButton)
         exportJsonButton = findViewById(R.id.exportJsonButton)
         chooseDirButton = findViewById(R.id.chooseDirButton)
+
+        val githubLinkTextView = findViewById<TextView>(R.id.githubLinkTextView)
+        val content = getString(R.string.view_the_project_on_github)
+
+        val spannableString = SpannableString(content)
+        spannableString.setSpan(UnderlineSpan(), 0, content.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+
+        githubLinkTextView.text = spannableString
+
+        githubLinkTextView.setOnClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/jan-mate/Journalize"))
+            startActivity(intent)
+        }
 
         val initialTimerValue = AppUsageUtils.getTimerDuration(this)
         timerEditText.setText(initialTimerValue.toString())

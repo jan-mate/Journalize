@@ -323,7 +323,7 @@ class EntryListActivity : AppCompatActivity() {
             view.setOnClickListener {
                 val intent = Intent(this@EntryListActivity, EntryEditorActivity::class.java)
                 intent.putExtra("entryId", createdText)
-                intent.putExtra("fromMenu", true)  // Adjust this according to context
+                intent.putExtra("fromMenu", true)
                 startActivity(intent)
             }
 

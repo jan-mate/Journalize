@@ -15,7 +15,7 @@ object AppUsageUtils {
         editor.putLong(LAST_OPENED_TIME, currentTime)
         editor.apply()
     }
-
+    // This doesn't seem to work on android 9 (most likely also lower versions)
     fun onResume(context: Context, createNewEntry: () -> Unit) {
         val currentTime = System.currentTimeMillis()
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)

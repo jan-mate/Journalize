@@ -213,12 +213,10 @@ class EntryEditorActivity : AppCompatActivity() {
 
         Log.d("EntryOperation", "Created new entry: $currentEntryId")
 
-        // Force switch to edit mode if currently in render mode
         if (!isEditMode) {
             isEditMode = MarkdownUtils.toggleRenderMode(this, isEditMode, editText, renderedTextView, renderButton)
         }
 
-        // Clear the EditText and bring the keyboard up
         editText.text.clear()
         KeyboardUtils.showKeyboard(this, editText)
 
@@ -441,8 +439,8 @@ class EntryEditorActivity : AppCompatActivity() {
             created = currentTime,
             modified = currentTime,
             content = introText,
-            coords = "69, 420",
-            last_coords = "69420, 42069",
+            coords = "41.903290,-84.035225",
+            last_coords = "38.362394, -105.093657",
             tags = mutableListOf()
         )
 
@@ -454,10 +452,10 @@ class EntryEditorActivity : AppCompatActivity() {
         openEntry(currentTime)
 
         editText.post {
-            editText.clearFocus() // Remove focus from EditText
-            editText.setSelection(0) // Set the cursor to the start
-            editText.isFocusableInTouchMode = true // Restore focus ability
-            editText.requestFocus() // Request focus back
+            editText.clearFocus()
+            editText.setSelection(0)
+            editText.isFocusableInTouchMode = true
+            editText.requestFocus()
         }
 
         Log.d("EntryOperation", "createAndOpenIntroEntry: Intro entry opened and scrolled to top.")

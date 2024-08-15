@@ -11,6 +11,24 @@
         android:importantForAutofill="no"
         android:orientation="vertical">
 
+        <!-- GitHub Link -->
+        <TextView
+            android:id="@+id/githubLinkTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnPrimary"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:layout_marginBottom="16dp"
+            android:padding="8dp"
+            android:text="@string/view_the_project_on_github" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnPrimary"
+            android:layout_marginBottom="16dp" />
+
         <!-- Timer Settings -->
         <TextView
             android:id="@+id/timerTextView"
@@ -66,10 +84,12 @@
             android:textColor="@color/textColor"
             android:theme="@style/EditTextWithCustomHandles" />
 
+
+
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/buttonColor"
+            android:background="?attr/colorOnPrimary"
             android:layout_marginBottom="16dp" />
 
         <!-- Dark/Light Mode Selection -->

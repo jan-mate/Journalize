@@ -9,7 +9,7 @@ import com.google.gson.reflect.TypeToken
 
 object TagUtils {
 
-    private val defaultTags = listOf("Do", "φ", "“…“", "Book", "Grace")
+    private val defaultTags = listOf("Do", "φ", "Quote", "Book", "Emotion")
 
     fun initializeTagButtons(
         context: Context,
@@ -70,12 +70,12 @@ object TagUtils {
         entryData?.let {
             if (it.tags.contains(tag)) {
                 it.tags.remove(tag)
-                button.backgroundTintList = null // Clear any tint list
-                button.setBackgroundColor(buttonColor) // Set unselected color
+                button.backgroundTintList = null
+                button.setBackgroundColor(buttonColor)
             } else {
                 it.tags.add(tag)
-                button.backgroundTintList = null // Clear any tint list
-                button.setBackgroundColor(tagButtonSelectedColor) // Set selected color
+                button.backgroundTintList = null
+                button.setBackgroundColor(tagButtonSelectedColor)
 
                 if (it.content.isEmpty() && it.modified == null) {
                     EntryDataUtils.updateModifiedTime(it)
@@ -85,7 +85,6 @@ object TagUtils {
             updateEntriesJson()
         }
     }
-
 
     fun loadTags(context: Context): List<String> {
         val sharedPreferences = context.getSharedPreferences("com.example.journal", Context.MODE_PRIVATE)
