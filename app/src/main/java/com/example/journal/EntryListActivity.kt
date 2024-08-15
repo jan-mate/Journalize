@@ -133,7 +133,7 @@ class EntryListActivity : AppCompatActivity() {
             tagButton.setBackgroundColor(ContextCompat.getColor(this, R.color.buttonColor))
         } else {
             selectedTags.add(tag)
-            tagButton.setBackgroundColor(ContextCompat.getColor(this, R.color.buttonDisabledColor))
+            tagButton.setBackgroundColor(ContextCompat.getColor(this, R.color.highlightColor))
         }
         filterEntriesByTags()
     }

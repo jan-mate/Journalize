@@ -43,7 +43,7 @@ object TagUtils {
 
     fun updateTagButtons(tagLayout: LinearLayout, tags: List<String>?) {
         val buttonColor = ContextCompat.getColor(tagLayout.context, R.color.buttonColor)
-        val tagButtonSelectedColor = ContextCompat.getColor(tagLayout.context, R.color.colorAccent)
+        val tagButtonSelectedColor = ContextCompat.getColor(tagLayout.context, R.color.highlightColor)
 
         for (i in 0 until tagLayout.childCount) {
             val tagButton = tagLayout.getChildAt(i) as Button
@@ -64,16 +64,18 @@ object TagUtils {
         updateEntriesJson: () -> Unit
     ) {
         val buttonColor = ContextCompat.getColor(button.context, R.color.buttonColor)
-        val tagButtonSelectedColor = ContextCompat.getColor(button.context, R.color.colorAccent)
+        val tagButtonSelectedColor = ContextCompat.getColor(button.context, R.color.highlightColor)
 
         val entryData = entries.find { it.created == currentEntryId }
         entryData?.let {
             if (it.tags.contains(tag)) {
                 it.tags.remove(tag)
-                button.setBackgroundColor(buttonColor)
+                button.backgroundTintList = null // Clear any tint list
+                button.setBackgroundColor(buttonColor) // Set unselected color
             } else {
                 it.tags.add(tag)
-                button.setBackgroundColor(tagButtonSelectedColor)
+                button.backgroundTintList = null // Clear any tint list
+                button.setBackgroundColor(tagButtonSelectedColor) // Set selected color
 
                 if (it.content.isEmpty() && it.modified == null) {
                     EntryDataUtils.updateModifiedTime(it)
@@ -83,6 +85,7 @@ object TagUtils {
             updateEntriesJson()
         }
     }
+
 
     fun loadTags(context: Context): List<String> {
         val sharedPreferences = context.getSharedPreferences("com.example.journal", Context.MODE_PRIVATE)
