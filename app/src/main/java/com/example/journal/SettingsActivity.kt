@@ -158,8 +158,15 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     private fun saveTags() {
-        val newTags = tagsEditText.text.toString().split(",").map { it.trim() }.filter { it.isNotEmpty() }
-        TagUtils.saveTags(this, newTags)
+        val newTags = tagsEditText.text.toString()
+            .split(",")
+            .map { it.trim() }
+            .filter { it.isNotEmpty() }
+            .toCollection(LinkedHashSet())
+
+        TagUtils.saveTags(this, newTags.toList())
+
+        tagsEditText.setText(newTags.joinToString(", "))
     }
 
     private fun showDeleteConfirmationDialog() {
