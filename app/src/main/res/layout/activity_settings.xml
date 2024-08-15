@@ -1,202 +1,195 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:importantForAutofill="no"
-    android:orientation="vertical"
     android:padding="16dp"
     android:background="?attr/backgroundColor">
 
-    <!-- Timer Settings -->
-    <TextView
-        android:id="@+id/timerTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/inactivity_duration_in_seconds"
-        android:textColor="?attr/colorOnPrimary"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/timerEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@color/colorPrimary"
-        android:hint="@string/enter_seconds"
-        android:importantForAutofill="no"
-        android:inputType="number"
-        android:imeOptions="actionDone"
-        android:minHeight="48dp"
-        android:padding="10dp"
-        android:textColor="@color/textColor"
-        android:theme="@style/EditTextWithCustomHandles"
-        tools:ignore="VisualLintTextFieldSize,TextContrastCheck" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/colorOnPrimary"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Tag Editing Section -->
-    <TextView
-        android:id="@+id/tagsTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:importantForAutofill="no"
-
-        android:text="@string/edit_tags_comma_separated"
-        android:textColor="@color/textColor"
-        android:layout_marginBottom="8dp" />
-
-    <EditText
-        android:id="@+id/tagsEditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:background="@color/colorPrimary"
-        android:hint="@string/enter_tags"
-        android:imeOptions="actionDone"
-        android:importantForAutofill="no"
-        android:inputType="text"
-        android:minHeight="48dp"
-        android:padding="10dp"
-        android:textColor="@color/textColor"
-        android:theme="@style/EditTextWithCustomHandles"
-        tools:ignore="VisualLintTextFieldSize,TextContrastCheck" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/buttonColor"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Dark/Light Mode Selection -->
-    <TextView
-        android:id="@+id/themeSwitchLabel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/select_theme"
-        android:textColor="?attr/colorOnPrimary"
-        android:layout_marginBottom="8dp" />
-
-    <LinearLayout
-        style="?android:attr/buttonBarStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
-
-        <Button
-            android:id="@+id/darkModeButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/dark_mode"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
-            android:padding="10dp"
-            android:layout_marginEnd="8dp"
-            tools:ignore="ButtonStyle,VisualLintButtonSize" />
-
-        <Button
-            android:id="@+id/lightModeButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/light_mode"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
-            android:padding="10dp"
-            android:layout_marginStart="8dp"
-            tools:ignore="ButtonStyle,VisualLintButtonSize" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/colorOnPrimary"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- JSON Operations -->
-    <Button
-        android:id="@+id/deleteJsonButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/delete_entries"
-        android:background="#FF0000"
-        android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="8dp"
-        tools:ignore="VisualLintButtonSize" />
-
-    <Button
-        android:id="@+id/shareJsonButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/share_entries"
-        android:background="@color/buttonColor"
-        android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="8dp"
-        tools:ignore="VisualLintButtonSize" />
-
-    <Button
-        android:id="@+id/importJsonButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/import_entries"
-        android:background="@color/buttonColor"
-        android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="8dp"
-        tools:ignore="VisualLintButtonSize" />
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center">
+        android:importantForAutofill="no"
+        android:orientation="vertical">
 
-        <Button
-            android:id="@+id/chooseDirButton"
-            android:layout_width="0dp"
+        <!-- Timer Settings -->
+        <TextView
+            android:id="@+id/timerTextView"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/choose_save_directory"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
-            android:padding="2dp"
-            android:layout_marginEnd="4dp"
-        tools:ignore="ButtonStyle,VisualLintButtonSize" />
+            android:text="@string/inactivity_duration_in_seconds"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginBottom="8dp" />
 
-        <Button
-            android:id="@+id/exportJsonButton"
-            android:layout_width="0dp"
+        <EditText
+            android:id="@+id/timerEditText"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/export_entries"
-            android:background="@color/buttonColor"
-            android:textColor="@color/buttonTextColor"
+            android:layout_marginBottom="16dp"
+            android:background="@color/colorPrimary"
+            android:hint="@string/enter_seconds"
+            android:importantForAutofill="no"
+            android:inputType="number"
+            android:imeOptions="actionDone"
+            android:minHeight="48dp"
             android:padding="10dp"
-            android:layout_marginStart="4dp"
-        tools:ignore="ButtonStyle,VisualLintButtonSize" />
+            android:textColor="@color/textColor"
+            android:theme="@style/EditTextWithCustomHandles" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnPrimary"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Tag Editing Section -->
+        <TextView
+            android:id="@+id/tagsTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAutofill="no"
+            android:text="@string/edit_tags_comma_separated"
+            android:textColor="@color/textColor"
+            android:layout_marginBottom="8dp" />
+
+        <EditText
+            android:id="@+id/tagsEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:background="@color/colorPrimary"
+            android:hint="@string/enter_tags"
+            android:imeOptions="actionDone"
+            android:importantForAutofill="no"
+            android:inputType="text"
+            android:minHeight="48dp"
+            android:padding="10dp"
+            android:textColor="@color/textColor"
+            android:theme="@style/EditTextWithCustomHandles" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/buttonColor"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Dark/Light Mode Selection -->
+        <TextView
+            android:id="@+id/themeSwitchLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/select_theme"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            style="?android:attr/buttonBarStyle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/darkModeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/dark_mode"
+                android:background="@color/buttonColor"
+                android:textColor="@color/buttonTextColor"
+                android:padding="10dp"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/lightModeButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/light_mode"
+                android:background="@color/buttonColor"
+                android:textColor="@color/buttonTextColor"
+                android:padding="10dp"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnPrimary"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- JSON Operations -->
+        <Button
+            android:id="@+id/deleteJsonButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/delete_entries"
+            android:background="#FF0000"
+            android:textColor="@color/buttonTextColor"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/shareJsonButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/share_entries"
+            android:background="@color/buttonColor"
+            android:textColor="@color/buttonTextColor"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/importJsonButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/import_entries"
+            android:background="@color/buttonColor"
+            android:textColor="@color/buttonTextColor"
+            android:layout_marginBottom="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/chooseDirButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/choose_save_directory"
+                android:background="@color/buttonColor"
+                android:textColor="@color/buttonTextColor"
+                android:padding="2dp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/exportJsonButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/export_entries"
+                android:background="@color/buttonColor"
+                android:textColor="@color/buttonTextColor"
+                android:padding="10dp"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnPrimary"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Button to view or manage entries -->
+        <Button
+            android:id="@+id/viewJsonButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/view_or_edit_entries_json_directly"
+            android:background="@color/buttonColor"
+            android:textColor="@color/buttonTextColor"
+            android:layout_marginBottom="16dp" />
     </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="?attr/colorOnPrimary"
-        android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp" />
-
-    <!-- Button to view or manage entries -->
-    <Button
-        android:id="@+id/viewJsonButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/view_or_edit_entries_json_directly"
-        android:background="@color/buttonColor"
-        android:textColor="@color/buttonTextColor"
-        android:layout_marginBottom="16dp"
-        tools:ignore="VisualLintButtonSize" />
-</LinearLayout>
+</ScrollView>
