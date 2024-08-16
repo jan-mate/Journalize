@@ -4,8 +4,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.DocumentsContract
-import android.util.Log
-import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -15,18 +13,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import android.preference.PreferenceManager
-import android.text.Html
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.UnderlineSpan
+import android.view.inputmethod.EditorInfo
 import androidx.core.content.FileProvider
-import com.google.gson.GsonBuilder
-import com.google.gson.JsonParser
-import com.google.gson.reflect.TypeToken
 import java.io.File
-import java.io.FileOutputStream
-import java.io.FileWriter
-import java.io.InputStreamReader
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -112,7 +104,6 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
-
         val tags = TagUtils.loadTags(this)
         tagsEditText.setText(tags.joinToString(", "))
 
@@ -131,15 +122,13 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         darkModeButton.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
             saveThemePreference(AppCompatDelegate.MODE_NIGHT_YES)
-            recreate()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
         }
 
         lightModeButton.setOnClickListener {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
             saveThemePreference(AppCompatDelegate.MODE_NIGHT_NO)
-            recreate()
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         }
 
         deleteJsonButton.setOnClickListener {
@@ -203,9 +192,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun clearJsonFile() {
         val jsonFile = File(filesDir, "entries.json")
         try {
-            FileWriter(jsonFile).use {
-                it.write("[]")
-            }
+            jsonFile.writeText("[]")
             EntryEditorActivity.entries.clear()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -216,8 +203,6 @@ class SettingsActivity : AppCompatActivity() {
         val currentDate = SimpleDateFormat("yyyy-MM-dd-HH-mm", Locale.getDefault()).format(Date())
         return "$currentDate-Journalize.json"
     }
-
-
 
     private fun shareEntriesJson() {
         val fileName = generateFileName()
@@ -248,8 +233,6 @@ class SettingsActivity : AppCompatActivity() {
         startActivity(Intent.createChooser(intent, "Share JSON file"))
     }
 
-
-
     private fun pickJsonFile() {
         pickJsonFileLauncher.launch(arrayOf("application/json"))
     }
@@ -258,24 +241,17 @@ class SettingsActivity : AppCompatActivity() {
         pickSaveDirectoryLauncher.launch(null)
     }
 
-
-
     private fun importJsonFile(uri: Uri) {
         val jsonFile = File(filesDir, "entries.json")
 
-        FileWriter(jsonFile).use { it.write("[]") }
+        jsonFile.writeText("[]")
 
         contentResolver.openInputStream(uri)?.use { inputStream ->
-            InputStreamReader(inputStream).use { reader ->
-                FileOutputStream(jsonFile).use { outputStream ->
-                    reader.readLines().forEach { line ->
-                        outputStream.write((line + "\n").toByteArray())
-                    }
-                }
+            jsonFile.outputStream().use { outputStream ->
+                inputStream.copyTo(outputStream)
             }
         }
     }
-
 
     private fun showImportConfirmationDialog(uri: Uri) {
         val builder = AlertDialog.Builder(this, R.style.AlertDialogTheme)
@@ -291,7 +267,6 @@ class SettingsActivity : AppCompatActivity() {
         builder.create().show()
     }
 
-
     private fun exportJsonContent() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val directoryUriString = preferences.getString("save_directory_uri", null)
@@ -302,18 +277,13 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val directoryUri = Uri.parse(directoryUriString)
-        Log.d("SettingsActivity", "Using directory URI: $directoryUri")
-
         val fileName = generateFileName()
-        Log.d("SettingsActivity", "Exporting file with name: $fileName")
 
         try {
             val jsonFile = File(filesDir, "entries.json")
             val jsonContent = jsonFile.readText()
 
             val treeDocumentId = DocumentsContract.getTreeDocumentId(directoryUri)
-            Log.d("SettingsActivity", "Tree document ID: $treeDocumentId")
-
             val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(directoryUri, treeDocumentId)
 
             val newFileUri = DocumentsContract.createDocument(
@@ -323,27 +293,21 @@ class SettingsActivity : AppCompatActivity() {
                 fileName
             )
 
-            Log.d("SettingsActivity", "New file URI: $newFileUri")
-
             if (newFileUri != null) {
                 contentResolver.openOutputStream(newFileUri)?.use { outputStream ->
                     outputStream.write(jsonContent.toByteArray())
-                    Log.d("SettingsActivity", "File successfully written to: $newFileUri")
                     AlertDialog.Builder(this)
                         .setTitle("Export Successful")
                         .setMessage("JSON file has been saved to the selected directory as $fileName.")
                         .setPositiveButton("OK", null)
                         .show()
                 } ?: run {
-                    Log.e("SettingsActivity", "Failed to open output stream for JSON file")
                     showErrorDialog("Export Failed", "Failed to open output stream for the JSON file.")
                 }
             } else {
-                Log.e("SettingsActivity", "Failed to create JSON file in selected directory")
                 showErrorDialog("Export Failed", "Failed to create JSON file in the selected directory.")
             }
         } catch (e: Exception) {
-            Log.e("SettingsActivity", "Exception during export: ${e.message}")
             e.printStackTrace()
             showErrorDialog("Export Failed", "An error occurred while exporting the JSON file.")
         }
@@ -360,6 +324,5 @@ class SettingsActivity : AppCompatActivity() {
     private fun saveDirectoryPath(uri: Uri) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         preferences.edit().putString("save_directory_uri", uri.toString()).apply()
-        Log.d("SettingsActivity", "Saved directory URI: $uri")
     }
 }
