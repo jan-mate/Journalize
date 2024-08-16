@@ -59,16 +59,16 @@ Importing will delete your current entries.
 ### Automatic Pseudo-MarkDown rendering
 When typing in an entry, text will be modified to look more like MarkDown, here are some examples:
 
-- \*Italics\* or \_Italics\_
-- \*\*Bold\*\* or \_\_Bold\_\_
-- \`Monotone/code\`
+- \*Italics* or \_Italics_
+- \*\*Bold** or \_\_Bold__
+- \`Monotone/code`
 
 #### Titles can be made by starting lines with 1 to 6 #'s
 
 Lists can be made by starting a line with one of 3 methods
-1. -
+1. \-
 2. \*
-3. +
+3. \+
 4. A number followed by a dot. Like this list.
 
 When typing in a list, pressing `Return` will automatically create a new list item on the next line. If you press `Return` again while the list item is empty, the list element will be removed, and the cursor will move to a new line without continuing the list.
