@@ -8,7 +8,7 @@
     <string name="media">Media</string>
     <string name="last">Last</string>
     <string name="new_entry">New</string>
-    <string name="choose_save_directory">Choose Save Directory</string>
+    <string name="choose_save_directory">Choose Export Directory</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="delete_entries">Delete Entries</string>
     <string name="export_entries">Export Entries</string>
