@@ -1,9 +1,12 @@
-# Journalize
-
-![Journalize Logo](journalize_black_logo.png#gh-light-mode-only)
-![Journalize Logo](journalize_white_logo.png#gh-dark-mode-only)
+# ![Journalize Logo](journalize_black_logo.png#gh-light-mode-only)
+![Journalize Logo](journalize_white_logo.png#gh-dark-mode-only) Journalize ![release](https://github.com/jan-mate/Journalize/releases)
 
 A fast to use android journaling app.
+
+![markdown_rendering](fastlane/metadata/android/en-US/images/phoneScreenshots/markdown_rendering.png)
+![editing](fastlane/metadata/android/en-US/images/phoneScreenshots/editing.png)
+![entry_list](fastlane/metadata/android/en-US/images/phoneScreenshots/entry_list.png)
+![book_bias_search](fastlane/metadata/android/en-US/images/phoneScreenshots/book_bias_search.png)
 
 ## Features
 
