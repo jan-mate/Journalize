@@ -59,9 +59,9 @@ Importing will delete your current entries.
 ### Automatic Pseudo-MarkDown rendering
 When typing in an entry, text will be modified to look more like MarkDown, here are some examples:
 
-- \*Italics* or \_Italics_
-- \*\*Bold** or \_\_Bold__
-- \`Monotone/code`
+- _\*Italics*_ or *\_Italics_*
+- __\*\*Bold**__ or **\_\_Bold__**
+- \`Code`
 
 #### Titles can be made by starting lines with 1 to 6 #'s
 
