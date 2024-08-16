@@ -59,17 +59,17 @@ Importing will delete your current entries.
 ### Automatic Pseudo-MarkDown rendering
 When typing in an entry, text will be modified to look more like MarkDown, here are some examples:
 
-- *Italics* or _Italics_
-- **Bold** or __Bold__
-- `Monotone/code`
+- \*Italics\* or \_Italics\_
+- \*\*Bold\*\* or \_\_Bold\_\_
+- \`Monotone/code\`
 
 #### Titles can be made by starting lines with 1 to 6 #'s
 
 Lists can be made by starting a line with one of 3 methods
 1. -
-2. * 
+2. \*
 3. +
-4. A number followed a dot. Like this list.
+4. A number followed by a dot. Like this list.
 
 When typing in a list, pressing `Return` will automatically create a new list item on the next line. If you press `Return` again while the list item is empty, the list element will be removed, and the cursor will move to a new line without continuing the list.
 
@@ -77,5 +77,5 @@ When typing in a list, pressing `Return` will automatically create a new list it
 ## Alternatives
 
 This app is made for journalling, while it does work for diaries, I'd recommend using other apps like
-- [Diary][https://github.com/billthefarmer/diary]
-- [Easy Diary][https://github.com/hanjoongcho/aaf-easydiary]
+- [Diary](https://github.com/billthefarmer/diary)
+- [Easy Diary](https://github.com/hanjoongcho/aaf-easydiary)
