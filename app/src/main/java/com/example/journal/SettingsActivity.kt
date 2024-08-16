@@ -156,7 +156,9 @@ class SettingsActivity : AppCompatActivity() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
         val nightMode = preferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_YES)
         AppCompatDelegate.setDefaultNightMode(nightMode)
+        delegate.applyDayNight() // Apply theme without restarting activity
     }
+
 
     private fun saveThemePreference(nightMode: Int) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)

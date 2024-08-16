@@ -19,7 +19,8 @@
 
         <activity
             android:name=".EntryEditorActivity"
-            android:exported="true">
+            android:exported="true"
+            android:configChanges="uiMode|screenSize|orientation" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

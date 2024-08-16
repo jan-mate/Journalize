@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
@@ -181,6 +182,14 @@ class EntryEditorActivity : AppCompatActivity() {
             }
         }
     }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // Handle theme change manually
+        applyCurrentTheme()
+        // Optionally, refresh UI elements if necessary, without triggering a new entry creation
+    }
+
 
     private fun handleIntent() {
         val entryId = intent.getStringExtra("entryId")
@@ -392,14 +401,11 @@ class EntryEditorActivity : AppCompatActivity() {
 
     private fun applyCurrentTheme() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)
-        val nightMode = preferences.getInt("theme_mode", -1)
-        if (nightMode == -1) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            preferences.edit().putInt("theme_mode", AppCompatDelegate.MODE_NIGHT_YES).apply()
-        } else {
-            AppCompatDelegate.setDefaultNightMode(nightMode)
-        }
+        val nightMode = preferences.getInt("theme_mode", AppCompatDelegate.MODE_NIGHT_YES)
+        AppCompatDelegate.setDefaultNightMode(nightMode)
+        delegate.applyDayNight() // Apply theme changes
     }
+
 
     private fun deleteCurrentEntry() {
         currentEntryId?.let { id ->
