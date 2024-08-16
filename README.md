@@ -1,5 +1,5 @@
 # ![Journalize Logo](journalize_black_logo.png#gh-light-mode-only)
-![Journalize Logo](journalize_white_logo.png#gh-dark-mode-only) Journalize ![release](https://github.com/jan-mate/Journalize/releases)
+![Journalize Logo](journalize_white_logo.png#gh-dark-mode-only) Journalize  ![release](https://github.com/jan-mate/Journalize/releases)
 
 A fast to use android journaling app.
 
