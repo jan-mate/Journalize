@@ -1,1 +1,5 @@
 /build
+key.jks
+*.jks
+app/build/outputs/apk/debug/*
+app/build/outputs/apk/androidTest/*
