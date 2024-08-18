@@ -1,1 +1,15 @@
-app the readme featuret thing here i think?
+<h2>Features</h2>
+
+<ul>
+  <li>Renders in Markdown (images included)</li>
+  <li>Automatic pseudo-Markdown rendering</li>
+  <li>Automatically generates the next starting character in lists</li>
+  <li>Import, export, and share</li>
+  <li>Supports geo-stamping of entries</li>
+  <li>Custom tags for the entries</li>
+  <li>Browse entries</li>
+  <li>Search entries based on content and tags</li>
+  <li>Quickly open previous entry</li>
+  <li>Automatically open new entry after reopening app after custom duration</li>
+  <li>Black and White mode, both in greyscale</li>
+</ul>
