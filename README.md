@@ -3,8 +3,8 @@
 
 A fast to use android journaling app.
 
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/markdown_rendering.png" alt="markdown_rendering" width="225"/> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/editing.png" alt="editing" width="225"/>
-<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/entry_list.png" alt="entry_list" width="225"/> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/book_bias_search.png" alt="book_bias_search" width="225"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/markdown_rendering.png" alt="markdown_rendering" width="300"/> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/editing.png" alt="editing" width="300"/>
+<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/entry_list.png" alt="entry_list" width="300"/> <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/book_bias_search.png" alt="book_bias_search" width="300"/>
 
 
 ## Features
