@@ -16,4 +16,5 @@ local.properties
 # Ignore keystore files
 *.jks
 *.keystore
+app/release/
 
