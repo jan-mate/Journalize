@@ -1,0 +1,1 @@
+Fixed AndroidManifest for Fdroid
