@@ -1,4 +1,6 @@
-# ![Journalize Logo](journalize_black_logo.png#gh-light-mode-only)![Journalize Logo](journalize_white_logo.png#gh-dark-mode-only) Journalize [![Release](https://img.shields.io/github/release/jan-mate/Journalize.svg?logo=github)](https://github.com/jan-mate/Journalize/releases)
+# ![Journalize Logo](journalize_black_logo.png#gh-light-mode-only)![Journalize Logo](journalize_white_logo.png#gh-dark-mode-only) Journalize [![Release](https://img.shields.io/github/release/jan-mate/Journalize.svg?logo=github)](https://github.com/jan-mate/Journalize/releases) [<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="80">](https://f-droid.org/packages/com.example.journal/)
+
+
 
 
 A fast-to-use android journaling app.
@@ -39,7 +41,7 @@ This makes a new empty entry
 This opens the last modified entry that's not currently open
 
 #### Image
-his allows you to add images; however, you need to render the entry to view them.
+This allows you to add images; however, you need to render the entry to view them.
 
 #### Render/Edit
 Pressing this button renders the text using Markdown.
