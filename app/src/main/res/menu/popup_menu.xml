@@ -10,6 +10,9 @@
         android:id="@+id/delete_selected"
         android:title="Delete Selected" />
     <item
+        android:id="@+id/sort_toggle"
+        android:title="Sort by Creation Date" />
+    <item
         android:id="@+id/settings"
         android:title="Settings" />
 </menu>

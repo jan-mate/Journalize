@@ -46,10 +46,14 @@ class EntryListActivity : AppCompatActivity() {
     private var selectedEntries = mutableSetOf<String>()
     private var selectedTags = mutableSetOf<String>()
     private var entryListAdapter: EntryListAdapter? = null
+    private var sortByModified = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_list)
+
+        val prefs = getSharedPreferences("JournalPrefs", Context.MODE_PRIVATE)
+        sortByModified = prefs.getBoolean("sortByModified", true)
 
         entryListView = findViewById(R.id.fileListView)
         overflowMenu = findViewById(R.id.overflowMenu)
@@ -143,10 +147,13 @@ class EntryListActivity : AppCompatActivity() {
     }
 
     private fun showPopupMenu(view: View) {
-
         val popupMenu = PopupMenu(this, view)
         val inflater: MenuInflater = popupMenu.menuInflater
         inflater.inflate(R.menu.popup_menu, popupMenu.menu)
+
+        val sortItem = popupMenu.menu.findItem(R.id.sort_toggle)
+        sortItem.title = if (sortByModified) "Sort by Creation Date" else "Sort by Last Modified"
+
         popupMenu.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.new_entry -> {
@@ -166,11 +173,18 @@ class EntryListActivity : AppCompatActivity() {
                     startActivity(intent)
                     true
                 }
+                R.id.sort_toggle -> {
+                    // Toggle sorting mode
+                    sortByModified = !sortByModified
+                    loadEntries() // Reload entries with the new sort order
+                    true
+                }
                 else -> false
             }
         }
         popupMenu.show()
     }
+
 
     private fun createNewEntry() {
         val intent = Intent(this, EntryEditorActivity::class.java)
@@ -198,7 +212,11 @@ class EntryListActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+
         AppUsageUtils.onPause(this)
+
+        val prefs = getSharedPreferences("JournalPrefs", Context.MODE_PRIVATE)
+        prefs.edit().putBoolean("sortByModified", sortByModified).apply()
     }
 
     override fun onResume() {
@@ -220,7 +238,13 @@ class EntryListActivity : AppCompatActivity() {
                 val gson = GsonBuilder().create()
                 val listType = object : TypeToken<List<EntryEditorActivity.EntryData>>() {}.type
                 EntryEditorActivity.entries = gson.fromJson<List<EntryEditorActivity.EntryData>>(json, listType).toMutableList()
-                EntryEditorActivity.entries.sortByDescending { it.modified }
+
+                if (sortByModified) {
+                    EntryEditorActivity.entries.sortByDescending { it.modified }
+                } else {
+                    EntryEditorActivity.entries.sortByDescending { it.created }
+                }
+
             } catch (e: Exception) {
                 Log.e("EntryOperation", "Error reading JSON file", e)
                 EntryEditorActivity.entries = mutableListOf()
