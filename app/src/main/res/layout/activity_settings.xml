@@ -181,19 +181,34 @@
                 android:background="@color/buttonColor"
                 android:textColor="@color/buttonTextColor"
                 android:padding="2dp"
-                android:layout_marginEnd="4dp" />
+                android:layout_marginEnd="0dp" />
+
+
 
             <Button
                 android:id="@+id/exportJsonButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/export_entries"
+                android:text="@string/export_json"
+                android:background="@color/buttonColor"
+                android:textColor="@color/buttonTextColor"
+                android:padding="10dp"
+                android:layout_marginStart="4dp" />
+
+            <Button
+                android:id="@+id/exportMdButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/export_md"
                 android:background="@color/buttonColor"
                 android:textColor="@color/buttonTextColor"
                 android:padding="10dp"
                 android:layout_marginStart="4dp" />
         </LinearLayout>
+
+
 
         <View
             android:layout_width="match_parent"

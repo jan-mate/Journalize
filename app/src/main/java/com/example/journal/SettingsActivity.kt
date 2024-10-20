@@ -1,5 +1,6 @@
 package com.example.journal
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -18,7 +19,9 @@ import android.text.Spanned
 import android.text.style.UnderlineSpan
 import android.view.inputmethod.EditorInfo
 import androidx.core.content.FileProvider
+import org.json.JSONArray
 import java.io.File
+import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -36,6 +39,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var importJsonButton: Button
     private lateinit var exportJsonButton: Button
     private lateinit var chooseDirButton: Button
+    private lateinit var exportMdButton: Button
 
     private val pickJsonFileLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         uri?.let {
@@ -72,6 +76,8 @@ class SettingsActivity : AppCompatActivity() {
         importJsonButton = findViewById(R.id.importJsonButton)
         exportJsonButton = findViewById(R.id.exportJsonButton)
         chooseDirButton = findViewById(R.id.chooseDirButton)
+        exportMdButton = findViewById(R.id.exportMdButton)
+
 
         val githubLinkTextView = findViewById<TextView>(R.id.githubLinkTextView)
         val content = getString(R.string.view_the_project_on_github)
@@ -150,6 +156,17 @@ class SettingsActivity : AppCompatActivity() {
         chooseDirButton.setOnClickListener {
             openDirectoryPicker()
         }
+
+        exportMdButton.setOnClickListener {
+            val jsonFile = File(filesDir, "entries.json")
+
+            if (jsonFile.exists()) {
+                exportEntriesToMd(this, jsonFile)
+            } else {
+                Toast.makeText(this, "No entries to export.", Toast.LENGTH_SHORT).show()
+            }
+        }
+
     }
 
     private fun applyCurrentTheme() {
@@ -314,6 +331,88 @@ class SettingsActivity : AppCompatActivity() {
             showErrorDialog("Export Failed", "An error occurred while exporting the JSON file.")
         }
     }
+
+    private fun exportEntriesToMd(context: Context, jsonFile: File) {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        val directoryUriString = preferences.getString("save_directory_uri", null)
+
+        if (directoryUriString == null) {
+            Toast.makeText(context, "Please choose a save directory first.", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val directoryUri = Uri.parse(directoryUriString)
+        var fileName = generateFileName()
+
+        fileName = fileName.replace(".json", "")
+
+        try {
+            val jsonContent = jsonFile.readText()
+            val jsonArray = JSONArray(jsonContent)
+            val mdContent = StringBuilder()
+
+            for (i in 0 until jsonArray.length()) {
+                val entry = jsonArray.getJSONObject(i)
+
+                val modified = entry.optString("modified", "N/A")
+                val created = entry.optString("created", "N/A")
+                val coords = entry.optString("coords", "N/A")
+                val lastCoords = entry.optString("last_coords", "N/A")
+                val tagsArray = entry.optJSONArray("tags")
+                val tags = if (tagsArray != null) {
+                    (0 until tagsArray.length()).joinToString(", ") { tagsArray.getString(it) }
+                } else {
+                    "N/A"
+                }
+                val content = entry.optString("content", "No content")
+
+                mdContent.appendLine("---")
+                mdContent.appendLine()
+                mdContent.appendLine("modified: $modified")
+                mdContent.appendLine()
+                mdContent.appendLine("created: $created")
+                mdContent.appendLine()
+                mdContent.appendLine("coords: $coords")
+                mdContent.appendLine()
+                mdContent.appendLine("last_coords: $lastCoords")
+                mdContent.appendLine()
+                mdContent.appendLine("tags: $tags")
+                mdContent.appendLine()
+                mdContent.appendLine()
+                mdContent.appendLine(content)
+                mdContent.appendLine()
+            }
+
+            val treeDocumentId = DocumentsContract.getTreeDocumentId(directoryUri)
+            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(directoryUri, treeDocumentId)
+
+            val newFileUri = DocumentsContract.createDocument(
+                context.contentResolver,
+                childrenUri,
+                "text/markdown",
+                "$fileName.md"
+            )
+
+            if (newFileUri != null) {
+                context.contentResolver.openOutputStream(newFileUri)?.use { outputStream ->
+                    outputStream.write(mdContent.toString().toByteArray())
+                    AlertDialog.Builder(context)
+                        .setTitle("Export Successful")
+                        .setMessage("Markdown file has been saved to the selected directory as $fileName.md.")
+                        .setPositiveButton("OK", null)
+                        .show()
+                } ?: run {
+                    showErrorDialog("Export Failed", "Failed to open output stream for the markdown file.")
+                }
+            } else {
+                showErrorDialog("Export Failed", "Failed to create markdown file in the selected directory.")
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            showErrorDialog("Export Failed", "An error occurred while exporting the markdown file.")
+        }
+    }
+
 
     private fun showErrorDialog(title: String, message: String) {
         AlertDialog.Builder(this)

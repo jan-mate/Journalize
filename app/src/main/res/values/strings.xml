@@ -32,4 +32,6 @@
     <string name="tags">Tags</string>
     <string name="edit">Edit</string>
     <string name="view_the_project_on_github">View the project on Github</string>
+    <string name="export_json">Export as JSON</string>
+    <string name="export_md">Export as Markdown</string>
 </resources>
