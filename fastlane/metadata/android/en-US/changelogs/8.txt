@@ -1,0 +1,2 @@
+Added toggle to never auto-open entry on reopen
+Fixed sorting on .md export
