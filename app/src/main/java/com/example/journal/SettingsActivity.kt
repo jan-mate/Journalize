@@ -223,7 +223,7 @@ class SettingsActivity : AppCompatActivity() {
     private fun showDeleteConfirmationDialog() {
         val builder = AlertDialog.Builder(this, R.style.AlertDialogTheme)
         builder.setTitle("Confirm Delete")
-        builder.setMessage("Are you sure you want to delete the JSON file?")
+        builder.setMessage("Are you sure you want to delete all data?")
         builder.setPositiveButton("Yes") { dialog, which ->
             clearJsonFile()
             Toast.makeText(this, "JSON file cleared.", Toast.LENGTH_SHORT).show()

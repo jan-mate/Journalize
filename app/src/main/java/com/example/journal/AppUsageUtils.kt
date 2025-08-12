@@ -44,7 +44,7 @@ object AppUsageUtils {
 
     fun getTimerDuration(context: Context): Int {
         val sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        return sharedPreferences.getInt(TIMER_DURATION, 300) // default 300 seconds (5 minutes)
+        return sharedPreferences.getInt(TIMER_DURATION, 600) // default 600 seconds (10 minutes)
     }
 
     // NEW: switch state
