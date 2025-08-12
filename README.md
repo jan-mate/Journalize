@@ -57,6 +57,7 @@ You can further refine your search by pressing the tag icon in the top-right cor
 
 ##### Settings
 To update values remember to press `Done`/`Return`.
+You can disable the new entry timer by setting its value to 0. 
 Before exporting, you need to choose a directory.
 Importing will overwrite your current entries.
 

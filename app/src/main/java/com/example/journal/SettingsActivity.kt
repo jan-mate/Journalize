@@ -98,9 +98,12 @@ class SettingsActivity : AppCompatActivity() {
         timerEditText.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 val newTimerValue = timerEditText.text.toString().toIntOrNull()
-                if (newTimerValue != null && newTimerValue > 0) {
+                if (newTimerValue != null && newTimerValue > 0 && newTimerValue < 1000000) {
                     AppUsageUtils.saveTimerDuration(this, newTimerValue)
                     Toast.makeText(this, "Inactivity time updated.", Toast.LENGTH_SHORT).show()
+                } else if (newTimerValue == 0) {
+                    AppUsageUtils.saveTimerDuration(this, newTimerValue)
+                    Toast.makeText(this, "Inactivity time disabled.", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Please enter a valid time in seconds.", Toast.LENGTH_SHORT).show()
                 }
