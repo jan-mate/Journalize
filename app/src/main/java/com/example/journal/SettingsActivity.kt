@@ -21,13 +21,15 @@ import android.view.inputmethod.EditorInfo
 import androidx.core.content.FileProvider
 import org.json.JSONArray
 import java.io.File
-import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import androidx.appcompat.widget.SwitchCompat
+
 
 class SettingsActivity : AppCompatActivity() {
 
+    private lateinit var neverOpenSwitch: SwitchCompat
     private lateinit var timerTextView: TextView
     private lateinit var timerEditText: EditText
     private lateinit var tagsEditText: EditText
@@ -40,6 +42,7 @@ class SettingsActivity : AppCompatActivity() {
     private lateinit var exportJsonButton: Button
     private lateinit var chooseDirButton: Button
     private lateinit var exportMdButton: Button
+
 
     private val pickJsonFileLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         uri?.let {
@@ -77,6 +80,23 @@ class SettingsActivity : AppCompatActivity() {
         exportJsonButton = findViewById(R.id.exportJsonButton)
         chooseDirButton = findViewById(R.id.chooseDirButton)
         exportMdButton = findViewById(R.id.exportMdButton)
+        neverOpenSwitch = findViewById(R.id.neverOpenSwitch)
+
+        neverOpenSwitch.isChecked = AppUsageUtils.isNeverOpenOnReopen(this)
+        setTimerEnabled(!neverOpenSwitch.isChecked)
+
+        neverOpenSwitch.setOnCheckedChangeListener { _, isChecked ->
+            AppUsageUtils.setNeverOpenOnReopen(this, isChecked)
+            setTimerEnabled(!isChecked)
+            Toast.makeText(
+                this,
+                if (isChecked)
+                    "Auto-starting a new entry on reopen is turned off."
+                else
+                    "Reopen may start a new entry after inactivity.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
 
 
         val githubLinkTextView = findViewById<TextView>(R.id.githubLinkTextView)
@@ -101,9 +121,6 @@ class SettingsActivity : AppCompatActivity() {
                 if (newTimerValue != null && newTimerValue > 0 && newTimerValue < 1000000) {
                     AppUsageUtils.saveTimerDuration(this, newTimerValue)
                     Toast.makeText(this, "Inactivity time updated.", Toast.LENGTH_SHORT).show()
-                } else if (newTimerValue == 0) {
-                    AppUsageUtils.saveTimerDuration(this, newTimerValue)
-                    Toast.makeText(this, "Inactivity time disabled.", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Please enter a valid time in seconds.", Toast.LENGTH_SHORT).show()
                 }
@@ -171,6 +188,12 @@ class SettingsActivity : AppCompatActivity() {
         }
 
     }
+
+    private fun setTimerEnabled(enabled: Boolean) {
+        timerTextView.isEnabled = enabled
+        timerEditText.isEnabled = enabled
+    }
+
 
     private fun applyCurrentTheme() {
         val preferences = PreferenceManager.getDefaultSharedPreferences(this)

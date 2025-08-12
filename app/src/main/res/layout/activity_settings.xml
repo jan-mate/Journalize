@@ -29,6 +29,20 @@
             android:background="?attr/colorOnPrimary"
             android:layout_marginBottom="16dp" />
 
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/neverOpenSwitch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/never_auto_open_a_new_entry_on_app_reopening"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginBottom="16dp" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnPrimary"
+            android:layout_marginBottom="16dp" />
+
         <!-- Timer Settings -->
         <TextView
             android:id="@+id/timerTextView"
