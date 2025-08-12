@@ -22,7 +22,7 @@ object AppUsageUtils {
         val lastOpenedTime = sharedPreferences.getLong(LAST_OPENED_TIME, 0)
         val timerDuration = sharedPreferences.getInt(TIMER_DURATION, 300) * 1000 // default 300 seconds (5 minutes)
 
-        if (currentTime - lastOpenedTime > timerDuration) {
+        if (timerDuration != 0 && currentTime - lastOpenedTime > timerDuration) {
             createNewEntry()
         }
 
