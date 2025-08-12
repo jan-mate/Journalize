@@ -361,75 +361,72 @@ class SettingsActivity : AppCompatActivity() {
     private fun exportEntriesToMd(context: Context, jsonFile: File) {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val directoryUriString = preferences.getString("save_directory_uri", null)
-
         if (directoryUriString == null) {
             Toast.makeText(context, "Please choose a save directory first.", Toast.LENGTH_SHORT).show()
             return
         }
 
         val directoryUri = Uri.parse(directoryUriString)
-        var fileName = generateFileName()
-
-        fileName = fileName.replace(".json", "")
+        val fileName = generateFileName().replace(".json", "")
 
         try {
-            val jsonContent = jsonFile.readText()
-            val jsonArray = JSONArray(jsonContent)
-            val mdContent = StringBuilder()
+            val jsonArray = JSONArray(jsonFile.readText())
 
-            for (i in 0 until jsonArray.length()) {
-                val entry = jsonArray.getJSONObject(i)
+            val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", java.util.Locale.US)
 
+            fun tsOf(entry: org.json.JSONObject): Long {
+                val m = entry.optString("modified", "")
+                val c = entry.optString("created", "")
+                val t1 = runCatching { sdf.parse(m)?.time ?: Long.MIN_VALUE }.getOrDefault(Long.MIN_VALUE)
+                val t2 = runCatching { sdf.parse(c)?.time ?: Long.MIN_VALUE }.getOrDefault(Long.MIN_VALUE)
+                return maxOf(t1, t2) // use modified when present, else created
+            }
+
+            val entries = buildList {
+                for (i in 0 until jsonArray.length()) add(jsonArray.getJSONObject(i))
+            }.sortedByDescending { tsOf(it) }
+
+            val md = StringBuilder()
+            for (entry in entries) {
                 val modified = entry.optString("modified", "N/A")
                 val created = entry.optString("created", "N/A")
                 val coords = entry.optString("coords", "N/A")
                 val lastCoords = entry.optString("last_coords", "N/A")
                 val tagsArray = entry.optJSONArray("tags")
-                val tags = if (tagsArray != null) {
-                    (0 until tagsArray.length()).joinToString(", ") { tagsArray.getString(it) }
-                } else {
-                    "N/A"
-                }
+                val tags = if (tagsArray != null) (0 until tagsArray.length()).joinToString(", ") { tagsArray.getString(it) } else "N/A"
                 val content = entry.optString("content", "No content")
 
-                mdContent.appendLine("---")
-                mdContent.appendLine()
-                mdContent.appendLine("modified: $modified")
-                mdContent.appendLine()
-                mdContent.appendLine("created: $created")
-                mdContent.appendLine()
-                mdContent.appendLine("coords: $coords")
-                mdContent.appendLine()
-                mdContent.appendLine("last_coords: $lastCoords")
-                mdContent.appendLine()
-                mdContent.appendLine("tags: $tags")
-                mdContent.appendLine()
-                mdContent.appendLine()
-                mdContent.appendLine(content)
-                mdContent.appendLine()
+                md.appendLine("---")
+                md.appendLine()
+                md.appendLine("modified: $modified")
+                md.appendLine()
+                md.appendLine("created: $created")
+                md.appendLine()
+                md.appendLine("coords: $coords")
+                md.appendLine()
+                md.appendLine("last_coords: $lastCoords")
+                md.appendLine()
+                md.appendLine("tags: $tags")
+                md.appendLine()
+                md.appendLine(content)
+                md.appendLine()
             }
 
-            val treeDocumentId = DocumentsContract.getTreeDocumentId(directoryUri)
-            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(directoryUri, treeDocumentId)
-
+            val treeId = DocumentsContract.getTreeDocumentId(directoryUri)
+            val childrenUri = DocumentsContract.buildChildDocumentsUriUsingTree(directoryUri, treeId)
             val newFileUri = DocumentsContract.createDocument(
-                context.contentResolver,
-                childrenUri,
-                "text/markdown",
-                "$fileName.md"
+                context.contentResolver, childrenUri, "text/markdown", "$fileName.md"
             )
 
             if (newFileUri != null) {
-                context.contentResolver.openOutputStream(newFileUri)?.use { outputStream ->
-                    outputStream.write(mdContent.toString().toByteArray())
-                    AlertDialog.Builder(context)
-                        .setTitle("Export Successful")
-                        .setMessage("Markdown file has been saved to the selected directory as $fileName.md.")
-                        .setPositiveButton("OK", null)
-                        .show()
-                } ?: run {
-                    showErrorDialog("Export Failed", "Failed to open output stream for the markdown file.")
+                context.contentResolver.openOutputStream(newFileUri)?.use {
+                    it.write(md.toString().toByteArray())
                 }
+                AlertDialog.Builder(context)
+                    .setTitle("Export Successful")
+                    .setMessage("Markdown file has been saved to the selected directory as $fileName.md.")
+                    .setPositiveButton("OK", null)
+                    .show()
             } else {
                 showErrorDialog("Export Failed", "Failed to create markdown file in the selected directory.")
             }
