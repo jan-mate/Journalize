@@ -1,0 +1,1 @@
+Fixed auto-open always triggering when timer was set to a very high value.
