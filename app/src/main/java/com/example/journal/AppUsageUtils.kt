@@ -25,7 +25,7 @@ object AppUsageUtils {
         val neverOpen = prefs.getBoolean(NEVER_OPEN_ON_REOPEN, false)
         if (!neverOpen) {
             val timerDurationMs = prefs.getInt(TIMER_DURATION, 300) * 1000 // default 5 minutes
-            if (timerDurationMs != 0 && now - last > timerDurationMs) {
+            if (timerDurationMs > 0 && now - last > timerDurationMs) {
                 createNewEntry()
             }
         }
